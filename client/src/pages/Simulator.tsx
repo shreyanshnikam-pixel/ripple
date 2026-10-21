@@ -12,6 +12,7 @@ import { prefersReducedMotion } from '../lib/motion';
 import { scrollToTarget, ScrollTrigger } from '../lib/smooth';
 import { Composer, Loading } from '../sim/Composer';
 import { Block, Compare, CrowdPanel, Crosstabs, Fixes, Method, RealityPanel, Themes, TimelineChart, TownHall, Verdict, VoicesBlock } from '../sim/Results';
+import { AiPanel } from '../sim/AiPanel';
 import { ShareSheet } from '../sim/ShareSheet';
 import { TakeAction } from '../sim/TakeAction';
 
@@ -19,6 +20,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const SECTIONS = [
   ['verdict', 'Verdict'],
+  ['report', 'AI report'],
   ['crowd', 'Crowd'],
   ['voices', 'Voices'],
   ['groups', 'Groups'],
@@ -287,6 +289,10 @@ export default function Simulator() {
                 <Verdict r={result} source={source} district={result.scope === 'community' ? district : null} />
                 <RealityPanel r={result} />
               </section>
+
+              <Block id="report" eyebrow="AI report" title={<>The full story, <em>written by Claude.</em></>} intro="Optional. Claude turns this simulation into a report you can share, and answers follow-up questions about it.">
+                <AiPanel r={result} district={result.scope === 'community' ? district : null} onFlash={flash} />
+              </Block>
 
               <Block id="crowd" eyebrow="The crowd" title={<>Watch <em>{result.crowdSize.toLocaleString()} people</em> make up their minds.</>} intro="Every dot is one simulated person. Press play to move from the announcement to a year later, or hover a group to see where its people live in the crowd.">
                 <CrowdPanel r={result} />

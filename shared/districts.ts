@@ -121,3 +121,14 @@ export function describeDistrict(f: DistrictFacts, nat: DistrictFacts): FactLine
     { label: 'Median household income', value: f.income, national: nat.income, kind: 'dollars' },
   ];
 }
+
+/** A district in a few plain lines, for the AI report. */
+export function districtSummary(d: District, nat: DistrictFacts): { label: string; name: string; representative?: string; facts: string[] } {
+  const fmt = (l: FactLine, v: number) => (l.kind === 'dollars' ? `$${Math.round(v).toLocaleString('en-US')}` : `${Math.round(v * 1000) / 10}%`);
+  return {
+    label: d.label,
+    name: d.name,
+    representative: d.rep ? `${d.rep.name} (${d.rep.party})` : undefined,
+    facts: describeDistrict(d, nat).map((l) => `${l.label}: ${fmt(l, l.value)} (national ${fmt(l, l.national)})`),
+  };
+}

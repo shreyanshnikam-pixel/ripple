@@ -13,9 +13,10 @@
     "build:pages": "vite build --mode pages",
     "start": "NODE_ENV=production tsx server/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test shared/engine.test.ts shared/realism.test.ts shared/districts.test.ts shared/civics.test.ts"
+    "test": "tsx --test shared/engine.test.ts shared/realism.test.ts shared/districts.test.ts shared/civics.test.ts shared/ai.test.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "0.132.1",
     "cors": "2.8.5",
     "express": "4.21.1",
     "framer-motion": "11.11.17",
