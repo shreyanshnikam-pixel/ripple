@@ -4,7 +4,9 @@ import { analyze } from '../../../shared/engine';
 import { EXAMPLES } from '../../../shared/examples';
 import { PERSONAS, SCOPE_META } from '../../../shared/personas';
 import type { Scope, ScopeChoice } from '../../../shared/types';
+import { DistrictPicker } from '../components/district';
 import { Arrow, useMagnetic } from '../components/ui';
+import type { DistrictPick } from '../lib/district';
 
 const SCOPES: { id: ScopeChoice; label: string }[] = [
   { id: 'auto', label: 'Auto' },
@@ -25,6 +27,8 @@ export function Composer({
   setMix,
   onRun,
   busy,
+  district,
+  onDistrict,
 }: {
   decision: string;
   setDecision: (v: string) => void;
@@ -36,6 +40,9 @@ export function Composer({
   setMix: (m: Record<string, number>) => void;
   onRun: () => void;
   busy: boolean;
+  /** The district whose Census population fills the room, if any (e.g. "CA-12"). */
+  district: string | null;
+  onDistrict: (p: DistrictPick | null) => void;
 }) {
   const live = useMemo(() => (decision.trim().length >= 3 ? analyze(decision, scope) : null), [decision, scope]);
   const btn = useMagnetic<HTMLButtonElement>(0.12);
@@ -48,7 +55,9 @@ export function Composer({
   // settings while typing never throws away a room someone set up.
   const scopeIds = PERSONAS[effectiveScope].map((p) => p.id);
   const customized = scopeIds.some((id) => (mix[id] ?? 1) !== 1);
-  const setScopeMix = (m: Record<string, number>) => {
+  const setScopeMix = (m: Record<string, number>, fromDistrict = false) => {
+    // Any manual change means the room is no longer exactly the district's population.
+    if (!fromDistrict && district) onDistrict(null);
     const next: Record<string, number> = {};
     for (const [k, v] of Object.entries(mix)) if (!scopeIds.includes(k)) next[k] = v;
     for (const [k, v] of Object.entries(m)) if (scopeIds.includes(k) && v !== 1) next[k] = v;
@@ -163,9 +172,21 @@ export function Composer({
 
       <div style={{ display: 'grid', gap: 12 }}>
         <button type="button" className="linkish room-toggle" aria-expanded={roomOpen} aria-controls="room-panel" onClick={() => setRoomOpen((o) => !o)}>
-          {roomOpen ? '−' : '+'} Who’s in the room{customized ? ' (customized)' : ''}: {SCOPE_META[effectiveScope].crowdNoun}
+          {roomOpen ? '−' : '+'} Who’s in the room
+          {effectiveScope === 'community' && district ? ` (${district} population)` : customized ? ' (customized)' : ''}: {SCOPE_META[effectiveScope].crowdNoun}
         </button>
-        {roomOpen && <RoomPanel scope={effectiveScope} mix={mix} setMix={setScopeMix} />}
+        {roomOpen && (
+          <RoomPanel
+            scope={effectiveScope}
+            mix={mix}
+            setMix={setScopeMix}
+            district={district}
+            onDistrict={(p) => {
+              if (p) setScopeMix(p.mix, true);
+              onDistrict(p);
+            }}
+          />
+        )}
       </div>
 
       <div className="examples-row">
@@ -217,7 +238,19 @@ const PRESETS: Record<Scope, { label: string; mix: Record<string, number> }[]> =
   ],
 };
 
-function RoomPanel({ scope, mix, setMix }: { scope: Scope; mix: Record<string, number>; setMix: (m: Record<string, number>) => void }) {
+function RoomPanel({
+  scope,
+  mix,
+  setMix,
+  district,
+  onDistrict,
+}: {
+  scope: Scope;
+  mix: Record<string, number>;
+  setMix: (m: Record<string, number>) => void;
+  district: string | null;
+  onDistrict: (p: DistrictPick | null) => void;
+}) {
   const people = PERSONAS[scope];
   const same = (a: Record<string, number>, b: Record<string, number>) => people.every((p) => (a[p.id] ?? 1) === (b[p.id] ?? 1));
   return (
@@ -225,6 +258,23 @@ function RoomPanel({ scope, mix, setMix }: { scope: Scope; mix: Record<string, n
       <p style={{ color: 'var(--mist)', fontSize: '0.88rem' }}>
         The same decision lands differently in a retirement community and a college town. Pick a room, or set how much of the crowd each group makes up.
       </p>
+      {scope === 'community' && (
+        <div className="room__district">
+          {district ? (
+            <span className="district-pill">
+              Using the Census population of {district}
+              <button type="button" aria-label={`Stop using ${district}`} title="Back to a typical town" onClick={() => setMix({})}>
+                ×
+              </button>
+            </span>
+          ) : (
+            <>
+              <span className="label">Use your congressional district’s real population</span>
+              <DistrictPicker id="room-district" compact onPick={(p) => onDistrict(p)} />
+            </>
+          )}
+        </div>
+      )}
       <div className="room__presets" role="group" aria-label="Room presets">
         {PRESETS[scope].map((pr) => (
           <button type="button" key={pr.label} className="chip" aria-pressed={same(mix, pr.mix)} onClick={() => setMix(pr.mix)}>

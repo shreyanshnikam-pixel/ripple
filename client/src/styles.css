@@ -2795,3 +2795,281 @@ body::before {
 .page__section > .btn {
   justify-self: start;
 }
+
+/* ───────── your district ───────── */
+.district-picker {
+  display: grid;
+  gap: 12px;
+}
+.zip-form {
+  display: grid;
+  gap: 8px;
+}
+.zip-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.zip-form input {
+  width: 9.5ch;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  font-family: var(--f-mono);
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  outline: none;
+  transition: border-color 0.25s;
+}
+.district-picker--compact .zip-form input {
+  min-height: 38px;
+  font-size: 0.95rem;
+}
+.zip-form input:focus {
+  border-color: var(--foam-deep);
+}
+.zip-form .btn--sm {
+  min-height: 48px;
+}
+.district-picker--compact .zip-form .btn--sm {
+  min-height: 38px;
+}
+.district-choices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.district-choices .reality__note {
+  flex-basis: 100%;
+}
+.district-select select {
+  width: min(100%, 460px);
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+}
+.district-card {
+  display: grid;
+  gap: 28px;
+}
+.district-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+.district-card__head > div:first-child {
+  display: grid;
+  gap: 8px;
+}
+.rep {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-width: min(100%, 260px);
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+}
+.rep b {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: 1.35rem;
+  line-height: 1.15;
+}
+.rep .actions {
+  align-items: center;
+  margin-top: 6px;
+}
+.rep__senators {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+  display: grid;
+  gap: 4px;
+  font-size: 0.86rem;
+  color: var(--mist);
+}
+.rep__senators a {
+  color: var(--paper);
+  text-underline-offset: 3px;
+}
+.district-card__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 32px;
+}
+.district-card__grid > div {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+}
+@media (max-width: 860px) {
+  .district-card__grid {
+    grid-template-columns: 1fr;
+  }
+}
+.facts {
+  display: grid;
+  gap: 14px;
+}
+.fact {
+  display: grid;
+  gap: 6px;
+}
+.fact__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: var(--mist);
+}
+.fact__top b {
+  color: var(--paper);
+  font-weight: 600;
+}
+.fact__track {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--line-soft);
+}
+.fact__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+  background: var(--foam-deep);
+}
+.fact__nat {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 1px;
+  background: var(--paper);
+}
+.mix-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.mix-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 2px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 0.92rem;
+  color: var(--mist);
+}
+.district-run {
+  display: grid;
+  gap: 16px;
+}
+.district-run__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.district-run__form input {
+  flex: 1 1 320px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  outline: none;
+}
+.district-run__form input:focus {
+  border-color: var(--foam-deep);
+}
+.district-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(166, 240, 218, 0.45);
+  color: var(--foam);
+  font-size: 0.86rem;
+}
+.district-pill button {
+  border: 0;
+  background: var(--raised);
+  color: var(--paper);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* ───────── take it further ───────── */
+.act {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 20px;
+}
+@media (max-width: 900px) {
+  .act {
+    grid-template-columns: 1fr;
+  }
+}
+.act__who {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+.act__who h3 {
+  font-family: var(--f-display);
+  font-weight: 380;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  line-height: 1.1;
+}
+.act__letter {
+  display: grid;
+  gap: 12px;
+}
+.act__letter textarea {
+  width: 100%;
+  min-height: 340px;
+  resize: vertical;
+  padding: 18px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  outline: none;
+}
+.act__letter textarea:focus {
+  border-color: var(--foam-deep);
+}
+.room__district {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.district-card__headline {
+  max-width: 46ch;
+  margin-top: 6px;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.4;
+  color: var(--paper);
+}

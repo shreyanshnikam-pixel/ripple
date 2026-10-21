@@ -5,11 +5,14 @@ import type { Recommendation, ScopeChoice, SimulationResult } from '../../../sha
 import { decodeMix, parseCrowd, parseScope, simulatorPath } from '../lib/share';
 import { SplitHeading, Toast } from '../components/ui';
 import { runSimulation, type Source } from '../lib/api';
+import { copyText } from '../lib/clipboard';
+import { districtFromCode, districtFromLabel, recalledDistrict, rememberDistrict, type DistrictPick } from '../lib/district';
 import { clearHistory, loadHistory, saveToHistory, type HistoryItem } from '../lib/history';
 import { prefersReducedMotion } from '../lib/motion';
 import { scrollToTarget, ScrollTrigger } from '../lib/smooth';
 import { Composer, Loading } from '../sim/Composer';
 import { Block, Compare, CrowdPanel, Crosstabs, Fixes, Method, RealityPanel, Themes, TimelineChart, TownHall, Verdict, VoicesBlock } from '../sim/Results';
+import { TakeAction } from '../sim/TakeAction';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -21,6 +24,7 @@ const SECTIONS = [
   ['time', 'Over time'],
   ['hall', 'Town hall'],
   ['fixes', 'Fixes'],
+  ['act', 'Act'],
   ['method', 'Method'],
 ] as const;
 
@@ -72,7 +76,10 @@ export default function Simulator() {
   const [scope, setScope] = useState<ScopeChoice>(() => parseScope(params.get('s')));
   const [crowdSize, setCrowdSize] = useState(() => parseCrowd(params.get('n')));
   const [mix, setMix] = useState<Record<string, number>>(() => decodeMix(params.get('m')));
-  const [district] = useState<string | null>(() => params.get('cd'));
+  // The district whose Census population fills the room (from the link or the room panel).
+  const [district, setDistrict] = useState<string | null>(() => params.get('cd'));
+  // The district to write from: the one this person chose on this device, else the room's.
+  const [home, setHome] = useState<{ pick: DistrictPick; yours: boolean } | null>(null);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [before, setBefore] = useState<SimulationResult | null>(null);
   const [source, setSource] = useState<Source>('browser');
@@ -86,6 +93,27 @@ export default function Simulator() {
   useEffect(() => {
     document.title = 'Simulator · Ripple';
   }, []);
+
+  useEffect(() => {
+    let live = true;
+    const saved = recalledDistrict();
+    const load = saved ? districtFromCode(saved).then((p) => (p ? { pick: p, yours: true } : null)) : Promise.resolve(null);
+    load
+      .then((h) => h ?? (district ? districtFromLabel(district).then((p) => (p ? { pick: p, yours: false } : null)) : null))
+      .then((h) => live && setHome(h))
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [district]);
+
+  const chooseDistrict = (p: DistrictPick | null) => {
+    setDistrict(p ? p.district.label : null);
+    if (p) {
+      rememberDistrict(p.code);
+      setHome({ pick: p, yours: true });
+    }
+  };
 
   const flash = (msg: string) => {
     setToast(msg);
@@ -118,7 +146,7 @@ export default function Simulator() {
         saveToHistory({ id: r.id, decision: r.decision, scope: r.scope, net: r.summary.net, verdict: r.summary.verdict, at: r.createdAt, crowdSize: r.crowdSize, mix: r.mix });
         setHistory(loadHistory());
         // Keep the address bar shareable: it always reproduces the result on screen.
-        const path = simulatorPath({ decision: r.decision, scope: useScope, crowdSize: r.crowdSize, mix: useMix, district: district ?? undefined }, false);
+        const path = simulatorPath({ decision: r.decision, scope: useScope, crowdSize: r.crowdSize, mix: useMix, district: r.scope === 'community' && district ? district : undefined }, false);
         setParams(new URLSearchParams(path.split('?')[1]), { replace: true });
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
@@ -138,7 +166,17 @@ export default function Simulator() {
     const d = params.get('d');
     if (d && params.get('run') === '1') {
       autoRan.current = true;
-      setTimeout(() => run(d), 350);
+      const cd = params.get('cd');
+      if (cd && !params.get('m')) {
+        // A link with a district but no room: build the room from the district's Census data.
+        districtFromLabel(cd)
+          .catch(() => null)
+          .then((p) => {
+            if (p) setMix(p.mix);
+            else setDistrict(null);
+            run(d, p ? { mix: p.mix } : {});
+          });
+      } else setTimeout(() => run(d), 350);
     }
   }, [params, run]);
 
@@ -152,23 +190,7 @@ export default function Simulator() {
 
   const copy = async () => {
     if (!result) return;
-    const text = summaryText(result);
-    try {
-      await navigator.clipboard.writeText(text);
-      flash('Summary copied');
-    } catch {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        document.execCommand('copy');
-        flash('Summary copied');
-      } catch {
-        flash('Select the summary text to copy it');
-      }
-      ta.remove();
-    }
+    flash((await copyText(summaryText(result))) ? 'Summary copied' : 'Couldn’t copy. Select the text instead.');
   };
 
   const restart = () => {
@@ -198,6 +220,8 @@ export default function Simulator() {
         setMix={setMix}
         onRun={() => run(decision)}
         busy={busy}
+        district={district}
+        onDistrict={chooseDistrict}
       />
 
       {history.length > 0 && !result && !busy && (
@@ -255,7 +279,7 @@ export default function Simulator() {
 
               <section className="block" id="verdict" aria-label="Verdict">
                 {before && <Compare before={before} after={result} />}
-                <Verdict r={result} source={source} />
+                <Verdict r={result} source={source} district={result.scope === 'community' ? district : null} />
                 <RealityPanel r={result} />
               </section>
 
@@ -284,6 +308,19 @@ export default function Simulator() {
 
               <Block id="fixes" eyebrow="Fixes" title={<>Make it a decision <em>more people</em> can live with.</>} intro="Each fix is tested by re-running the simulation with that change added. Apply one to see the full result.">
                 <Fixes r={result} onApply={apply} busy={busy} />
+              </Block>
+
+              <Block id="act" eyebrow="Take it further" title={<>Now go hear from <em>real people.</em></>} intro="Ripple is a rehearsal. Here’s who makes this decision for real, and a way to start the conversation.">
+                <TakeAction
+                  r={result}
+                  home={home?.pick ?? null}
+                  yours={home?.yours ?? false}
+                  onPick={(p) => {
+                    rememberDistrict(p.code);
+                    setHome({ pick: p, yours: true });
+                  }}
+                  onCopied={(ok) => flash(ok ? 'Copied' : 'Couldn’t copy. Select the text instead.')}
+                />
               </Block>
 
               <Block id="method" eyebrow="Method" title={<>How Ripple <em>got here.</em></>}>

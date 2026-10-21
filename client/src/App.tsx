@@ -9,6 +9,7 @@ import Simulator from './pages/Simulator';
 import NotFound from './pages/NotFound';
 import Methodology from './pages/Methodology';
 import About from './pages/About';
+import District from './pages/District';
 
 function Page({ children }: { children: React.ReactNode }) {
   return (
@@ -32,6 +33,7 @@ function AnimatedRoutes() {
         <Route path="/simulate" element={<Page><Simulator /></Page>} />
         <Route path="/methodology" element={<Page><Methodology /></Page>} />
         <Route path="/about" element={<Page><About /></Page>} />
+        <Route path="/district" element={<Page><District /></Page>} />
         <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
     </AnimatePresence>

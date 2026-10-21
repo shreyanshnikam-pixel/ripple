@@ -42,7 +42,7 @@ function Legend() {
 }
 
 // ───────── verdict ─────────
-export function Verdict({ r, source }: { r: SimulationResult; source: Source }) {
+export function Verdict({ r, source, district }: { r: SimulationResult; source: Source; district?: string | null }) {
   const s = r.summary;
   const meta = SCOPE_META[r.scope];
   return (
@@ -50,6 +50,7 @@ export function Verdict({ r, source }: { r: SimulationResult; source: Source }) 
       <Reveal className="panel verdict__main">
         <span className="label">
           Simulated reaction · {meta.label} · {r.crowdSize.toLocaleString()} {r.scope === 'personal' ? 'simulated reactions' : meta.crowdNoun}
+          {district ? ` · ${district} population` : ''}
         </span>
         <p className="verdict__decision">“{r.decision}”</p>
         <h2 className="verdict__word">{s.verdict}.</h2>
