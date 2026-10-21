@@ -39,3 +39,12 @@ export function resetScroll() {
 }
 
 export { gsap, ScrollTrigger };
+
+/** Pauses smooth scrolling while a dialog is open, so the page underneath stays put. */
+export function lockScroll(locked: boolean) {
+  if (lenis) {
+    if (locked) lenis.stop();
+    else lenis.start();
+  }
+  document.documentElement.style.overflow = locked ? 'hidden' : '';
+}

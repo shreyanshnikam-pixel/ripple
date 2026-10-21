@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { BILL_STAGES, billsForTopic } from '../../../shared/bills';
 import { isConversation, letterFor, whoDecides } from '../../../shared/civics';
 import type { SimulationResult } from '../../../shared/types';
 import { DistrictPicker } from '../components/district';
@@ -23,6 +25,7 @@ export function TakeAction({ r, home, yours, onPick, onCopied }: { r: Simulation
   }, [r, home, edited]);
 
   const conversation = isConversation(who.level);
+  const bills = r.reality ? billsForTopic(r.reality.anchor.id) : [];
   return (
     <div className="act">
       <Reveal className="panel act__who">
@@ -63,6 +66,24 @@ export function TakeAction({ r, home, yours, onPick, onCopied }: { r: Simulation
               <DistrictPicker id="act-district" compact onPick={onPick} />
             </div>
           ))}
+
+        {bills.length > 0 && (
+          <div className="act__bills">
+            <span className="label">In Congress</span>
+            {bills.map((b) => (
+              <a key={b.id} className="act__bill" href={b.url} target="_blank" rel="noreferrer">
+                <span className="bill__number mono">{b.number}</span>
+                <span>
+                  <b>{b.title}</b>
+                  <small>{BILL_STAGES.find((s) => s.id === b.stage)?.label} · {b.congress}th Congress ↗</small>
+                </span>
+              </a>
+            ))}
+            <Link className="linkish" to="/bills">
+              See all real bills
+            </Link>
+          </div>
+        )}
 
         {who.level === 'local' && (
           <p className="reality__note">

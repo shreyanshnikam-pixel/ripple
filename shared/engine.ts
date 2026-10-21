@@ -448,6 +448,11 @@ function analyzeFull(decision: string, scopeChoice: ScopeChoice = 'auto'): FullA
   return { analysis, idx, norm, match, burden, effExtremity, extremeWords, restricted, immediate: IMMEDIATE_RE.test(norm), pct, topicCount };
 }
 
+/** Where a simulation of this decision would start (the poll or estimate), without running the crowd. */
+export function startFor(decision: string, scopeChoice: ScopeChoice = 'auto'): RealityCheck['anchor'] {
+  return startingPoint(analyzeFull(decision, scopeChoice)).anchor;
+}
+
 function anchorLabel(m: AnchorMatch) {
   const label = m.variant?.label ?? m.anchor.label;
   return m.flipped ? `Undoing: ${label.toLowerCase()}` : label;

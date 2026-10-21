@@ -148,6 +148,16 @@ const polled = (r: SimulationResult, expected: number, tol: number, org: RegExp)
 
 test('a popular vote for president matches Pew (63%, 2024)', () => polled(run('Elect the president by national popular vote instead of the Electoral College'), 63, 8, /Pew/));
 test('photo ID to vote matches Pew (81%, 2024)', () => polled(run('Require a government-issued photo ID to vote'), 81, 7, /Pew/));
+test('proof of citizenship to register matches Gallup (83%, 2024)', () => polled(run('Require proof of citizenship to register to vote'), 83, 8, /Gallup/));
+test('a TikTok divest-or-ban law is read as a TikTok ban, not a business decision', () => {
+  const r = run('Ban TikTok in the U.S. unless ByteDance sells it');
+  assert.equal(r.reality?.anchor.id, 'tiktok-ban');
+  assert.equal(r.scope, 'community');
+});
+test('showing ID somewhere other than the polls is not a voting rule', () => {
+  assert.notEqual(run('Require students to show ID to enter the school').reality?.anchor.id, 'voter-id');
+  assert.notEqual(run('Require customers to show ID to buy spray paint').reality?.anchor.id, 'voter-id');
+});
 test('Election Day as a national holiday matches Pew (72%, 2024)', () => polled(run('Make Election Day a national holiday'), 72, 8, /Pew/));
 test('banning stock trading by members of Congress matches UMD (86%, 2023)', () => polled(run('Ban members of Congress from trading individual stocks'), 86, 7, /Maryland/));
 test('Supreme Court term limits match AP-NORC (67%, 2022)', () => polled(run('Set term limits for Supreme Court justices'), 67, 8, /AP-NORC/));
@@ -179,4 +189,11 @@ test('every published benchmark starts from its poll and lands within 9 points',
     assert.equal(r.reality!.anchor.support, b.poll, `${b.decision}: anchor ${r.reality!.anchor.support} vs poll ${b.poll}`);
     assert.ok(Math.abs(r.reality!.simulated - b.poll) <= 9, `${b.decision}: simulated ${r.reality!.simulated} vs ${b.poll}`);
   }
+});
+
+test('offering help to families who need it counts as financial support', () => {
+  const plain = run('Require school uniforms', { scope: 'school' });
+  const helped = run('Require school uniforms, with free uniforms for families who need them', { scope: 'school' });
+  assert.ok(helped.analysis.signals.some((s) => s.id === 'support'), 'no financial support signal');
+  assert.ok(helped.summary.net >= plain.summary.net + 3, `helped ${helped.summary.net} vs plain ${plain.summary.net}`);
 });

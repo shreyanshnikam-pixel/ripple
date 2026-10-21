@@ -10,6 +10,8 @@ import NotFound from './pages/NotFound';
 import Methodology from './pages/Methodology';
 import About from './pages/About';
 import District from './pages/District';
+import Bills from './pages/Bills';
+import Compare from './pages/Compare';
 
 function Page({ children }: { children: React.ReactNode }) {
   return (
@@ -34,6 +36,8 @@ function AnimatedRoutes() {
         <Route path="/methodology" element={<Page><Methodology /></Page>} />
         <Route path="/about" element={<Page><About /></Page>} />
         <Route path="/district" element={<Page><District /></Page>} />
+        <Route path="/bills" element={<Page><Bills /></Page>} />
+        <Route path="/compare" element={<Page><Compare /></Page>} />
         <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
     </AnimatePresence>

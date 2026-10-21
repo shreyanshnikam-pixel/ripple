@@ -12,6 +12,7 @@ import { prefersReducedMotion } from '../lib/motion';
 import { scrollToTarget, ScrollTrigger } from '../lib/smooth';
 import { Composer, Loading } from '../sim/Composer';
 import { Block, Compare, CrowdPanel, Crosstabs, Fixes, Method, RealityPanel, Themes, TimelineChart, TownHall, Verdict, VoicesBlock } from '../sim/Results';
+import { ShareSheet } from '../sim/ShareSheet';
 import { TakeAction } from '../sim/TakeAction';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -29,7 +30,7 @@ const SECTIONS = [
 ] as const;
 
 /** Sticky section menu. Mounted with the results, so the sections exist when it starts watching. */
-function SubNav() {
+function SubNav({ onShare }: { onShare: () => void }) {
   const [active, setActive] = useState('verdict');
   useEffect(() => {
     const els = SECTIONS.map(([id]) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
@@ -51,6 +52,9 @@ function SubNav() {
           <span>{label}</span>
         </button>
       ))}
+      <button className="subnav__share" onClick={onShare}>
+        <span>Share</span>
+      </button>
     </nav>
   );
 }
@@ -88,6 +92,7 @@ export default function Simulator() {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>(loadHistory);
   const [toast, setToast] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
   const autoRan = useRef(false);
 
   useEffect(() => {
@@ -275,7 +280,7 @@ export default function Simulator() {
           )}
           {!busy && result && (
             <motion.div key={result.id} className="results" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
-              <SubNav />
+              <SubNav onShare={() => setSharing(true)} />
 
               <section className="block" id="verdict" aria-label="Verdict">
                 {before && <Compare before={before} after={result} />}
@@ -326,7 +331,10 @@ export default function Simulator() {
               <Block id="method" eyebrow="Method" title={<>How Ripple <em>got here.</em></>}>
                 <Method r={result} />
                 <div className="actions">
-                  <button className="btn" onClick={copy}>
+                  <button className="btn" onClick={() => setSharing(true)}>
+                    Share this result
+                  </button>
+                  <button className="btn btn--ghost" onClick={copy}>
                     Copy summary
                   </button>
                   <button className="btn btn--ghost" onClick={restart}>
@@ -338,6 +346,16 @@ export default function Simulator() {
           )}
         </AnimatePresence>
       </div>
+      <AnimatePresence>
+        {sharing && result && (
+          <ShareSheet
+            r={result}
+            district={result.scope === 'community' ? district : null}
+            onClose={() => setSharing(false)}
+            onDone={(msg) => flash(msg)}
+          />
+        )}
+      </AnimatePresence>
       <AnimatePresence>{toast && <Toast message={toast} />}</AnimatePresence>
     </div>
   );

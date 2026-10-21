@@ -12,6 +12,12 @@ const PEW_POPVOTE: PollSource = {
   url: 'https://www.pewresearch.org/short-reads/2024/09/25/majority-of-americans-continue-to-favor-moving-away-from-electoral-college/',
   finding: '63% of U.S. adults prefer electing the president by national popular vote; 35% prefer the Electoral College',
 };
+const GALLUP_VERIFY: PollSource = {
+  org: 'Gallup',
+  year: 2024,
+  url: 'https://news.gallup.com/poll/652523/americans-endorse-early-voting-voter-verification.aspx',
+  finding: '83% of U.S. adults favor requiring proof of citizenship when registering to vote for the first time; 84% favor photo ID to vote (October 2024)',
+};
 const PEW_VOTING = (finding: string): PollSource => ({
   org: 'Pew Research Center',
   year: 2024,
@@ -124,8 +130,12 @@ export const CIVIC_ANCHORS: Anchor[] = [
   },
   {
     id: 'voter-id', label: 'Requiring photo ID to vote', scopes: ['community', 'school'], hint: 'community',
-    all: [['voter id', 'photo id', 'id to vote', 'identification to vote', 'show id', 'show an id', 'show identification']], support: 81, basis: 'poll', population: 'adults',
+    all: [['voter id', 'photo id', 'id to vote', 'identification to vote', 'show id', 'show an id', 'show identification', 'proof of citizenship', 'prove citizenship', 'prove their citizenship', 'prove they are citizens', 'documentary proof'], ['vote', 'voting', 'voter', 'ballot', 'polls', 'election', 'register']],
+    support: 81, basis: 'poll', population: 'adults',
     source: PEW_VOTING('81% of U.S. adults favor requiring government-issued photo ID to vote (January 2024)'), polar: 0.5,
+    variants: [
+      { when: ['citizenship', 'citizens'], support: 83, label: 'Requiring proof of citizenship to register to vote', basis: 'poll', source: GALLUP_VERIFY },
+    ],
     stakes: { elder: 0.2, taxpayer: 0.2, 'young-adult': -0.15, student: -0.1, activist: -0.35, worker: -0.05 },
     lines: {
       elder: { pro: 'I show ID to pick up a prescription. Voting matters more.' },

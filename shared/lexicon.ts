@@ -115,7 +115,7 @@ export const TOPICS: TopicRule[] = [
   },
   {
     id: 'expand', label: 'New programs',
-    keywords: ['=add', '=adding', 'expand', '=new', '=open', '=opening', '=build', '=building', 'launch', '=create', '=creating', 'introduc', '=install', '=installing', '=hire', '=hiring', 'upgrade', 'renovat', '=invest', '=investing', 'opportunit', 'program', 'initiative'],
+    keywords: ['=add', '=adding', 'expand', '=open', '=opening', '=build', '=building', 'launch', '=create', '=creating', 'introduc', '=install', '=installing', '=hire', '=hiring', 'upgrade', 'renovat', '=invest', '=investing', 'opportunit', 'program', 'initiative'],
     impacts: { growth: 0.5, innovation: 0.25, cost: -0.2, stability: -0.15 }, change: 0.3,
   },
   {
@@ -188,7 +188,7 @@ export const MITIGATIONS: MitigationRule[] = [
   },
   {
     id: 'support', label: 'Financial support',
-    keywords: ['subsid', 'financial aid', 'low-income', 'sliding scale', '=cap', '=capped', 'rebate', '=grant', '=grants', 'scholarship', 'free for', 'at no cost', 'cost breakdown', 'emergency fund', 'runway', 'saving up', 'clear explanation', 'loyalty reward'],
+    keywords: ['subsid', 'financial aid', 'low-income', 'sliding scale', '=cap', '=capped', 'rebate', '=grant', '=grants', 'scholarship', 'free for', 'at no cost', 'cost breakdown', 'emergency fund', 'runway', 'saving up', 'clear explanation', 'loyalty reward', 'who need', 'need-based', "can't afford", 'can’t afford', 'cannot afford', 'help paying', 'voucher'],
     soften: { cost: 0.5 }, boost: { equity: 0.2 },
   },
   {

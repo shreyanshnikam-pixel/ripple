@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
   return {
     root: 'client',
     base,
-    plugins: [react(), ...(buildMode === 'artifact' ? [viteSingleFile()] : []), ...(buildMode === 'pages' ? [spaFallback(outDir)] : [])],
+    plugins: [react(), socialMeta(base), ...(buildMode === 'artifact' ? [viteSingleFile()] : []), ...(buildMode === 'pages' ? [spaFallback(outDir)] : [])],
     define: {
       __BUILD_MODE__: JSON.stringify(buildMode),
     },
@@ -34,6 +34,20 @@ export default defineConfig(({ mode }) => {
     },
   };
 });
+
+/**
+ * Link previews need an absolute image URL. Set SITE_URL (e.g. https://you.github.io/ripple/)
+ * when building for a public host; otherwise the path is relative to the site root.
+ */
+function socialMeta(base: string): Plugin {
+  return {
+    name: 'ripple-social-meta',
+    transformIndexHtml(html) {
+      const site = process.env.SITE_URL ? process.env.SITE_URL.replace(/\/?$/, '/') : null;
+      return html.replace(/__OG_IMAGE__/g, site ? `${site}og.png` : `${base}og.png`);
+    },
+  };
+}
 
 /** GitHub Pages has no server-side routing: serve the app for unknown paths too. */
 function spaFallback(outDir: string): Plugin {
