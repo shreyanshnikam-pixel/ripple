@@ -12,6 +12,8 @@ import About from './pages/About';
 import District from './pages/District';
 import Bills from './pages/Bills';
 import Compare from './pages/Compare';
+import Survey from './pages/Survey';
+import SurveyResults from './pages/SurveyResults';
 
 function Page({ children }: { children: React.ReactNode }) {
   return (
@@ -38,6 +40,8 @@ function AnimatedRoutes() {
         <Route path="/district" element={<Page><District /></Page>} />
         <Route path="/bills" element={<Page><Bills /></Page>} />
         <Route path="/compare" element={<Page><Compare /></Page>} />
+        <Route path="/survey/:id" element={<Page><Survey /></Page>} />
+        <Route path="/survey/:id/results" element={<Page><SurveyResults /></Page>} />
         <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
     </AnimatePresence>

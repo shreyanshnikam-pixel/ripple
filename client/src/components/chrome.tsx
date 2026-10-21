@@ -118,7 +118,7 @@ export function Footer() {
         </nav>
         <div className="footer__col">
           <span className="label">Privacy</span>
-          <p>No accounts. No tracking. Your recent decisions stay in this browser.</p>
+          <p>No accounts. No tracking. Your recent decisions stay in this browser, and survey answers are anonymous.</p>
         </div>
       </div>
     </footer>

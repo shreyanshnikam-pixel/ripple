@@ -5,6 +5,7 @@
  *   POST /api/analyze    { decision, scope? }             → Analysis (live typing feedback)
  *   GET  /api/health                                      → { ok, engine }
  *   /api/ai/*                                             → optional AI report and Q&A (see ai.ts)
+ *   /api/surveys/*                                        → "Listen for real" surveys (see surveys.ts)
  *
  * In production (`npm start`) it also serves the built React app from /dist.
  * The engine is pluggable: swap `heuristicEngine` for an LLM-backed engine
@@ -17,6 +18,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { analyze, ENGINE_VERSION, simulate } from '../shared/engine';
 import { AI_ENABLED, aiRouter } from './ai';
+import { surveyRouter } from './surveys';
 import type { DecisionInput, ScopeChoice, SimulationResult } from '../shared/types';
 
 interface Engine {
@@ -88,6 +90,7 @@ app.post('/api/analyze', (req, res, next) => {
 });
 
 app.use('/api/ai', aiRouter(readInput));
+app.use('/api/surveys', surveyRouter(readInput));
 
 app.post('/api/simulate', async (req, res, next) => {
   try {

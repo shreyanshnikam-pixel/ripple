@@ -13,6 +13,7 @@ import { scrollToTarget, ScrollTrigger } from '../lib/smooth';
 import { Composer, Loading } from '../sim/Composer';
 import { Block, Compare, CrowdPanel, Crosstabs, Fixes, Method, RealityPanel, Themes, TimelineChart, TownHall, Verdict, VoicesBlock } from '../sim/Results';
 import { AiPanel } from '../sim/AiPanel';
+import { ListenPanel } from '../sim/Listen';
 import { ShareSheet } from '../sim/ShareSheet';
 import { TakeAction } from '../sim/TakeAction';
 
@@ -332,6 +333,7 @@ export default function Simulator() {
                   }}
                   onCopied={(ok) => flash(ok ? 'Copied' : 'Couldn’t copy. Select the text instead.')}
                 />
+                <ListenPanel r={result} district={result.scope === 'community' ? district : null} onCopied={(ok) => flash(ok ? 'Link copied' : 'Couldn’t copy the link')} />
               </Block>
 
               <Block id="method" eyebrow="Method" title={<>How Ripple <em>got here.</em></>}>

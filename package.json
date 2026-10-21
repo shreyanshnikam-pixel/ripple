@@ -13,7 +13,7 @@
     "build:pages": "vite build --mode pages",
     "start": "NODE_ENV=production tsx server/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test shared/engine.test.ts shared/realism.test.ts shared/districts.test.ts shared/civics.test.ts shared/ai.test.ts"
+    "test": "tsx --test shared/engine.test.ts shared/realism.test.ts shared/districts.test.ts shared/civics.test.ts shared/ai.test.ts shared/surveys.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.132.1",
@@ -22,6 +22,7 @@
     "framer-motion": "11.11.17",
     "gsap": "3.12.5",
     "lenis": "1.1.18",
+    "qrcode-generator": "2.0.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "6.28.0",
