@@ -1,0 +1,57 @@
+# Tests Ripple and publishes the static site to GitHub Pages on every push to main.
+# One-time setup: repository Settings → Pages → Source: "GitHub Actions".
+# Optional: set a repository variable RIPPLE_API_URL to a deployed Ripple server
+# (for shareable surveys and the server-side AI report). Without it, the site runs
+# fully in the browser: on-device surveys and bring-your-own-key AI.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Build the static site
+        env:
+          VITE_API_URL: ${{ vars.RIPPLE_API_URL }}
+        run: |
+          REPO="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+          if [[ "$REPO" == *.github.io ]]; then BASE="/"; else BASE="/$REPO/"; fi
+          export PAGES_BASE="$BASE"
+          export SITE_URL="https://${OWNER,,}.github.io${BASE}"
+          npx tsc --noEmit
+          npm run build:pages
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

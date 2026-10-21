@@ -197,3 +197,11 @@ test('offering help to families who need it counts as financial support', () => 
   assert.ok(helped.analysis.signals.some((s) => s.id === 'support'), 'no financial support signal');
   assert.ok(helped.summary.net >= plain.summary.net + 3, `helped ${helped.summary.net} vs plain ${plain.summary.net}`);
 });
+
+test('laws against AI deepfakes of real people start above general AI rules, labeled as an estimate', () => {
+  const deepfake = run('Make it a crime to post AI deepfake nude images of real people without consent', { scope: 'community' });
+  const general = run('Pass stronger federal rules for artificial intelligence', { scope: 'community' });
+  assert.equal(deepfake.reality?.anchor.id, 'ai-rules');
+  assert.equal(deepfake.reality?.anchor.basis, 'estimate');
+  assert.ok(deepfake.reality!.anchor.support >= general.reality!.anchor.support + 10);
+});

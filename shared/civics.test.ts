@@ -57,3 +57,10 @@ test('personal and business decisions get a conversation starter, not a formal l
   assert.match(text, /“Take a gap year before college\.”/);
   assert.doesNotMatch(text, /Sincerely/);
 });
+
+test('letters about federal questions name the related bill, so offices can file them', () => {
+  const r = simulate({ decision: 'Ban members of Congress from trading individual stocks', scope: 'community' });
+  assert.match(letterFor(r, null), /H\.R\. 7008, the Stop Insider Trading Act/);
+  const local = simulate({ decision: 'Turn the downtown parking lot into a park', scope: 'community' });
+  assert.doesNotMatch(letterFor(local, null), /Related legislation/);
+});

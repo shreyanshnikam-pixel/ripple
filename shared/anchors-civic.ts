@@ -259,8 +259,15 @@ export const CIVIC_ANCHORS: Anchor[] = [
   },
   {
     id: 'ai-rules', label: 'Stronger rules for artificial intelligence', scopes: ['community'], hint: 'community',
-    all: [['=ai', 'artificial intelligence', 'deepfake', 'chatbot'], ['regulat', '=rules', '=law', '=laws', 'safety standard', 'oversight', 'label', 'disclose', 'licens', 'guardrail']],
+    all: [['=ai', 'artificial intelligence', 'deepfake', 'chatbot'], ['regulat', '=rules', '=law', '=laws', 'safety standard', 'oversight', 'label', 'disclose', 'licens', 'guardrail', '=crime', 'illegal', 'criminaliz', 'take down', 'takedown', 'consent', 'likeness']],
     support: 65, basis: 'estimate', population: 'adults', polar: 0.35,
+    variants: [
+      {
+        when: ['deepfake', 'nude', 'intimate', 'without consent', 'nonconsensual', 'non-consensual', 'likeness', 'digital replica'],
+        support: 80, basis: 'estimate', label: 'Laws against AI deepfakes of real people',
+        note: 'Ripple estimate. Surveys find broad, bipartisan support for protecting people from AI deepfakes and unauthorized copies of their voice and likeness.',
+      },
+    ],
     note: 'Ripple estimate. Recent surveys (Pew, 2026; Penn’s Annenberg Public Policy Center, 2026) find most Americans doubt AI is regulated enough.',
     stakes: { parent: 0.25, worker: 0.2, elder: 0.2, health: 0.1, 'young-adult': -0.1, owner: -0.1, student: -0.05 },
     lines: {

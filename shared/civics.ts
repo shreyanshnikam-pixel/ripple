@@ -2,6 +2,7 @@
  * "Take it further": who makes a decision like this for real, and a starter letter to them.
  * The letter cites real polls only. Simulated numbers stay in Ripple.
  */
+import { billsForTopic } from './bills';
 import type { Member } from './districts';
 import type { SimulationResult } from './types';
 
@@ -81,6 +82,11 @@ export function letterFor(r: SimulationResult, target: LetterTarget | null): str
       ? `For context: in a ${a.source.year} survey by ${a.source.org}, ${a.support}% of ${a.population === 'parents' ? 'parents' : 'those'} surveyed supported ${lowerFirst(a.label)}. (${a.source.url})`
       : null;
 
+  // Offices sort constituent mail by bill, so name the one furthest along.
+  const order = ['law', 'passed-both', 'passed-one', 'committee', 'introduced'];
+  const bill = who.level === 'federal' && a ? [...billsForTopic(a.id)].sort((x, y) => order.indexOf(x.stage) - order.indexOf(y.stage))[0] : undefined;
+  const related = bill ? `Related legislation: ${bill.number}, the ${bill.title} (${bill.congress}th Congress).` : null;
+
   const thanks =
     who.level === 'federal' ? 'Thank you for your time and for listening to the people you represent.' : 'Thank you for your time and for your service.';
   const sign =
@@ -92,6 +98,7 @@ export function letterFor(r: SimulationResult, target: LetterTarget | null): str
     greeting,
     intro,
     poll,
+    related,
     'I [support / oppose] this because [your reasons, in your own words: how it would affect you, your family or your community].',
     thanks,
     sign,
