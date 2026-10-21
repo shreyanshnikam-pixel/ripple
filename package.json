@@ -1,0 +1,40 @@
+{
+  "name": "ripple-decision-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ripple: simulate how people will react to a decision before you make it. Built for the Congressional App Challenge.",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:web": "vite",
+    "dev:api": "tsx watch server/index.ts",
+    "build": "tsc --noEmit && vite build",
+    "build:demo": "vite build --mode artifact && node scripts/make-artifact.mjs",
+    "start": "NODE_ENV=production tsx server/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test shared/engine.test.ts shared/realism.test.ts"
+  },
+  "dependencies": {
+    "cors": "2.8.5",
+    "express": "4.21.1",
+    "framer-motion": "11.11.17",
+    "gsap": "3.12.5",
+    "lenis": "1.1.18",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.28.0",
+    "tsx": "4.19.2"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.17",
+    "@types/express": "4.17.21",
+    "@types/node": "22.9.0",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.4",
+    "concurrently": "9.1.0",
+    "typescript": "5.6.3",
+    "vite": "5.4.11",
+    "vite-plugin-singlefile": "2.0.3"
+  }
+}

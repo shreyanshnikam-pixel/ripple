@@ -1,0 +1,11 @@
+node_modules/
+dist/
+dist-artifact/
+dist-pages/
+*.log
+.DS_Store
+*.zip
+data/raw/
+server/data/*.db
+server/data/*.db-*
+.env

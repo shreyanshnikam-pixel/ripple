@@ -1,0 +1,10 @@
+import { simulate } from '../shared/engine';
+const r = simulate({ decision: process.argv[2] ?? 'Ban phones during class', scope: (process.argv[3] as never) ?? 'auto' });
+const s = r.summary;
+console.log(`[${r.scope}] ${r.decision}\n  ${s.verdict}: for ${s.support} / undecided ${s.neutral} / against ${s.oppose} (net ${s.net}, year ${s.longTermNet})`);
+console.log(`  ${s.headline}`);
+if (r.reality) console.log(`  reality: ${r.reality.anchor.label} [${r.reality.anchor.basis}, ${r.reality.anchor.population}] start ${r.reality.anchor.support}% → target ${r.reality.target}% → simulated ${r.reality.simulated}%  adj: ${r.reality.adjustments.map(a => `${a.label} ${a.points}`).join('; ')}`);
+for (const p of r.personas) console.log(`  - ${p.name} [${p.stance}] ${p.quote}\n      (${p.concern.label}) ${p.changeMindType}: ${p.changeMind}`);
+console.log('  groups: ' + r.groups.map(g => `${g.group} ${g.net}`).join(' | '));
+console.log('  fixes: ' + r.recommendations.map(x => `${x.title} +${x.projectedLift}${x.replace ? ` → "${x.replace}"` : ''}`).join(' | '));
+console.log('  tips: ' + r.analysis.tips.join(' | '));
