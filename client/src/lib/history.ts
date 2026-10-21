@@ -7,6 +7,8 @@ export interface HistoryItem {
   net: number;
   verdict: string;
   at: string;
+  crowdSize?: number;
+  mix?: Record<string, number>;
 }
 
 const KEY = 'ripple.history.v1';

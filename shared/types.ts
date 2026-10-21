@@ -222,4 +222,6 @@ export interface SimulationResult {
   townHall: TownHallMessage[];
   crowd: CrowdAgent[];
   reality: RealityCheck | null;
+  /** Who's in the room: multipliers that differ from 1 for this setting's groups. */
+  mix: Record<string, number>;
 }

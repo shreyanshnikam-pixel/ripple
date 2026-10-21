@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { analyze } from '../../../shared/engine';
 import { EXAMPLES } from '../../../shared/examples';
 import { PERSONAS, SCOPE_META } from '../../../shared/personas';
@@ -44,14 +44,16 @@ export function Composer({
   const topics = live?.signals.filter((s) => s.kind === 'topic' && !['school', 'civic', 'business'].includes(s.id)) ?? [];
   const effectiveScope: Scope = scope !== 'auto' ? scope : (live?.scope ?? 'community');
   const [roomOpen, setRoomOpen] = useState(false);
-  const lastScope = useRef(effectiveScope);
-  useEffect(() => {
-    if (lastScope.current !== effectiveScope) {
-      lastScope.current = effectiveScope;
-      setMix({});
-    }
-  }, [effectiveScope, setMix]);
-  const customized = Object.values(mix).some((v) => v !== 1);
+  // The mix holds multipliers for every setting's groups (persona ids are unique), so switching
+  // settings while typing never throws away a room someone set up.
+  const scopeIds = PERSONAS[effectiveScope].map((p) => p.id);
+  const customized = scopeIds.some((id) => (mix[id] ?? 1) !== 1);
+  const setScopeMix = (m: Record<string, number>) => {
+    const next: Record<string, number> = {};
+    for (const [k, v] of Object.entries(mix)) if (!scopeIds.includes(k)) next[k] = v;
+    for (const [k, v] of Object.entries(m)) if (scopeIds.includes(k) && v !== 1) next[k] = v;
+    setMix(next);
+  };
   const mitigations = live?.signals.filter((s) => s.kind === 'mitigation') ?? [];
 
   return (
@@ -163,7 +165,7 @@ export function Composer({
         <button type="button" className="linkish room-toggle" aria-expanded={roomOpen} aria-controls="room-panel" onClick={() => setRoomOpen((o) => !o)}>
           {roomOpen ? '−' : '+'} Who’s in the room{customized ? ' (customized)' : ''}: {SCOPE_META[effectiveScope].crowdNoun}
         </button>
-        {roomOpen && <RoomPanel scope={effectiveScope} mix={mix} setMix={setMix} />}
+        {roomOpen && <RoomPanel scope={effectiveScope} mix={mix} setMix={setScopeMix} />}
       </div>
 
       <div className="examples-row">

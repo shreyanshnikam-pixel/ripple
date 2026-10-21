@@ -36,8 +36,15 @@ app.disable('x-powered-by');
 app.use(cors());
 app.use(express.json({ limit: '16kb' }));
 
+// Behind a hosting proxy (Render, Railway…) the real client IP is in X-Forwarded-For.
+if (process.env.TRUST_PROXY) app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
+
 // Small in-memory rate limit so a public demo can't be hammered.
 const hits = new Map<string, { count: number; reset: number }>();
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of hits) if (entry.reset < now) hits.delete(key);
+}, 60_000).unref();
 app.use('/api', (req, res, next) => {
   const key = req.ip ?? 'anon';
   const now = Date.now();

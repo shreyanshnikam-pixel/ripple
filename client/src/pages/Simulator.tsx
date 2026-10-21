@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Recommendation, ScopeChoice, SimulationResult } from '../../../shared/types';
+import { decodeMix, parseCrowd, parseScope, simulatorPath } from '../lib/share';
 import { SplitHeading, Toast } from '../components/ui';
 import { runSimulation, type Source } from '../lib/api';
 import { clearHistory, loadHistory, saveToHistory, type HistoryItem } from '../lib/history';
@@ -66,11 +67,12 @@ function summaryText(r: SimulationResult) {
 }
 
 export default function Simulator() {
-  const [params] = useSearchParams();
-  const [decision, setDecision] = useState(() => params.get('d') ?? '');
-  const [scope, setScope] = useState<ScopeChoice>(() => (params.get('s') as ScopeChoice) || 'auto');
-  const [crowdSize, setCrowdSize] = useState(1000);
-  const [mix, setMix] = useState<Record<string, number>>({});
+  const [params, setParams] = useSearchParams();
+  const [decision, setDecision] = useState(() => (params.get('d') ?? '').slice(0, 500));
+  const [scope, setScope] = useState<ScopeChoice>(() => parseScope(params.get('s')));
+  const [crowdSize, setCrowdSize] = useState(() => parseCrowd(params.get('n')));
+  const [mix, setMix] = useState<Record<string, number>>(() => decodeMix(params.get('m')));
+  const [district] = useState<string | null>(() => params.get('cd'));
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [before, setBefore] = useState<SimulationResult | null>(null);
   const [source, setSource] = useState<Source>('browser');
@@ -91,7 +93,10 @@ export default function Simulator() {
   };
 
   const run = useCallback(
-    async (text: string, opts: { compare?: SimulationResult } = {}) => {
+    async (text: string, opts: { compare?: SimulationResult; scope?: ScopeChoice; mix?: Record<string, number>; crowdSize?: number } = {}) => {
+      const useScope = opts.scope ?? scope;
+      const useMix = opts.mix ?? mix;
+      const useCrowd = opts.crowdSize ?? crowdSize;
       const d = text.trim();
       if (d.length < 3 || busy) return;
       setBusy(true);
@@ -107,11 +112,14 @@ export default function Simulator() {
         }
       })();
       try {
-        const [{ result: r, source: src }] = await Promise.all([runSimulation({ decision: d, scope, crowdSize, mix }), stages]);
+        const [{ result: r, source: src }] = await Promise.all([runSimulation({ decision: d, scope: useScope, crowdSize: useCrowd, mix: useMix }), stages]);
         setResult(r);
         setSource(src);
-        saveToHistory({ id: r.id, decision: r.decision, scope: r.scope, net: r.summary.net, verdict: r.summary.verdict, at: r.createdAt });
+        saveToHistory({ id: r.id, decision: r.decision, scope: r.scope, net: r.summary.net, verdict: r.summary.verdict, at: r.createdAt, crowdSize: r.crowdSize, mix: r.mix });
         setHistory(loadHistory());
+        // Keep the address bar shareable: it always reproduces the result on screen.
+        const path = simulatorPath({ decision: r.decision, scope: useScope, crowdSize: r.crowdSize, mix: useMix, district: district ?? undefined }, false);
+        setParams(new URLSearchParams(path.split('?')[1]), { replace: true });
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
           scrollToTarget('#lab-output', -110);
@@ -122,7 +130,7 @@ export default function Simulator() {
         setBusy(false);
       }
     },
-    [busy, scope, crowdSize, mix],
+    [busy, scope, crowdSize, mix, district, setParams],
   );
 
   useEffect(() => {
@@ -213,7 +221,9 @@ export default function Simulator() {
                 onClick={() => {
                   setDecision(h.decision);
                   setScope(h.scope);
-                  run(h.decision);
+                  if (h.mix) setMix(h.mix);
+                  if (h.crowdSize) setCrowdSize(h.crowdSize);
+                  run(h.decision, { scope: h.scope, mix: h.mix ?? mix, crowdSize: h.crowdSize ?? crowdSize });
                 }}
               >
                 <span>{h.decision}</span>

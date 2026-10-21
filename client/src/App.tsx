@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ClickRipples, Footer, Nav } from './components/chrome';
 import { resetScroll, startSmoothScroll } from './lib/smooth';
+import { ROUTER_BASENAME, USE_MEMORY_ROUTER } from './lib/config';
 import Landing from './pages/Landing';
 import Simulator from './pages/Simulator';
 import NotFound from './pages/NotFound';
@@ -49,11 +50,16 @@ function Shell() {
 }
 
 export default function App() {
-  // The hosted demo runs inside a sandboxed frame, so it keeps routes in memory.
-  const Router = __DEMO_BUILD__ ? MemoryRouter : BrowserRouter;
+  const future = { v7_startTransition: true, v7_relativeSplatPath: true };
+  if (USE_MEMORY_ROUTER)
+    return (
+      <MemoryRouter future={future}>
+        <Shell />
+      </MemoryRouter>
+    );
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter basename={ROUTER_BASENAME} future={future}>
       <Shell />
-    </Router>
+    </BrowserRouter>
   );
 }

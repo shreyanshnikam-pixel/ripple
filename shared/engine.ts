@@ -1224,6 +1224,11 @@ export function simulate(input: DecisionInput, opts: SimulateOptions = {}): Simu
     townHall,
     crowd: agents,
     reality,
+    mix: Object.fromEntries(
+      personas
+        .map((p) => [p.id, clamp(input.mix?.[p.id] ?? 1, 0, 4)] as const)
+        .filter(([, v]) => v !== 1),
+    ),
   };
 }
 
