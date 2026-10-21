@@ -1,16 +1,23 @@
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { scrollToTarget } from '../lib/smooth';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { prefersReducedMotion } from '../lib/motion';
 import { Arrow, RippleMark, useMagnetic } from './ui';
 
+const LINKS = [
+  { to: '/bills', label: 'Real bills' },
+  { to: '/district', label: 'Your district' },
+  { to: '/compare', label: 'Compare' },
+  { to: '/methodology', label: 'Methodology' },
+  { to: '/about', label: 'About' },
+];
+
 export function Nav() {
   const [solid, setSolid] = useState(false);
+  const [open, setOpen] = useState(false);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.3 });
   const loc = useLocation();
-  const navigate = useNavigate();
   const cta = useMagnetic<HTMLAnchorElement>(0.2);
 
   useEffect(() => {
@@ -20,35 +27,64 @@ export function Nav() {
     return () => window.removeEventListener('scroll', on);
   }, []);
 
-  const jump = (id: string) => {
-    if (loc.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => scrollToTarget(id), 450);
-    } else scrollToTarget(id);
-  };
+  // Close the phone menu when the route changes or Escape is pressed.
+  useEffect(() => setOpen(false), [loc.pathname]);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
   return (
-    <header className={`nav ${solid ? 'nav--solid' : ''}`}>
+    <header className={`nav ${solid || open ? 'nav--solid' : ''}`}>
       <div className="wrap nav__inner">
         <Link to="/" className="brand" aria-label="Ripple home">
           <RippleMark />
           Ripple
         </Link>
         <nav className="nav__links" aria-label="Main">
-          <button className="nav__link nav__link--hide" onClick={() => jump('#how')}>
-            How it works
-          </button>
-          <button className="nav__link nav__link--hide" onClick={() => jump('#voices')}>
-            Voices
-          </button>
-          <button className="nav__link nav__link--hide" onClick={() => jump('#principles')}>
-            Principles
-          </button>
-          <NavLink to="/simulate" className="btn btn--sm" ref={cta} style={{ marginLeft: 8 }}>
+          {LINKS.map((l) => (
+            <NavLink key={l.to} to={l.to} className="nav__link nav__link--hide">
+              {l.label}
+            </NavLink>
+          ))}
+          <NavLink to="/simulate" className="btn btn--sm nav__cta" ref={cta} style={{ marginLeft: 8 }}>
             Open the simulator <Arrow size={16} />
           </NavLink>
+          <button className="nav__menu" aria-expanded={open} aria-controls="nav-sheet" onClick={() => setOpen((o) => !o)}>
+            <span className="sr-only">{open ? 'Close menu' : 'Open menu'}</span>
+            <span className={`burger ${open ? 'is-open' : ''}`} aria-hidden="true">
+              <i />
+              <i />
+            </span>
+          </button>
         </nav>
       </div>
+      <AnimatePresence>
+        {open && (
+          <motion.nav
+            id="nav-sheet"
+            className="nav__sheet"
+            aria-label="Menu"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div className="wrap">
+              <NavLink to="/simulate" className="nav__sheet-link">
+                Open the simulator
+              </NavLink>
+              {LINKS.map((l) => (
+                <NavLink key={l.to} to={l.to} className="nav__sheet-link">
+                  {l.label}
+                </NavLink>
+              ))}
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
       <motion.div className="progress" style={{ scaleX }} />
     </header>
   );
@@ -58,17 +94,29 @@ export function Footer() {
   return (
     <footer className="footer">
       <div className="wrap footer__inner">
-        <div style={{ display: 'grid', gap: 12 }}>
+        <div style={{ display: 'grid', gap: 12, maxWidth: 420 }}>
           <Link to="/" className="brand">
             <RippleMark size={26} />
             Ripple
           </Link>
           <p>
-            Built for the 2026 Congressional App Challenge. Ripple is a thinking tool: its reactions are simulated from patterns, not
-            collected from real people. Use it to prepare, then go listen to the people your decision affects.
+            Built for the 2026 Congressional App Challenge. Ripple is a thinking tool: its reactions are simulated from patterns and
+            published polls, not collected from real people. Use it to prepare, then go listen to the people your decision affects.
           </p>
         </div>
-        <div style={{ display: 'grid', gap: 6 }}>
+        <nav className="footer__col" aria-label="Explore">
+          <span className="label">Explore</span>
+          <Link to="/simulate">Simulator</Link>
+          <Link to="/bills">Real bills in Congress</Link>
+          <Link to="/district">Your district</Link>
+          <Link to="/compare">Compare two versions</Link>
+        </nav>
+        <nav className="footer__col" aria-label="Learn">
+          <span className="label">Learn</span>
+          <Link to="/methodology">Methodology & sources</Link>
+          <Link to="/about">About & privacy</Link>
+        </nav>
+        <div className="footer__col">
           <span className="label">Privacy</span>
           <p>No accounts. No tracking. Your recent decisions stay in this browser.</p>
         </div>

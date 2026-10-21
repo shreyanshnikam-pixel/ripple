@@ -7,6 +7,8 @@ import { ROUTER_BASENAME, USE_MEMORY_ROUTER } from './lib/config';
 import Landing from './pages/Landing';
 import Simulator from './pages/Simulator';
 import NotFound from './pages/NotFound';
+import Methodology from './pages/Methodology';
+import About from './pages/About';
 
 function Page({ children }: { children: React.ReactNode }) {
   return (
@@ -28,6 +30,8 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Page><Landing /></Page>} />
         <Route path="/simulate" element={<Page><Simulator /></Page>} />
+        <Route path="/methodology" element={<Page><Methodology /></Page>} />
+        <Route path="/about" element={<Page><About /></Page>} />
         <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
     </AnimatePresence>

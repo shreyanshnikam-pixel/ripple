@@ -170,3 +170,13 @@ test('every published poll anchor links to a source', async () => {
     for (const v of a.variants ?? []) if (v.basis === 'poll') assert.ok(v.source?.url.startsWith('https://'), `${a.id}/${v.label} has no source`);
   }
 });
+
+test('every published benchmark starts from its poll and lands within 9 points', async () => {
+  const { BENCHMARKS } = await import('./benchmarks');
+  for (const b of BENCHMARKS) {
+    const r = run(b.decision, b.scope ? { scope: b.scope } : {});
+    assert.equal(r.reality?.anchor.basis, 'poll', `${b.decision}: started from ${r.reality?.anchor.label} (${r.reality?.anchor.basis})`);
+    assert.equal(r.reality!.anchor.support, b.poll, `${b.decision}: anchor ${r.reality!.anchor.support} vs poll ${b.poll}`);
+    assert.ok(Math.abs(r.reality!.simulated - b.poll) <= 9, `${b.decision}: simulated ${r.reality!.simulated} vs ${b.poll}`);
+  }
+});
