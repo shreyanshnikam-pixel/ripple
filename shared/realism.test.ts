@@ -137,3 +137,36 @@ test('closing a library is read as closing a place people use', () => {
 test('replacing cashiers with kiosks is a business decision', () => {
   assert.equal(analyze('Replace our cashiers with self-checkout kiosks').scope, 'business');
 });
+
+// ───────── Congress & politics (added with the civic sources) ─────────
+/** Like near(), but also requires that the starting point is the named published poll. */
+const polled = (r: SimulationResult, expected: number, tol: number, org: RegExp) => {
+  assert.equal(r.reality?.anchor.basis, 'poll', `"${r.decision}" should start from a poll, got ${r.reality?.anchor.basis} (${r.reality?.anchor.label})`);
+  assert.match(r.reality!.anchor.source!.org, org);
+  near(r, expected, tol);
+};
+
+test('a popular vote for president matches Pew (63%, 2024)', () => polled(run('Elect the president by national popular vote instead of the Electoral College'), 63, 8, /Pew/));
+test('photo ID to vote matches Pew (81%, 2024)', () => polled(run('Require a government-issued photo ID to vote'), 81, 7, /Pew/));
+test('Election Day as a national holiday matches Pew (72%, 2024)', () => polled(run('Make Election Day a national holiday'), 72, 8, /Pew/));
+test('banning stock trading by members of Congress matches UMD (86%, 2023)', () => polled(run('Ban members of Congress from trading individual stocks'), 86, 7, /Maryland/));
+test('Supreme Court term limits match AP-NORC (67%, 2022)', () => polled(run('Set term limits for Supreme Court justices'), 67, 8, /AP-NORC/));
+test('legal recreational marijuana matches Pew (57%, 2024)', () => polled(run('Legalize marijuana for recreational use'), 57, 8, /Pew/));
+test('Medicare drug price negotiation matches KFF (85%, 2024)', () => polled(run('Let Medicare negotiate prescription drug prices'), 85, 7, /KFF/));
+test('background checks on private gun sales match Pew (81%, 2021)', () => polled(run('Require background checks for private gun sales and gun shows'), 81, 8, /Pew/));
+test('raising taxes on large corporations matches Pew (63%, 2025)', () => polled(run('Raise taxes on large corporations'), 63, 8, /Pew/));
+
+test('lowering the voting age to 16 is unpopular with adults but popular with teens', () => {
+  const r = run('Lower the voting age to 16');
+  assert.equal(r.reality?.anchor.id, 'voting-age');
+  assert.ok(r.reality!.simulated <= 35, `adults ${r.reality!.simulated}%`);
+  assert.ok(group(r, 'priya').net > 0, 'teens should lean for it');
+});
+
+test('every published poll anchor links to a source', async () => {
+  const { ANCHORS } = await import('./anchors');
+  for (const a of ANCHORS) {
+    if (a.basis === 'poll') assert.ok(a.source?.url.startsWith('https://'), `${a.id} has no source`);
+    for (const v of a.variants ?? []) if (v.basis === 'poll') assert.ok(v.source?.url.startsWith('https://'), `${a.id}/${v.label} has no source`);
+  }
+});

@@ -12,6 +12,7 @@
  * new rule (or the lifting of one, which flips the anchor).
  */
 import type { PollSource, Role, Scope } from './types';
+import { CIVIC_ANCHORS, PEW_TAXES } from './anchors-civic';
 
 /** One or more phrasings per role; different people in the same role get different ones. */
 export type Line = { pro?: string | string[]; con?: string | string[]; win?: string | string[]; lose?: string | string[] };
@@ -123,7 +124,9 @@ const SOCIAL = ['social media', 'instagram', 'tiktok', 'snapchat', 'facebook', '
 const AI = ['=ai', 'artificial intelligence', 'chatgpt', 'chatbot', 'gemini', 'copilot', 'generative'];
 const CUT = ['=cut', '=cuts', '=cutting', 'eliminat', '=end', '=drop', 'defund', 'get rid of', '=close', '=cancel', 'shut down', 'scrap'];
 
+/** Ordered from most to least specific: the first match wins. */
 export const ANCHORS: Anchor[] = [
+  ...CIVIC_ANCHORS,
   // ───────────── devices & phones ─────────────
   {
     id: 'devices-school', label: 'Banning all devices at school', scopes: ['school'], weakHint: 'school',
@@ -278,8 +281,12 @@ export const ANCHORS: Anchor[] = [
   },
   {
     id: 'tax-the-rich', label: 'Taxing high earners or big companies', scopes: ['community'],
-    all: [['=tax', '=taxes', '=taxing'], ['=rich', 'millionaire', 'billionaire', 'wealthy', 'corporation', 'big companies', 'top 1%', 'high earners', 'high-income']],
+    all: [['=tax', '=taxes', '=taxing'], ['=rich', 'millionaire', 'billionaire', 'wealthy', 'corporation', 'big companies', 'large businesses', 'top 1%', 'high earners', 'high-income', '$400', '400,000']],
     support: 60, basis: 'estimate', population: 'adults', polar: 0.7,
+    variants: [
+      { when: ['corporation', 'big companies', 'large businesses', 'big business'], support: 63, label: 'Raising taxes on large corporations', basis: 'poll', source: PEW_TAXES('63% of U.S. adults say tax rates on large businesses and corporations should be raised') },
+      { when: ['$400', '400,000', 'high earners', 'high-income', 'wealthy', '=rich', 'millionaire', 'billionaire', 'top 1%'], support: 58, label: 'Raising taxes on high-income households', basis: 'poll', source: PEW_TAXES('58% of U.S. adults say tax rates on household income over $400,000 should be raised') },
+    ],
     stakes: { owner: -0.3, investor: -0.5, taxpayer: -0.1, worker: 0.2, activist: 0.4, 'young-adult': 0.15 },
   },
   {

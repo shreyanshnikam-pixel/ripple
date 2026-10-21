@@ -193,7 +193,7 @@ export const MITIGATIONS: MitigationRule[] = [
   },
   {
     id: 'input', label: 'Community input',
-    keywords: ['survey', 'listening session', 'town hall', 'feedback', '=input', 'consult', 'community meeting', 'student vote', '=vote', 'co-design', 'ask students', 'ask residents', 'ask parents', 'check-in', 'check-ins', 'talk to'],
+    keywords: ['survey', 'listening session', 'town hall', 'feedback', '=input', 'consult', 'community meeting', 'student vote', 'put it to a vote', 'public vote', 'community vote', 'let residents vote', 'co-design', 'ask students', 'ask residents', 'ask parents', 'check-in', 'check-ins', 'talk to'],
     soften: { tradition: 0.8, community: 0.6 }, boost: { community: 0.12 }, changeFactor: 0.85,
   },
   {

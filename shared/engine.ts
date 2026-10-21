@@ -1005,8 +1005,7 @@ function voice(s: Scored, score: number, fa: FullAnalysis, used: Set<string>): O
   const negatives = entries.filter(([, c]) => c < 0).sort((x, y) => x[1] - y[1]);
   let direction: 'pro' | 'con' =
     score > STANCE_THRESHOLD ? 'pro' : score < -STANCE_THRESHOLD ? 'con' : (s.stake || score) >= 0 ? 'pro' : 'con';
-  let concernValue: Value =
-    (direction === 'pro' ? positives[0]?.[0] : negatives[0]?.[0]) ?? (direction === 'pro' ? (p.changeAversion < 0.3 ? 'innovation' : 'growth') : 'stability');
+  let concernValue: Value = (direction === 'pro' ? positives[0]?.[0] : negatives[0]?.[0]) ?? (direction === 'pro' ? 'community' : 'stability');
   // Prefer a value this persona has a voice line for, if it is almost as important.
   if (!p.lines[concernValue]) {
     const alt = (direction === 'pro' ? positives : negatives).find(([v, c]) => p.lines[v] && Math.abs(c) > Math.abs(s.contributions[concernValue] ?? 0) * 0.5);
@@ -1027,19 +1026,26 @@ function voice(s: Scored, score: number, fa: FullAnalysis, used: Set<string>): O
   }[stance];
   const changeMindType: 'win' | 'lose' = score > STANCE_THRESHOLD ? 'lose' : 'win';
   const persuade = changeMindType === 'win' ? (negatives[0]?.[0] ?? concernValue) : concernValue;
-  const pickVariant = (list: string[]) => {
-    const start = hashString(p.id + persuade) % list.length;
-    for (let i = 0; i < list.length; i++) {
-      const t = list[(start + i) % list.length];
-      if (!used.has(t)) return used.add(t), t;
+  // Prefer the value that moves this person, but never repeat a line someone else already said.
+  const pickVariant = (table: Record<Value, string[]>) => {
+    const order: Value[] = [persuade, ...(changeMindType === 'win' ? negatives : positives).map(([v]) => v), 'community', 'stability', 'time', 'equity'];
+    for (const v of order) {
+      const list = table[v];
+      const start = hashString(p.id + v) % list.length;
+      for (let i = 0; i < list.length; i++) {
+        const t = list[(start + i) % list.length];
+        if (!used.has(t)) {
+          used.add(t);
+          return t;
+        }
+      }
     }
-    return list[start];
+    return table[persuade][0];
   };
+  const personal = changeMindType === 'win' && fa.analysis.scope === 'personal' ? WIN_OVER_PERSONAL[persuade] : undefined;
   const changeMind =
     roleLine(p, fa.match, changeMindType, used)?.text ??
-    (changeMindType === 'win'
-      ? (fa.analysis.scope === 'personal' && WIN_OVER_PERSONAL[persuade]) || pickVariant(WIN_OVER[persuade])
-      : pickVariant(LOSE[persuade]));
+    (personal && !used.has(personal) ? (used.add(personal), personal) : pickVariant(changeMindType === 'win' ? WIN_OVER : LOSE));
   return {
     stance,
     score: round(score, 2),
