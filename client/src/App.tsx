@@ -1,19 +1,38 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ClickRipples, Footer, Nav } from './components/chrome';
 import { resetScroll, startSmoothScroll } from './lib/smooth';
 import { ROUTER_BASENAME, USE_MEMORY_ROUTER } from './lib/config';
 import Landing from './pages/Landing';
-import Simulator from './pages/Simulator';
-import NotFound from './pages/NotFound';
-import Methodology from './pages/Methodology';
-import About from './pages/About';
-import District from './pages/District';
-import Bills from './pages/Bills';
-import Compare from './pages/Compare';
-import Survey from './pages/Survey';
-import SurveyResults from './pages/SurveyResults';
+
+// Everything but the landing page loads on demand, and is prefetched once the browser is idle.
+const pages = {
+  simulator: () => import('./pages/Simulator'),
+  methodology: () => import('./pages/Methodology'),
+  about: () => import('./pages/About'),
+  district: () => import('./pages/District'),
+  bills: () => import('./pages/Bills'),
+  compare: () => import('./pages/Compare'),
+  survey: () => import('./pages/Survey'),
+  surveyResults: () => import('./pages/SurveyResults'),
+  notFound: () => import('./pages/NotFound'),
+};
+const Simulator = lazy(pages.simulator);
+const Methodology = lazy(pages.methodology);
+const About = lazy(pages.about);
+const District = lazy(pages.district);
+const Bills = lazy(pages.bills);
+const Compare = lazy(pages.compare);
+const Survey = lazy(pages.survey);
+const SurveyResults = lazy(pages.surveyResults);
+const NotFound = lazy(pages.notFound);
+
+function prefetchPages() {
+  const run = () => Object.values(pages).forEach((load) => load().catch(() => undefined));
+  if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 4000 });
+  else setTimeout(run, 2500);
+}
 
 function Page({ children }: { children: React.ReactNode }) {
   return (
@@ -23,7 +42,7 @@ function Page({ children }: { children: React.ReactNode }) {
       animate={{ opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }}
       exit={{ opacity: 0, y: -12, transition: { duration: 0.3 } }}
     >
-      {children}
+      <Suspense fallback={<div className="wrap page" aria-busy="true" />}>{children}</Suspense>
     </motion.main>
   );
 }
@@ -50,6 +69,7 @@ function AnimatedRoutes() {
 
 function Shell() {
   useEffect(() => startSmoothScroll(), []);
+  useEffect(prefetchPages, []);
   return (
     <>
       <a className="skip" href="#main">

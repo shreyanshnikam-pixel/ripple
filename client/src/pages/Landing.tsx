@@ -7,6 +7,7 @@ import { HowItWorks } from '../sections/HowItWorks';
 import { Spread, Voices } from '../sections/Voices';
 import { FinalCTA, Principles, UseCases } from '../sections/Closing';
 import { WordsMatter } from '../sections/WordsMatter';
+import { Toolkit } from '../sections/Toolkit';
 import { ScrollTrigger } from '../lib/smooth';
 
 export default function Landing() {
@@ -30,6 +31,7 @@ export default function Landing() {
       <Spread demo={demo} />
       <Voices />
       <WordsMatter />
+      <Toolkit />
       <UseCases />
       <Principles />
       <FinalCTA />

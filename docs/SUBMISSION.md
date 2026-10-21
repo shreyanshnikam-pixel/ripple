@@ -15,57 +15,68 @@
 
 ## App description (paste into the form, then edit in your own voice)
 
-> **Ripple** helps people make decisions that affect others. You type a decision, like "Ban phones during the
-> school day" or "Turn the downtown parking lot into a park", and Ripple simulates how 1,000 people would
-> react: parents, students, teachers, small business owners, retirees, and more. You see who supports it, who
-> opposes it and why, how opinions spread over a year, and a simulated town hall where the voices respond to each
-> other. Ripple then suggests changes, like a narrower version of the rule or a pilot program, and re-runs the
-> simulation to show how much each one would help.
+> **Ripple** helps people make decisions that affect others. You type a decision, like "Ban phones during
+> class" or "Ban members of Congress from trading stocks", and Ripple simulates how 1,000 people would react:
+> parents, students, teachers, small business owners, retirees and more. You see who supports it, who opposes
+> it and why, how opinions spread over a year, and a simulated town hall where the voices answer each other.
+> Ripple suggests changes, like a narrower version or a pilot, and re-runs the simulation to show how much each
+> one would help.
 >
-> Ripple is grounded in reality: when a decision matches a well-studied policy, the simulation starts from published
-> polling (Pew Research Center and others) and shows the source. Everything else is clearly labeled as an estimate.
+> Ripple is grounded in reality. When a decision matches a well-studied policy, the simulation starts from
+> published polling (Pew Research Center, Gallup, AP-NORC, KFF and others) and links the source. Enter your ZIP
+> code and Ripple fills the crowd with your congressional district's real population from U.S. Census data and
+> shows who represents you. A gallery of 25 real bills and laws from Congress, verified against Congress.gov,
+> lets you simulate the public reaction to each one.
 >
-> I built Ripple because decisions in my school and community are often made without hearing from the people they
-> affect most. Ripple is a rehearsal, not a replacement: every report ends by pointing you to the real people who
-> were most opposed, so you can go listen to them.
+> Ripple is a rehearsal, not a replacement. Every report says who really decides, drafts a letter to your
+> representative that cites real polls (never simulated numbers), and can turn the question into a 30-second
+> anonymous survey with a QR code, so you can compare real answers with the prediction. An optional AI report,
+> written by Claude from the simulation's data, adds recommendations and questions to ask real people.
 >
-> **Built with:** React, TypeScript, Vite, GSAP, Lenis, Framer Motion, Canvas, Node.js, Express. The simulation
-> engine is written from scratch: it reads a decision, finds the closest of about 50 well-known policies, starts from
-> real polling where it exists, lets 32 personas weigh the decision by their values and their own stake, and uses an
-> opinion-dynamics model so 1,000 agents influence their neighbors over time. Automated tests check it against real polls.
+> **Built with:** React, TypeScript, Vite, GSAP, Lenis, Framer Motion, Canvas, Node.js, Express, SQLite, U.S.
+> Census data, and the Anthropic API. The simulation engine is written from scratch: it reads a decision, starts
+> from real polling where it exists, lets 32 personas weigh the decision by their values and their own stake,
+> and uses an opinion-dynamics model so 1,000 agents influence their neighbors over time. 83 automated tests
+> check it against real polls.
 
-## Demo video script (about 2:45)
+## Demo video script (about 2:55)
 
 | Time | Show on screen | Say |
 | --- | --- | --- |
 | 0:00–0:15 | Landing page hero, move the mouse so the ripples follow | "Hi, I'm ___ from ___, and this is Ripple. Every decision makes waves, and Ripple lets you see them before you decide." |
-| 0:15–0:35 | Scroll slowly through the problem statement and "How it works" | "When a school or a town makes a decision, the people most affected often never get asked. I wanted a tool that helps you think about everyone in the room." |
-| 0:35–0:55 | Scroll into "Watch it ripple" so the crowd moves from Day 1 to Year 1 | "Each dot is one simulated person. As you scroll, a year passes. People talk to their neighbors, and opinions shift." |
-| 0:55–1:25 | Open the simulator, type "Raise the local sales tax by 1% to fund a new library", point at the live topic tags, press Simulate | "I'll try a real kind of decision. As I type, Ripple shows what it understood. Then it simulates 1,000 residents." |
-| 1:25–1:55 | Verdict, then the crowd: press "Play the year" and hover "Fiscal watchdogs" | "It leans toward support. Healthcare workers and advocates are for it, while fiscal watchdogs and retirees push back. I can highlight any group in the crowd and watch a year go by." |
-| 1:55–2:15 | Voices cards, then the town hall playing | "Here's what each group would say, and a simulated town hall where they actually argue with each other." |
-| 2:15–2:35 | Type "Ban all devices at school", show the Reality check, then click "Try this version" on "Narrow it to phones during class" | "Results are grounded in real polls. Banning every device gets about 12% support. Ripple suggests a narrower version, phones during class only, which Pew found 68% of adults support, and re-runs it." |
-| 2:35–2:45 | Method section and disclaimer | "Ripple always shows its work, and reminds you these are simulations. Use it to prepare, then go talk to real people. Thank you!" |
+| 0:15–0:30 | Scroll through the statement and "Watch it ripple" | "Decisions often get made without hearing from the people they affect. Each dot is one simulated person, and as I scroll, a year passes." |
+| 0:30–1:00 | Simulator: type "Ban all devices at school", show the Reality check, then click "Try this version" on "Narrow it to phones during class" | "Ripple is grounded in real polls. Banning every device gets very little support. A narrower version, phones during class, starts from a Pew poll where 68% of adults agree, and Ripple re-runs it." |
+| 1:00–1:20 | Crowd "Play the year", then Voices and the town hall | "I can watch opinions spread, hear what each group would say, and see them argue in a simulated forum." |
+| 1:20–1:45 | Your district: enter your ZIP, show the profile and your representative, click a suggested decision | "Ripple can also fill the room with my own congressional district's real population from Census data, and it shows who represents me." |
+| 1:45–2:10 | Real bills: filter "Passed a chamber", open the Stop Insider Trading Act, Simulate reactions, scroll to Take it further | "These are real bills from Congress. I can simulate the reaction, see who decides, and get a starter letter to my representative that cites real polls and names the bill." |
+| 2:10–2:35 | "Ask the real people": create a survey, show the QR code, open results with a few answers | "Ripple is a rehearsal. I can send a 30-second survey and compare real answers with the prediction, group by group." |
+| 2:35–2:50 | Compare page with "Phones at school" (or the AI report, if a key is set up) | "I can compare two wordings with the same crowd, or have Claude write a full report." |
+| 2:50–2:55 | Methodology page | "Every number shows its source. Use Ripple to prepare, then go listen. Thank you!" |
 
 Tips: record at 1920×1080 with the browser zoomed to about 110%, close other tabs, and run `npm run build && npm start`
-for the smoothest animations.
+for the smoothest animations. For the AI report in the video, set `ANTHROPIC_API_KEY` first.
 
 ## How Ripple lines up with what judges look for
 
-- **Civic impact:** it is built for student councils, city councils, families, and small businesses, and it
-  pushes users to listen to real people.
-- **Technical depth:** a custom simulation engine (topic analysis, ~50 policy anchors, poll calibration, persona
-  self-interest, agent-based opinion dynamics, tested fixes), a typed API shared by server and client, 32 automated
-  tests including realism checks against Pew and other polls, and an offline fallback.
-- **Realism you can verify:** every report shows its starting point and links to the poll it came from.
-- **Design:** a distinct visual identity, scroll-driven storytelling, and data visualizations that follow
-  accessibility rules (color-blind-safe palette, shapes and labels on top of color, table views, reduced motion).
-- **Responsibility:** transparency about how results are produced, clear limitations, and no data collection.
+- **Civic impact:** built for student councils, city councils, families, small businesses and Congress. It
+  connects each decision to the people who make it for real (your representative, your council) and pushes
+  users to listen to real people with surveys.
+- **Technical depth:** a custom simulation engine (topic analysis, poll anchors, calibration, persona
+  self-interest, agent-based opinion dynamics), a Census data pipeline for 437 districts and 33,000 ZIP codes,
+  a verified bills dataset, a SQLite survey service, an optional AI layer with structured outputs, and 83
+  automated tests including realism checks against real polls.
+- **Realism you can verify:** every report shows its starting point and links to the poll; every bill links to
+  Congress.gov; the Methodology page runs the realism checks live.
+- **Design:** a distinct visual identity, scroll-driven storytelling, accessible data visualizations
+  (color-blind-safe palettes, shapes and labels on top of color, table views, reduced motion).
+- **Responsibility:** simulated numbers are never presented as real results; letters cite real polls only;
+  ZIP lookups stay on the device; survey answers are anonymous; AI is optional and grounded.
 
 ## Checklist before you submit
 
 - [ ] Run `npm install && npm run dev` on your own computer and try several decisions.
 - [ ] Change anything you want in your own style, and make sure you can explain all of it.
-- [ ] Push the code to a public GitHub repository and add the link to your submission.
+- [ ] Fill in `client/src/content/team.ts` (your name, school, district, story) so the About page credits you.
+- [ ] Push the code to a public GitHub repository, turn on GitHub Pages (see README), and add both links to your submission.
 - [ ] Record and upload the demo video (public, under 3 minutes).
 - [ ] Fill in the form on your district's page before the deadline.

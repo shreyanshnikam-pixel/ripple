@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import type { SimulationResult } from '../../../shared/types';
 import { copyText } from '../lib/clipboard';
+import { BUILD_MODE } from '../lib/config';
 import { shareUrlFor } from '../lib/share';
 import { canvasToBlob, drawShareCard, fileNameFor } from '../lib/shareImage';
 import { lockScroll } from '../lib/smooth';
@@ -119,9 +120,12 @@ export function ShareSheet({ r, district, onClose, onDone }: { r: SimulationResu
           <button type="button" className="btn btn--sm" onClick={async () => onDone((await copyText(url)) ? 'Link copied' : 'Couldn’t copy. Select the link instead.')}>
             Copy link
           </button>
-          <button type="button" className="btn btn--ghost btn--sm" onClick={download} disabled={!image}>
-            Download image
-          </button>
+          {/* The hosted preview can't save files; the real site can. */}
+          {BUILD_MODE !== 'artifact' && (
+            <button type="button" className="btn btn--ghost btn--sm" onClick={download} disabled={!image}>
+              Download image
+            </button>
+          )}
           {canShare && (
             <button type="button" className="btn btn--ghost btn--sm" onClick={nativeShare}>
               Share…
