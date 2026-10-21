@@ -10,3 +10,4 @@ server/data/*.db
 server/data/*.db-*
 .env
 data/ripple.db*
+*.mp4

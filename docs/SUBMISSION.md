@@ -39,7 +39,22 @@
 > and uses an opinion-dynamics model so 1,000 agents influence their neighbors over time. 83 automated tests
 > check it against real polls.
 
-## Demo video script (about 2:55)
+## The ready-made demo video
+
+`ripple-demo.mp4` (2:48, 1920×1080) is a captioned walkthrough of the real app. To finish it:
+
+1. Record your voice over it with `docs/video/narration.md`, which is timed to the video. Start with your name,
+   your school, the app's name and its purpose. Free editors such as CapCut, iMovie or Clipchamp can add a voice track.
+2. Upload it to YouTube as **Public** (or Vimeo), with `docs/video/thumbnail.png` as the thumbnail. The captions are
+   already in the video; `docs/video/captions.srt` is there if you want closed captions too.
+3. To put your name on the title and end cards, or to re-record after changing the app:
+   `npm run build && npm start`, then in another terminal
+   `NAME="Your Name" SCHOOL="Your School" ZIP="your ZIP" BASE_URL=http://localhost:8787 node scripts/video/record-demo.mjs`
+   (needs `npm i -D playwright && npx playwright install chromium`, and ffmpeg).
+
+The survey results in the video use sample answers submitted by the recording script, and the video says so on screen.
+
+## Demo video script (about 2:55, if you'd rather record your own)
 
 | Time | Show on screen | Say |
 | --- | --- | --- |

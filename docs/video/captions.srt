@@ -1,0 +1,87 @@
+1
+00:00:05,047 --> 00:00:09,775
+Every decision makes waves. Ripple lets you see them before you decide.
+
+2
+00:00:09,775 --> 00:00:13,958
+Decisions often get made without hearing from the people they affect.
+
+3
+00:00:13,958 --> 00:00:25,530
+Ripple simulates 1,000 people. As you scroll, a year passes and opinions spread.
+
+4
+00:00:25,530 --> 00:00:29,527
+Type any decision. Ripple reads it as you type.
+
+5
+00:00:29,527 --> 00:00:33,730
+It simulates 1,000 students, teachers and families…
+
+6
+00:00:33,730 --> 00:00:39,361
+…and starts from real polls. Banning every device gets very little support.
+
+7
+00:00:39,361 --> 00:00:56,552
+Ripple suggests a narrower version and tests it by re-running the simulation.
+
+8
+00:00:56,552 --> 00:01:00,355
+Phones only during class: 68% of adults support that in a Pew Research poll.
+
+9
+00:01:00,355 --> 00:01:06,237
+Share a link that reproduces the exact result, or an image card.
+
+10
+00:01:06,237 --> 00:01:10,688
+Optional: Claude can write a full report from the simulation’s data.
+
+11
+00:01:10,688 --> 00:01:22,937
+Watch the crowd make up its mind over a year.
+
+12
+00:01:22,937 --> 00:01:28,131
+Hear what each group would say, in its own words.
+
+13
+00:01:28,131 --> 00:01:35,496
+…and a town hall where the voices answer each other.
+
+14
+00:01:35,496 --> 00:01:41,704
+Enter a ZIP code and Ripple builds the crowd from your district’s real Census data.
+
+15
+00:01:41,704 --> 00:01:47,460
+It shows who represents you, and how your district compares with the country.
+
+16
+00:01:47,460 --> 00:01:52,704
+25 real bills from Congress, checked against Congress.gov.
+
+17
+00:01:52,704 --> 00:02:00,347
+Read what a bill does, see how far it got, and simulate it — even in your own district.
+
+18
+00:02:00,347 --> 00:02:09,986
+Then take it further: who decides, and a letter to your representative that cites real polls.
+
+19
+00:02:09,986 --> 00:02:17,747
+Ripple is a rehearsal. Send a 30-second survey to real people.
+
+20
+00:02:17,747 --> 00:02:26,224
+As answers come in, they appear live next to Ripple’s prediction, group by group.
+
+21
+00:02:26,224 --> 00:02:36,330
+Compare two wordings with the same crowd. Words change who’s with you.
+
+22
+00:02:36,330 --> 00:02:43,491
+Every number shows its source, and Ripple checks itself against real polls.

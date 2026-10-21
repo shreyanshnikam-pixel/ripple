@@ -80,6 +80,11 @@ The static site runs the whole simulation in the browser. Surveys switch to on-d
 shareable survey links and a server-side AI key, deploy the server (`npm start`) to any
 Node host and set the repository variable `RIPPLE_API_URL` to its address.
 
+## Demo video
+
+`scripts/video/record-demo.mjs` records a captioned 1080p walkthrough of the running app (under 3 minutes) with
+Playwright and ffmpeg, plus timed narration and captions. See `docs/SUBMISSION.md` for how to use it.
+
 ## How it's built
 
 ```
