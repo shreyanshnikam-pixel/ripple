@@ -3,6 +3,7 @@ export default {
   'Real bills': 'Proyectos de ley',
   'Your district': 'Tu distrito',
   Compare: 'Comparar',
+  Projects: 'Proyectos',
   Methodology: 'Metodología',
   About: 'Acerca de',
   'Open the simulator': 'Abrir el simulador',

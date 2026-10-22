@@ -19,6 +19,9 @@ const pages = {
   surveyResults: () => import('./pages/SurveyResults'),
   notFound: () => import('./pages/NotFound'),
   trackRecord: () => import('./pages/TrackRecord'),
+  projects: () => import('./pages/Projects'),
+  project: () => import('./pages/ProjectPage'),
+  join: () => import('./pages/Join'),
 };
 const Simulator = lazy(pages.simulator);
 const Methodology = lazy(pages.methodology);
@@ -30,6 +33,9 @@ const Survey = lazy(pages.survey);
 const SurveyResults = lazy(pages.surveyResults);
 const NotFound = lazy(pages.notFound);
 const TrackRecord = lazy(pages.trackRecord);
+const Projects = lazy(pages.projects);
+const ProjectPage = lazy(pages.project);
+const Join = lazy(pages.join);
 
 function prefetchPages() {
   const run = () => Object.values(pages).forEach((load) => load().catch(() => undefined));
@@ -65,6 +71,9 @@ function AnimatedRoutes() {
         <Route path="/survey/:id" element={<Page><Survey /></Page>} />
         <Route path="/survey/:id/results" element={<Page><SurveyResults /></Page>} />
         <Route path="/track-record" element={<Page><TrackRecord /></Page>} />
+        <Route path="/projects" element={<Page><Projects /></Page>} />
+        <Route path="/p/:id" element={<Page><ProjectPage /></Page>} />
+        <Route path="/join" element={<Page><Join /></Page>} />
         <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
     </AnimatePresence>

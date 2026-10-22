@@ -9,6 +9,7 @@ const LINKS = [
   { to: '/bills', label: 'Real bills' },
   { to: '/district', label: 'Your district' },
   { to: '/compare', label: 'Compare' },
+  { to: '/projects', label: 'Projects' },
   { to: '/methodology', label: 'Methodology' },
   { to: '/about', label: 'About' },
 ];
@@ -124,10 +125,13 @@ export function Footer() {
           <Link to="/bills">{t('Real bills in Congress')}</Link>
           <Link to="/district">{t('Your district')}</Link>
           <Link to="/compare">{t('Compare two versions')}</Link>
+          <Link to="/projects">{t('Projects & classes')}</Link>
+          <Link to="/join">{t('Join a class')}</Link>
         </nav>
         <nav className="footer__col" aria-label={t('Learn')}>
           <span className="label">{t('Learn')}</span>
           <Link to="/methodology">{t('Methodology & sources')}</Link>
+          <Link to="/track-record">{t('Track record')}</Link>
           <Link to="/about">{t('About & privacy')}</Link>
         </nav>
         <div className="footer__col">
