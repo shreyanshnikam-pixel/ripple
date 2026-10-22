@@ -5,6 +5,7 @@ import { ClickRipples, Footer, Nav } from './components/chrome';
 import { resetScroll, startSmoothScroll } from './lib/smooth';
 import { ROUTER_BASENAME, USE_MEMORY_ROUTER } from './lib/config';
 import Landing from './pages/Landing';
+import { LangProvider } from './i18n';
 
 // Everything but the landing page loads on demand, and is prefetched once the browser is idle.
 const pages = {
@@ -87,13 +88,17 @@ export default function App() {
   const future = { v7_startTransition: true, v7_relativeSplatPath: true };
   if (USE_MEMORY_ROUTER)
     return (
-      <MemoryRouter future={future}>
-        <Shell />
-      </MemoryRouter>
+      <LangProvider>
+        <MemoryRouter future={future}>
+          <Shell />
+        </MemoryRouter>
+      </LangProvider>
     );
   return (
-    <BrowserRouter basename={ROUTER_BASENAME} future={future}>
-      <Shell />
-    </BrowserRouter>
+    <LangProvider>
+      <BrowserRouter basename={ROUTER_BASENAME} future={future}>
+        <Shell />
+      </BrowserRouter>
+    </LangProvider>
   );
 }

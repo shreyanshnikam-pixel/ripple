@@ -3953,3 +3953,23 @@ body::before {
 .tool:hover .tool__go {
   transform: translateX(6px);
 }
+
+/* ───────── language toggle ───────── */
+.nav__lang {
+  min-width: 40px;
+  height: 38px;
+  margin-left: 6px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--paper);
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+.nav__lang:hover {
+  border-color: var(--mist);
+}

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useT } from '../i18n';
 import { prefersReducedMotion } from '../lib/motion';
 import { Arrow, RippleMark, useMagnetic } from './ui';
 
@@ -19,6 +20,7 @@ export function Nav() {
   const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.3 });
   const loc = useLocation();
   const cta = useMagnetic<HTMLAnchorElement>(0.2);
+  const { t, lang, setLang } = useT();
 
   useEffect(() => {
     const on = () => setSolid(window.scrollY > 24);
@@ -39,21 +41,31 @@ export function Nav() {
   return (
     <header className={`nav ${solid || open ? 'nav--solid' : ''}`}>
       <div className="wrap nav__inner">
-        <Link to="/" className="brand" aria-label="Ripple home">
+        <Link to="/" className="brand" aria-label={t('Ripple home')}>
           <RippleMark />
           Ripple
         </Link>
         <nav className="nav__links" aria-label="Main">
           {LINKS.map((l) => (
             <NavLink key={l.to} to={l.to} className="nav__link nav__link--hide">
-              {l.label}
+              {t(l.label)}
             </NavLink>
           ))}
           <NavLink to="/simulate" className="btn btn--sm nav__cta" ref={cta} style={{ marginLeft: 8 }}>
-            Open the simulator <Arrow size={16} />
+            {t('Open the simulator')} <Arrow size={16} />
           </NavLink>
+          <button
+            type="button"
+            className="nav__lang"
+            lang={lang === 'es' ? 'en' : 'es'}
+            aria-label={lang === 'es' ? t('Switch to English') : t('Cambiar a español')}
+            title={lang === 'es' ? 'Switch to English' : 'Cambiar a español'}
+            onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+          >
+            {lang === 'es' ? 'EN' : 'ES'}
+          </button>
           <button className="nav__menu" aria-expanded={open} aria-controls="nav-sheet" onClick={() => setOpen((o) => !o)}>
-            <span className="sr-only">{open ? 'Close menu' : 'Open menu'}</span>
+            <span className="sr-only">{open ? t('Close menu') : t('Open menu')}</span>
             <span className={`burger ${open ? 'is-open' : ''}`} aria-hidden="true">
               <i />
               <i />
@@ -74,11 +86,11 @@ export function Nav() {
           >
             <div className="wrap">
               <NavLink to="/simulate" className="nav__sheet-link">
-                Open the simulator
+                {t('Open the simulator')}
               </NavLink>
               {LINKS.map((l) => (
                 <NavLink key={l.to} to={l.to} className="nav__sheet-link">
-                  {l.label}
+                  {t(l.label)}
                 </NavLink>
               ))}
             </div>
@@ -91,6 +103,7 @@ export function Nav() {
 }
 
 export function Footer() {
+  const { t } = useT();
   return (
     <footer className="footer">
       <div className="wrap footer__inner">
@@ -100,25 +113,26 @@ export function Footer() {
             Ripple
           </Link>
           <p>
-            Built for the 2026 Congressional App Challenge. Ripple is a thinking tool: its reactions are simulated from patterns and
-            published polls, not collected from real people. Use it to prepare, then go listen to the people your decision affects.
+            {t(
+              'Built for the 2026 Congressional App Challenge. Ripple is a thinking tool: its reactions are simulated from patterns and published polls, not collected from real people. Use it to prepare, then go listen to the people your decision affects.',
+            )}
           </p>
         </div>
-        <nav className="footer__col" aria-label="Explore">
-          <span className="label">Explore</span>
-          <Link to="/simulate">Simulator</Link>
-          <Link to="/bills">Real bills in Congress</Link>
-          <Link to="/district">Your district</Link>
-          <Link to="/compare">Compare two versions</Link>
+        <nav className="footer__col" aria-label={t('Explore')}>
+          <span className="label">{t('Explore')}</span>
+          <Link to="/simulate">{t('Simulator')}</Link>
+          <Link to="/bills">{t('Real bills in Congress')}</Link>
+          <Link to="/district">{t('Your district')}</Link>
+          <Link to="/compare">{t('Compare two versions')}</Link>
         </nav>
-        <nav className="footer__col" aria-label="Learn">
-          <span className="label">Learn</span>
-          <Link to="/methodology">Methodology & sources</Link>
-          <Link to="/about">About & privacy</Link>
+        <nav className="footer__col" aria-label={t('Learn')}>
+          <span className="label">{t('Learn')}</span>
+          <Link to="/methodology">{t('Methodology & sources')}</Link>
+          <Link to="/about">{t('About & privacy')}</Link>
         </nav>
         <div className="footer__col">
-          <span className="label">Privacy</span>
-          <p>No accounts. No tracking. Your recent decisions stay in this browser, and survey answers are anonymous.</p>
+          <span className="label">{t('Privacy')}</span>
+          <p>{t('No accounts. No tracking. Your recent decisions stay in this browser, and survey answers are anonymous.')}</p>
         </div>
       </div>
     </footer>
