@@ -4129,3 +4129,26 @@ body::before {
 .proj-share {
   align-items: start;
 }
+.act__also {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+.act__body {
+  display: grid;
+  gap: 4px;
+}
+.act__letter .segmented button.is-on {
+  background: var(--paper);
+  color: var(--ink);
+}
+.act__letter {
+  align-content: start;
+}
+.act__letter .segmented {
+  justify-self: start;
+}
+.act__letter .actions .btn {
+  min-height: 38px;
+}

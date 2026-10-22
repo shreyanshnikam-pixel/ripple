@@ -85,7 +85,8 @@ export interface LetterTarget {
   rep: Member | null;
 }
 
-const lowerFirst = (s: string) => (/^[A-Z][a-z]/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
+// Lowercase the first letter unless the word is an acronym ("AI rules" stays as is).
+const lowerFirst = (s: string) => (/^[A-Z](?![A-Z])/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
 
 /** True when the "letter" is a message to people you know rather than to officials. */
 export const isConversation = (level: Level) => level === 'personal' || level === 'business';

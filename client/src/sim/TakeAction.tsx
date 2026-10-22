@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BILL_STAGES, billsForTopic } from '../../../shared/bills';
-import { isConversation, letterFor, whoDecides } from '../../../shared/civics';
+import { decisionBodies, isConversation, letterFor, whoDecides, type Level } from '../../../shared/civics';
 import type { SimulationResult } from '../../../shared/types';
 import { DistrictPicker } from '../components/district';
 import { Reveal } from '../components/ui';
@@ -18,13 +18,16 @@ export function TakeAction({ r, home, yours, onPick, onCopied }: { r: Simulation
   const who = whoDecides(r);
   const rep = home?.district.rep ?? null;
   const target = home ? { label: home.district.label, rep } : null;
-  const [text, setText] = useState(() => letterFor(r, target));
+  const bodies = decisionBodies(r, home?.district.st);
+  const [to, setTo] = useState<Level>(who.level);
+  const [text, setText] = useState(() => letterFor(r, target, to));
   const [edited, setEdited] = useState(false);
 
-  // A new result or a newly chosen district refreshes the draft, unless the person has started writing.
+  useEffect(() => setTo(whoDecides(r).level), [r]);
+  // A new result, district or recipient refreshes the draft, unless the person has started writing.
   useEffect(() => {
-    if (!edited) setText(letterFor(r, home ? { label: home.district.label, rep: home.district.rep } : null));
-  }, [r, home, edited]);
+    if (!edited) setText(letterFor(r, home ? { label: home.district.label, rep: home.district.rep } : null, to));
+  }, [r, home, edited, to]);
 
   const conversation = isConversation(who.level);
   const bills = r.reality ? billsForTopic(r.reality.anchor.id) : [];
@@ -89,6 +92,25 @@ export function TakeAction({ r, home, yours, onPick, onCopied }: { r: Simulation
           </div>
         )}
 
+        {bodies.length > 1 && (
+          <div className="act__also">
+            <span className="label">{t('Also has a say')}</span>
+            {bodies.slice(1).map((b) => (
+              <div key={b.level} className="act__body">
+                <b>{t(b.title)}</b>
+                <p className="reality__note">{t(b.detail)}</p>
+                <div className="actions">
+                  {b.links.map((l) => (
+                    <a key={l.url} className="linkish" href={l.url} target="_blank" rel="noreferrer">
+                      {t(l.label)} ↗
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {who.level === 'local' && (
           <p className="reality__note">
             {t('Look for “agendas” or “public comment” on your city or county website. Written comments usually count the same as speaking at the meeting.')}
@@ -111,6 +133,15 @@ export function TakeAction({ r, home, yours, onPick, onCopied }: { r: Simulation
               : 'Esta carta de ejemplo está en inglés por ahora. Si prefieres, escribe la tuya en español con tus propias palabras.'}
           </p>
         )}
+        {!conversation && bodies.length > 1 && (
+          <div className="segmented" role="radiogroup" aria-label={t('Write to')}>
+            {bodies.map((b) => (
+              <button key={b.level} type="button" role="radio" aria-checked={to === b.level} className={to === b.level ? 'is-on' : ''} onClick={() => setTo(b.level)}>
+                <span>{t(b.level === 'federal' ? 'Congress' : b.level === 'state' ? 'State legislature' : b.level === 'local' ? 'City or county' : b.title)}</span>
+              </button>
+            ))}
+          </div>
+        )}
         <label className="sr-only" htmlFor="act-letter">
           {conversation ? t('Your message') : t('Your letter')}
         </label>
@@ -132,7 +163,7 @@ export function TakeAction({ r, home, yours, onPick, onCopied }: { r: Simulation
               className="btn btn--ghost btn--sm"
               onClick={() => {
                 setEdited(false);
-                setText(letterFor(r, target));
+                setText(letterFor(r, target, to));
               }}
             >
               {t('Start over')}
