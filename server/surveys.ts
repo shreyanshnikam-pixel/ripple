@@ -10,25 +10,11 @@
  */
 import express, { type Router } from 'express';
 import { randomBytes } from 'node:crypto';
-import fs from 'node:fs';
-import path from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { simulate } from '../shared/engine';
+import { db } from './db';
 import type { CalibrationRecord } from '../shared/calibration';
 import { makeSurvey, readResponse, tally, type SurveyDef, type SurveyStance } from '../shared/surveys';
 import type { DecisionInput } from '../shared/types';
-
-const DB_PATH = process.env.DB_PATH ?? path.resolve('data/ripple.db');
-fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
-const db = new DatabaseSync(DB_PATH);
-db.exec(`
-  CREATE TABLE IF NOT EXISTS surveys (id TEXT PRIMARY KEY, key TEXT NOT NULL, def TEXT NOT NULL, created INTEGER NOT NULL);
-  CREATE TABLE IF NOT EXISTS responses (
-    id INTEGER PRIMARY KEY, survey TEXT NOT NULL, stance TEXT NOT NULL, grp TEXT, reason TEXT,
-    voter TEXT NOT NULL, created INTEGER NOT NULL, UNIQUE (survey, voter)
-  );
-  CREATE INDEX IF NOT EXISTS responses_by_survey ON responses (survey);
-`);
 
 const MAX_RESPONSES = 5000;
 const token = (bytes: number) => randomBytes(bytes).toString('base64url');

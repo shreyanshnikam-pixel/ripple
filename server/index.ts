@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { analyze, ENGINE_VERSION, simulate } from '../shared/engine';
 import { AI_ENABLED, aiRouter } from './ai';
 import { calibrationRecords, surveyRouter } from './surveys';
+import { projectRouter } from './projects';
 import { calibrationTable, trackRecord } from '../shared/calibration';
 import { ANCHORS } from '../shared/anchors';
 import type { DecisionInput, ScopeChoice, SimulationResult } from '../shared/types';
@@ -116,6 +117,7 @@ app.get('/api/track-record', (_req, res) => {
 
 app.use('/api/ai', aiRouter(readCalibrated));
 app.use('/api/surveys', surveyRouter(readCalibrated));
+app.use('/api/projects', projectRouter(readCalibrated));
 
 app.post('/api/simulate', async (req, res, next) => {
   try {
