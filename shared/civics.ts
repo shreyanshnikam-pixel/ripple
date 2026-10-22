@@ -6,7 +6,7 @@ import { billsForTopic } from './bills';
 import type { Member } from './districts';
 import type { SimulationResult } from './types';
 
-export type Level = 'federal' | 'local' | 'school-board' | 'school' | 'business' | 'personal';
+export type Level = 'federal' | 'state' | 'local' | 'school-board' | 'school' | 'business' | 'personal';
 
 /** Questions Congress votes on (and has recent bills about). */
 const FEDERAL = new Set([
@@ -36,6 +36,49 @@ export function whoDecides(r: SimulationResult): WhoDecides {
   return { level: 'local', title: 'Your city council or county board', detail: 'Decisions like this are usually made locally. Most councils take public comment at every meeting, in person or in writing.' };
 }
 
+/** Questions state legislatures also decide (or mostly decide). */
+const STATE = new Set([
+  'voter-id', 'early-voting', 'vote-by-mail', 'felon-voting', 'auto-registration', 'marijuana', 'guns', 'min-wage',
+  'social-minors', 'phones-school', 'devices-school', 'later-start', 'gas-cars', 'daylight-saving', 'housing', 'rent-control',
+  'free-meals', 'school-security', 'armed-teachers', 'speed-cameras', 'plastic', 'gas-stoves',
+]);
+/** Questions cities and counties also act on. */
+const LOCAL_TOO = new Set(['min-wage', 'housing', 'rent-control', 'plastic', 'gas-stoves', 'leaf-blowers', 'renewables', 'solar-farm']);
+
+export interface DecisionBody {
+  level: Level;
+  title: string;
+  detail: string;
+  links: { label: string; url: string }[];
+}
+
+const HOUSE_FINDER = { label: 'Find your representative', url: 'https://www.house.gov/representatives/find-your-representative' };
+const STATE_FINDER = { label: 'Find your state legislators', url: 'https://openstates.org/find_your_legislator/' };
+const LOCAL_FINDER = { label: 'Find your local government', url: 'https://www.usa.gov/local-governments' };
+
+/** Everyone with a say, the main decision-maker first. `st` is a two-letter state code when known. */
+export function decisionBodies(r: SimulationResult, st?: string | null): DecisionBody[] {
+  const main = whoDecides(r);
+  const id = r.reality?.anchor.id ?? '';
+  const stateLinks = [...(st && /^[A-Z]{2}$/.test(st) && st !== 'DC' && st !== 'PR' ? [{ label: `Your state legislature on Open States`, url: `https://openstates.org/${st.toLowerCase()}/` }] : []), STATE_FINDER];
+  const state: DecisionBody = {
+    level: 'state',
+    title: 'Your state legislature',
+    detail: main.level === 'federal' ? 'States make many of their own rules on this, too. Your state senator and representative vote on them.' : 'Some states set rules on this, too. Your state senator and representative vote on them.',
+    links: stateLinks,
+  };
+  const local: DecisionBody = { level: 'local', title: 'Your city council or county board', detail: 'Cities and counties can act on this, too. Most councils take public comment at every meeting.', links: [LOCAL_FINDER] };
+  const first: DecisionBody = {
+    ...main,
+    links: main.level === 'federal' ? [HOUSE_FINDER] : main.level === 'local' ? [LOCAL_FINDER] : [],
+  };
+  if (main.level === 'personal' || main.level === 'business') return [first];
+  const out = [first];
+  if (STATE.has(id)) out.push(state);
+  if (main.level !== 'local' && LOCAL_TOO.has(id) && r.scope === 'community') out.push(local);
+  return out;
+}
+
 export interface LetterTarget {
   /** e.g. "CA-12" */
   label: string;
@@ -48,8 +91,9 @@ const lowerFirst = (s: string) => (/^[A-Z][a-z]/.test(s) ? s[0].toLowerCase() + 
 export const isConversation = (level: Level) => level === 'personal' || level === 'business';
 
 /** A starter letter the writer finishes in their own words. It never takes a side. */
-export function letterFor(r: SimulationResult, target: LetterTarget | null): string {
-  const who = whoDecides(r);
+export function letterFor(r: SimulationResult, target: LetterTarget | null, to?: Level): string {
+  const main = whoDecides(r);
+  const who = to ? { ...main, level: to } : main;
   if (isConversation(who.level)) {
     return [
       'Hi [name],',
@@ -61,7 +105,9 @@ export function letterFor(r: SimulationResult, target: LetterTarget | null): str
   const greeting =
     who.level === 'federal'
       ? `Dear Representative ${target?.rep?.last ?? '[name]'},`
-      : who.level === 'local'
+      : who.level === 'state'
+        ? 'Dear [State Senator or Representative name],'
+        : who.level === 'local'
         ? 'Dear Council Members,'
         : who.level === 'school-board'
           ? 'Dear School Board Members,'
@@ -72,7 +118,9 @@ export function letterFor(r: SimulationResult, target: LetterTarget | null): str
   const intro =
     who.level === 'federal'
       ? `I’m a constituent in ${target?.label ?? '[your congressional district]'}, and I’m writing about a proposal: ${decision}`
-      : who.level === 'local'
+      : who.level === 'state'
+        ? `I live in your district in [your town], and I’m writing about a proposal: ${decision}`
+        : who.level === 'local'
         ? `I live in [your town], and I’m writing about a proposal: ${decision}`
         : `I’m writing about a proposal: ${decision}`;
 
@@ -90,7 +138,7 @@ export function letterFor(r: SimulationResult, target: LetterTarget | null): str
   const thanks =
     who.level === 'federal' ? 'Thank you for your time and for listening to the people you represent.' : 'Thank you for your time and for your service.';
   const sign =
-    who.level === 'federal'
+    who.level === 'federal' || who.level === 'state'
       ? 'Sincerely,\n[Your name]\n[Your street address and ZIP code, so the office can confirm you live in the district]'
       : 'Sincerely,\n[Your name]';
 

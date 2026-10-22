@@ -64,3 +64,39 @@ test('letters about federal questions name the related bill, so offices can file
   const local = simulate({ decision: 'Turn the downtown parking lot into a park', scope: 'community' });
   assert.doesNotMatch(letterFor(local, null), /Related legislation/);
 });
+
+import { decisionBodies } from './civics';
+
+test('the minimum wage is set by Congress, states and some cities', () => {
+  const r = simulate({ decision: 'Raise the minimum wage to $15 an hour', scope: 'community' });
+  assert.deepEqual(decisionBodies(r).map((b) => b.level), ['federal', 'state', 'local']);
+});
+
+test('voting rules involve Congress and state legislatures', () => {
+  const r = simulate({ decision: 'Require a government-issued photo ID to vote', scope: 'community' });
+  assert.deepEqual(decisionBodies(r).map((b) => b.level), ['federal', 'state']);
+});
+
+test('a park is a local decision only', () => {
+  const r = simulate({ decision: 'Turn the downtown parking lot into a park', scope: 'community' });
+  assert.deepEqual(decisionBodies(r).map((b) => b.level), ['local']);
+});
+
+test('school phone rules: the school first, then the state', () => {
+  const r = simulate({ decision: 'Ban phones during class', scope: 'school' });
+  assert.deepEqual(decisionBodies(r).map((b) => b.level), ['school', 'state']);
+});
+
+test('state bodies link to that state on Open States when the state is known', () => {
+  const r = simulate({ decision: 'Require a government-issued photo ID to vote', scope: 'community' });
+  const state = decisionBodies(r, 'MI').find((b) => b.level === 'state')!;
+  assert.ok(state.links.some((l) => l.url === 'https://openstates.org/mi/'));
+  assert.ok(state.links.some((l) => l.url === 'https://openstates.org/find_your_legislator/'));
+});
+
+test('letters can be addressed to a state legislator instead of Congress', () => {
+  const r = simulate({ decision: 'Require a government-issued photo ID to vote', scope: 'community' });
+  const text = letterFor(r, null, 'state');
+  assert.match(text, /^Dear \[State Senator or Representative name\],/);
+  assert.doesNotMatch(text, /Related legislation: H\.R\./);
+});
