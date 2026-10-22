@@ -5,6 +5,7 @@ import { analyze } from '../../../shared/engine';
 import { SCOPE_META } from '../../../shared/personas';
 import type { Scope, ScopeChoice, SimulationResult } from '../../../shared/types';
 import { Arrow, SplitHeading, Toast } from '../components/ui';
+import { useT } from '../i18n';
 import { runSimulation } from '../lib/api';
 import { copyText } from '../lib/clipboard';
 import { appUrl } from '../lib/config';
@@ -37,48 +38,50 @@ function Marker({ side }: { side: 'a' | 'b' }) {
 function VersionCard({ side, r }: { side: 'a' | 'b'; r: SimulationResult }) {
   const s = r.summary;
   const anchor = r.reality?.anchor;
+  const { t } = useT();
+  const V = side.toUpperCase();
   return (
     <motion.div className="panel cmp-card" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: side === 'b' ? 0.08 : 0 }}>
       <span className="label cmp-card__label">
-        <Marker side={side} /> Version {side.toUpperCase()}
+        <Marker side={side} /> {t('Version {v}', { v: V })}
       </span>
       <p className="verdict__decision">“{r.decision}”</p>
       <div className="cmp-card__net">
         <b className="num">{signed(s.net)}</b>
         <span className="reality__note">
-          net support on day 1
+          {t('net support on day 1')}
           <br />
           {s.verdict}
         </span>
       </div>
-      <div className="stack" role="img" aria-label={`${s.support}% for, ${s.neutral}% undecided, ${s.oppose}% against`}>
+      <div className="stack" role="img" aria-label={t('{a}% for, {b}% undecided, {c}% against', { a: s.support, b: s.neutral, c: s.oppose })}>
         <div style={{ width: `${s.support}%`, background: 'var(--support)' }} />
         <div style={{ width: `${s.neutral}%`, background: 'var(--neutral)' }} />
         <div style={{ width: `${s.oppose}%`, background: 'var(--oppose)' }} />
       </div>
       <div className="legend">
         <span className="key">
-          <i style={{ background: 'var(--support)' }} /> For <b className="num">{s.support}%</b>
+          <i style={{ background: 'var(--support)' }} /> {t('For')} <b className="num">{s.support}%</b>
         </span>
         <span className="key">
-          <i style={{ background: 'var(--neutral)' }} /> Undecided <b className="num">{s.neutral}%</b>
+          <i style={{ background: 'var(--neutral)' }} /> {t('Undecided')} <b className="num">{s.neutral}%</b>
         </span>
         <span className="key">
-          <i style={{ background: 'var(--oppose)' }} /> Against <b className="num">{s.oppose}%</b>
+          <i style={{ background: 'var(--oppose)' }} /> {t('Against')} <b className="num">{s.oppose}%</b>
         </span>
       </div>
       <ul className="reality__steps">
         <li>
-          <span>After a year</span>
+          <span>{t('After a year')}</span>
           <b className="num" style={{ color: 'var(--paper)' }}>
             {signed(s.longTermNet)}
           </b>
         </li>
         {anchor && (
           <li>
-            <span>Starts from</span>
+            <span>{t('Starts from')}</span>
             <span style={{ color: 'var(--paper)', textAlign: 'right' }}>
-              {anchor.label} · {BASIS[anchor.basis]}
+              {anchor.label} · {t(BASIS[anchor.basis])}
             </span>
           </li>
         )}
@@ -92,7 +95,7 @@ function VersionCard({ side, r }: { side: 'a' | 'b'; r: SimulationResult }) {
         ))}
       </ul>
       <Link className="linkish" to={simulatorPath({ decision: r.decision, scope: r.scope, mix: r.mix })}>
-        Open the full report for Version {side.toUpperCase()} →
+        {t('Open the full report for Version {v} →', { v: V })}
       </Link>
     </motion.div>
   );
@@ -102,6 +105,7 @@ function VersionCard({ side, r }: { side: 'a' | 'b'; r: SimulationResult }) {
 function GroupShift({ a, b }: { a: SimulationResult; b: SimulationResult }) {
   const [table, setTable] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
+  const { t } = useT();
   const rows = a.groups
     .map((ga) => {
       const gb = b.groups.find((x) => x.personaId === ga.personaId);
@@ -115,14 +119,14 @@ function GroupShift({ a, b }: { a: SimulationResult; b: SimulationResult }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
         <div className="legend">
           <span className="key">
-            <Marker side="a" /> Version A
+            <Marker side="a" /> {t('Version {v}', { v: 'A' })}
           </span>
           <span className="key">
-            <Marker side="b" /> Version B
+            <Marker side="b" /> {t('Version {v}', { v: 'B' })}
           </span>
         </div>
-        <button className="linkish" onClick={() => setTable((t) => !t)}>
-          {table ? 'Show as chart' : 'Show as table'}
+        <button className="linkish" onClick={() => setTable((x) => !x)}>
+          {table ? t('Show as chart') : t('Show as table')}
         </button>
       </div>
       {table ? (
@@ -130,10 +134,10 @@ function GroupShift({ a, b }: { a: SimulationResult; b: SimulationResult }) {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Group</th>
-                <th style={{ textAlign: 'right' }}>Net, A</th>
-                <th style={{ textAlign: 'right' }}>Net, B</th>
-                <th style={{ textAlign: 'right' }}>Change</th>
+                <th>{t('Group')}</th>
+                <th style={{ textAlign: 'right' }}>{t('Net, {v}', { v: 'A' })}</th>
+                <th style={{ textAlign: 'right' }}>{t('Net, {v}', { v: 'B' })}</th>
+                <th style={{ textAlign: 'right' }}>{t('Change')}</th>
               </tr>
             </thead>
             <tbody>
@@ -149,7 +153,7 @@ function GroupShift({ a, b }: { a: SimulationResult; b: SimulationResult }) {
           </table>
         </div>
       ) : (
-        <div className="shift" role="img" aria-label="Dot chart of each group's net support under Version A and Version B. Use 'Show as table' for exact numbers.">
+        <div className="shift" role="img" aria-label={t('Dot chart of each group’s net support under Version A and Version B. Use “Show as table” for exact numbers.')}>
           {rows.map((g, i) => (
             <div className="shift__row" key={g.id} onMouseEnter={() => setHover(g.id)} onMouseLeave={() => setHover(null)}>
               <span className="shift__name">{g.group}</span>
@@ -177,7 +181,7 @@ function GroupShift({ a, b }: { a: SimulationResult; b: SimulationResult }) {
                 <span className="tooltip" style={{ left: '50%', top: 0 }}>
                   {g.group}
                   <small>
-                    A {signed(g.a)} → B {signed(g.b)} ({signed(g.d)} points)
+                    {t('A {a} → B {b} ({d} points)', { a: signed(g.a), b: signed(g.b), d: signed(g.d) })}
                   </small>
                 </span>
               )}
@@ -186,11 +190,11 @@ function GroupShift({ a, b }: { a: SimulationResult; b: SimulationResult }) {
           <div className="shift__axis" aria-hidden="true">
             <span />
             <div>
-              <span>−100 net</span>
+              <span>{t('−100 net')}</span>
               <span>0</span>
-              <span>+100 net</span>
+              <span>{t('+100 net')}</span>
             </div>
-            <span style={{ textAlign: 'right' }}>Change</span>
+            <span style={{ textAlign: 'right' }}>{t('Change')}</span>
           </div>
         </div>
       )}
@@ -208,10 +212,11 @@ export default function Compare() {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const autoRan = useRef(false);
+  const { t, lang } = useT();
 
   useEffect(() => {
-    document.title = 'Compare · Ripple';
-  }, []);
+    document.title = t('Compare · Ripple');
+  }, [t]);
 
   const flash = (msg: string) => {
     setToast(msg);
@@ -255,28 +260,38 @@ export default function Compare() {
   const [ra, rb] = results ?? [null, null];
   const d = ra && rb ? rb.summary.net - ra.summary.net : 0;
   const year = ra && rb ? rb.summary.longTermNet - ra.summary.longTermNet : 0;
-  const headline = !ra || !rb ? '' : Math.abs(d) < 3 ? 'The two versions land about the same.' : `Version ${d > 0 ? 'B' : 'A'} wins by ${Math.abs(d)} points.`;
+  const headline = !ra || !rb ? '' : Math.abs(d) < 3 ? t('The two versions land about the same.') : t('Version {v} wins by {n} points.', { v: d > 0 ? 'B' : 'A', n: Math.abs(d) });
 
   const shareLink = async () => {
     if (!ra || !rb) return;
     const q = new URLSearchParams({ a: ra.decision, b: rb.decision });
     if (scope !== 'auto') q.set('s', scope);
     q.set('run', '1');
-    flash((await copyText(appUrl(`/compare?${q.toString()}`))) ? 'Link copied' : 'Couldn’t copy the link');
+    flash((await copyText(appUrl(`/compare?${q.toString()}`))) ? t('Link copied') : t('Couldn’t copy the link'));
   };
 
   return (
     <div className="wrap page cmp-page">
       <header className="page__head">
-        <span className="label label--foam">Compare</span>
-        <SplitHeading as="h1" immediate className="display" lines={[['Same', 'idea,'], [<em key="d">different</em>, <em key="w">words.</em>]]} />
+        <span className="label label--foam">{t('Compare')}</span>
+        <SplitHeading
+          as="h1"
+          immediate
+          className="display"
+          lines={
+            lang === 'es'
+              ? [['Misma', 'idea,'], [<em key="d">otras</em>, <em key="w">palabras.</em>]]
+              : [['Same', 'idea,'], [<em key="d">different</em>, <em key="w">words.</em>]]
+          }
+        />
         <p className="lead">
-          A pilot instead of a mandate, “during class” instead of “all day”: small changes can win or lose a room. Write two versions of a decision
-          and Ripple runs both past the same simulated crowd.
+          {t(
+            'A pilot instead of a mandate, “during class” instead of “all day”: small changes can win or lose a room. Write two versions of a decision and Ripple runs both past the same simulated crowd.',
+          )}
         </p>
       </header>
 
-      <section className="page__section" aria-label="Two versions">
+      <section className="page__section" aria-label={t('Two versions')}>
         <form
           className="panel cmp-form"
           onSubmit={(e) => {
@@ -287,13 +302,13 @@ export default function Compare() {
           <div className="cmp-form__pair">
             {(
               [
-                ['a', a, setA, 'e.g. Ban phones at school all day'],
-                ['b', b, setB, 'e.g. Ban phones during class only'],
+                ['a', a, setA, t('e.g. Ban phones at school all day')],
+                ['b', b, setB, t('e.g. Ban phones during class only')],
               ] as const
             ).map(([side, value, set, ph]) => (
               <div key={side} style={{ display: 'grid', gap: 8 }}>
                 <label className="label cmp-card__label" htmlFor={`cmp-${side}`}>
-                  <Marker side={side} /> Version {side.toUpperCase()}
+                  <Marker side={side} /> {t('Version {v}', { v: side.toUpperCase() })}
                 </label>
                 <textarea id={`cmp-${side}`} value={value} maxLength={500} placeholder={ph} onChange={(e) => set(e.target.value)} />
               </div>
@@ -302,24 +317,24 @@ export default function Compare() {
           <div className="composer__row">
             <div style={{ display: 'grid', gap: 8 }}>
               <span className="label" id="cmp-scope">
-                Who it affects
+                {t('Who it affects')}
               </span>
               <div className="segmented" role="radiogroup" aria-labelledby="cmp-scope">
                 {SCOPES.map((s) => (
                   <button type="button" key={s.id} role="radio" aria-checked={scope === s.id} onClick={() => setScope(s.id)}>
                     {scope === s.id && <motion.span layoutId="cmp-seg" className="seg-bg" transition={{ type: 'spring', stiffness: 400, damping: 34 }} />}
-                    <span>{s.label}</span>
+                    <span>{t(s.label)}</span>
                   </button>
                 ))}
               </div>
             </div>
             <button className="btn" type="submit" disabled={busy || a.trim().length < 3 || b.trim().length < 3} style={{ alignSelf: 'end' }}>
-              {busy ? 'Simulating both…' : 'Compare'} <Arrow />
+              {busy ? t('Simulating both…') : t('Compare')} <Arrow />
             </button>
           </div>
           <div className="examples-row">
             <span className="label" style={{ marginRight: 4 }}>
-              Try
+              {t('Try')}
             </span>
             {PAIRS.map((p) => (
               <button
@@ -334,7 +349,7 @@ export default function Compare() {
                   run(p.a, p.b, p.scope);
                 }}
               >
-                {p.label}
+                {t(p.label)}
               </button>
             ))}
           </div>
@@ -344,20 +359,27 @@ export default function Compare() {
       <div id="cmp-out" style={{ scrollMarginTop: 110 }}>
         {error && (
           <p className="error" role="alert">
-            {error}
+            {t(error)}
           </p>
         )}
         <AnimatePresence mode="wait">
           {ra && rb && !busy && (
-            <motion.section key={ra.id + rb.id} className="page__section" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} aria-label="Comparison">
+            <motion.section key={ra.id + rb.id} className="page__section" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} aria-label={t('Comparison')}>
               <div className="cmp-head">
-                <span className="label label--foam">The result</span>
+                <span className="label label--foam">{t('The result')}</span>
                 <h2 className="h2">{headline}</h2>
                 <p className="lead">
-                  Net support (percent for minus percent against) on day one: Version A <b className="num">{signed(ra.summary.net)}</b>, Version B{' '}
-                  <b className="num">{signed(rb.summary.net)}</b>.{' '}
-                  {Math.abs(year) >= 3 ? `A year later the gap is ${Math.abs(year)} points.` : 'A year later they end up close together.'} Both were simulated with
-                  the same {ra.crowdSize.toLocaleString()} {SCOPE_META[ra.scope].crowdNoun}.
+                  {t('Net support (percent for minus percent against) on day one: Version A')} <b className="num">{signed(ra.summary.net)}</b>,{' '}
+                  {t('Version {v}', { v: 'B' })} <b className="num">{signed(rb.summary.net)}</b>.{' '}
+                  {Math.abs(year) >= 3 ? t('A year later the gap is {n} points.', { n: Math.abs(year) }) : t('A year later they end up close together.')}{' '}
+                  {(
+                    {
+                      personal: t('Both were simulated with the same {n} people in your life.', { n: ra.crowdSize.toLocaleString() }),
+                      school: t('Both were simulated with the same {n} students, staff & families.', { n: ra.crowdSize.toLocaleString() }),
+                      community: t('Both were simulated with the same {n} residents.', { n: ra.crowdSize.toLocaleString() }),
+                      business: t('Both were simulated with the same {n} customers, staff & partners.', { n: ra.crowdSize.toLocaleString() }),
+                    } as Record<string, string>
+                  )[ra.scope] ?? t('Both were simulated with the same {n} {crowd}.', { n: ra.crowdSize.toLocaleString(), crowd: SCOPE_META[ra.scope].crowdNoun })}
                 </p>
               </div>
               <div className="cmp-pair">
@@ -365,21 +387,21 @@ export default function Compare() {
                 <VersionCard side="b" r={rb} />
               </div>
               <div style={{ display: 'grid', gap: 12 }}>
-                <span className="label">Group by group</span>
+                <span className="label">{t('Group by group')}</span>
                 <h3 className="h2" style={{ fontSize: 'clamp(1.5rem, 2.8vw, 2.1rem)' }}>
-                  Who moves, <em>and how far.</em>
+                  {t('Who moves,')} <em>{t('and how far.')}</em>
                 </h3>
                 <GroupShift a={ra} b={rb} />
               </div>
               <div className="actions">
                 <button type="button" className="btn" onClick={shareLink}>
-                  Copy link to this comparison
+                  {t('Copy link to this comparison')}
                 </button>
                 <Link className="btn btn--ghost" to="/simulate">
-                  Open the simulator
+                  {t('Open the simulator')}
                 </Link>
               </div>
-              <p className="reality__note">These are simulated reactions, not survey results. Use them to prepare, then ask real people.</p>
+              <p className="reality__note">{t('These are simulated reactions, not survey results. Use them to prepare, then ask real people.')}</p>
             </motion.section>
           )}
         </AnimatePresence>

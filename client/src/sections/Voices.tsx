@@ -8,6 +8,8 @@ import { prefersReducedMotion } from '../lib/motion';
 import { CrowdCanvas } from '../components/canvas';
 import type { SimulationResult } from '../../../shared/types';
 import { StanceIcon } from '../components/ui';
+import { useT } from '../i18n';
+import { Emph } from './Emph';
 
 const PICKS: [Scope, string][] = [
   ['community', 'harold'],
@@ -23,6 +25,7 @@ const PICKS: [Scope, string][] = [
 export function Voices() {
   const pin = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
+  const { t } = useT();
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
     const mm = gsap.matchMedia();
@@ -42,13 +45,14 @@ export function Voices() {
     <section id="voices" aria-labelledby="voices-title" style={{ paddingTop: 'clamp(60px, 10vw, 140px)' }}>
       <div className="wrap">
         <Reveal className="section-head">
-          <span className="label label--foam">The voices</span>
+          <span className="label label--foam">{t('The voices')}</span>
           <h2 className="h2" id="voices-title">
-            32 people who will <em>never</em> agree on everything.
+            <Emph text={t('32 people who will *never* agree on everything.')} />
           </h2>
           <p className="lead">
-            Each voice weighs twelve values differently, from cost and safety to tradition and freedom, and reacts to change at its own pace.
-            Together they make the room you are deciding for.
+            {t(
+              'Each voice weighs twelve values differently, from cost and safety to tradition and freedom, and reacts to change at its own pace. Together they make the room you are deciding for.',
+            )}
           </p>
         </Reveal>
       </div>
@@ -58,13 +62,14 @@ export function Voices() {
             {PICKS.map(([scope, id]) => {
               const p = PERSONAS[scope].find((x) => x.id === id)!;
               const top = (Object.entries(p.values) as [Value, number][]).filter(([, w]) => w > 0).sort((a, b) => b[1] - a[1]).slice(0, 3);
+              // The persona's name, role and words come from the engine and stay in English.
               const [v] = top[0];
               const line = p.lines[v]?.con ?? '';
               return (
                 <article className="voice-card" key={id}>
                   <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
                     <Avatar initials={p.name.replace(/^(Dr|Mr|Mrs|Ms|Coach|Grandpa)\.?\s+/, '').split(' ').map((w) => w[0]).join('').slice(0, 2)} hue={p.hue} size={56} />
-                    <span className="label">{SCOPE_META[scope].label}</span>
+                    <span className="label">{t(SCOPE_META[scope].label)}</span>
                   </div>
                   <div>
                     <h3>
@@ -74,10 +79,10 @@ export function Voices() {
                     <p className="role">{p.role}</p>
                   </div>
                   <blockquote>“{line}”</blockquote>
-                  <div className="values" aria-label="What this person cares about most">
+                  <div className="values" aria-label={t('What this person cares about most')}>
                     {top.map(([val, w]) => (
                       <div className="value-row" key={val}>
-                        <span>{VALUE_LABELS[val]}</span>
+                        <span>{t(VALUE_LABELS[val])}</span>
                         <div className="value-bar">
                           <span style={{ width: `${w * 100}%` }} />
                         </div>
@@ -88,10 +93,10 @@ export function Voices() {
               );
             })}
             <article className="voice-card voice-card--more">
-              <span className="label">And 24 more</span>
-              <h3 style={{ fontSize: '2rem' }}>Your family. Your school. Your town. Your customers.</h3>
+              <span className="label">{t('And 24 more')}</span>
+              <h3 style={{ fontSize: '2rem' }}>{t('Your family. Your school. Your town. Your customers.')}</h3>
               <Link to="/simulate" className="btn" style={{ background: 'var(--ink)', color: 'var(--paper)' }}>
-                Meet them <Arrow />
+                {t('Meet them')} <Arrow />
               </Link>
             </article>
           </div>
@@ -105,6 +110,7 @@ export function Spread({ demo }: { demo: SimulationResult }) {
   const section = useRef<HTMLElement>(null);
   const step = useRef(0);
   const [shown, setShown] = useState(0);
+  const { t } = useT();
 
   useLayoutEffect(() => {
     if (prefersReducedMotion()) return;
@@ -128,45 +134,45 @@ export function Spread({ demo }: { demo: SimulationResult }) {
     step.current = i;
     setShown(i);
   };
-  const t = demo.timeline[shown];
+  const now = demo.timeline[shown];
 
   return (
     <section className="spread" ref={section} aria-labelledby="spread-title">
       <div className="wrap spread__grid">
         <div>
-          <span className="label label--foam">Watch it ripple</span>
+          <span className="label label--foam">{t('Watch it ripple')}</span>
           <h2 className="h2" id="spread-title" style={{ marginTop: 16 }}>
-            One decision. <em>One year.</em> A thousand minds.
+            <Emph text={t('One decision. *One year.* A thousand minds.')} />
           </h2>
           <p className="lead" style={{ marginTop: 18 }}>
-            “{demo.decision}.” Scroll to move through time. Every dot is a simulated person, and every person listens to their neighbors.
+            “{demo.decision}.” {t('Scroll to move through time. Every dot is a simulated person, and every person listens to their neighbors.')}
           </p>
-          <div className="spread__steps" role="group" aria-label="Moment in time">
+          <div className="spread__steps" role="group" aria-label={t('Moment in time')}>
             {demo.timeline.map((p, i) => (
               <button key={p.label} className={i === shown ? 'is-on' : ''} onClick={() => go(i)} aria-pressed={i === shown}>
-                {p.label}
-                <small>{p.sublabel}</small>
+                {t(p.label)}
+                <small>{t(p.sublabel)}</small>
               </button>
             ))}
           </div>
           <div className="spread__counts" aria-live="polite">
             <div className="count">
               <span className="key">
-                <i style={{ background: 'var(--support)' }} /> For
+                <i style={{ background: 'var(--support)' }} /> {t('For')}
               </span>
-              <b className="num">{t.support}%</b>
+              <b className="num">{now.support}%</b>
             </div>
             <div className="count">
               <span className="key">
-                <i style={{ background: 'var(--neutral)' }} /> Undecided
+                <i style={{ background: 'var(--neutral)' }} /> {t('Undecided')}
               </span>
-              <b className="num">{t.neutral}%</b>
+              <b className="num">{now.neutral}%</b>
             </div>
             <div className="count">
               <span className="key">
-                <i style={{ background: 'var(--oppose)' }} /> Against
+                <i style={{ background: 'var(--oppose)' }} /> {t('Against')}
               </span>
-              <b className="num">{t.oppose}%</b>
+              <b className="num">{now.oppose}%</b>
             </div>
           </div>
           <p style={{ marginTop: 22, color: 'var(--mist)', fontSize: 'var(--fs-small)', display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -177,7 +183,7 @@ export function Spread({ demo }: { demo: SimulationResult }) {
           </p>
         </div>
         <div className="spread__canvas">
-          <CrowdCanvas agents={demo.crowd} personas={demo.personas} stepRef={step} label={`Simulated crowd at ${t.label}: ${t.support}% for, ${t.oppose}% against`} />
+          <CrowdCanvas agents={demo.crowd} personas={demo.personas} stepRef={step} label={t('Simulated crowd at {moment}: {support}% for, {oppose}% against', { moment: t(now.label), support: now.support, oppose: now.oppose })} />
         </div>
       </div>
     </section>

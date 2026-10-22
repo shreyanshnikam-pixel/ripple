@@ -5,6 +5,8 @@ import { CrowdCanvas } from '../components/canvas';
 import { Avatar, Reveal } from '../components/ui';
 import { ScrollTrigger } from '../lib/smooth';
 import { prefersReducedMotion } from '../lib/motion';
+import { useT } from '../i18n';
+import { Emph } from './Emph';
 
 const STEPS = [
   {
@@ -25,7 +27,11 @@ const STEPS = [
   },
 ];
 
+const MOCK_TAGS = ['Rules & restrictions', 'Phones & screens', 'School life'];
+
 function TypingMock() {
+  const { t } = useT();
+  // An example decision, as typed into the engine: it stays in English.
   const text = 'Ban phones during the school day';
   const [n, setN] = useState(prefersReducedMotion() ? text.length : 0);
   useEffect(() => {
@@ -36,19 +42,19 @@ function TypingMock() {
   const done = n >= text.length;
   return (
     <div className="mock-input">
-      <span className="label">Your decision</span>
+      <span className="label">{t('Your decision')}</span>
       <div className="mock-input__box">
         {text.slice(0, n)}
         <span className="caret" />
       </div>
       <div className="mock-tags">
-        {['Rules & restrictions', 'Phones & screens', 'School life'].map((t, i) => (
-          <motion.span key={t} className="tag tag--foam" initial={{ opacity: 0, y: 8 }} animate={done ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.15 }}>
-            {t}
+        {MOCK_TAGS.map((tag, i) => (
+          <motion.span key={tag} className="tag tag--foam" initial={{ opacity: 0, y: 8 }} animate={done ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.15 }}>
+            {t(tag)}
           </motion.span>
         ))}
         <motion.span className="tag" initial={{ opacity: 0 }} animate={done ? { opacity: 1 } : {}} transition={{ delay: 0.5 }}>
-          Setting: School
+          {t('Setting: School')}
         </motion.span>
       </div>
     </div>
@@ -56,12 +62,13 @@ function TypingMock() {
 }
 
 function VoiceRing({ demo }: { demo: SimulationResult }) {
+  const { t } = useT();
   return (
     <div className="ring-of-voices">
       <div className="center">
         <span>
-          <b style={{ display: 'block', color: 'var(--paper)', fontSize: '1.1rem' }}>{demo.personas.length} voices</b>
-          {demo.crowdSize.toLocaleString()} people
+          <b style={{ display: 'block', color: 'var(--paper)', fontSize: '1.1rem' }}>{t('{n} voices', { n: demo.personas.length })}</b>
+          {t('{n} people', { n: demo.crowdSize.toLocaleString() })}
         </span>
       </div>
       {demo.personas.map((p, i) => {
@@ -85,6 +92,7 @@ function VoiceRing({ demo }: { demo: SimulationResult }) {
 }
 
 function SpreadMock({ demo }: { demo: SimulationResult }) {
+  const { t } = useT();
   const step = useRef(0);
   useEffect(() => {
     if (prefersReducedMotion()) {
@@ -100,16 +108,17 @@ function SpreadMock({ demo }: { demo: SimulationResult }) {
   }, []);
   return (
     <div style={{ position: 'relative', width: '86%', aspectRatio: '1' }}>
-      <CrowdCanvas agents={demo.crowd} personas={demo.personas} stepRef={step} label="A simulated crowd changing its opinion over a year" interactive={false} />
+      <CrowdCanvas agents={demo.crowd} personas={demo.personas} stepRef={step} label={t('A simulated crowd changing its opinion over a year')} interactive={false} />
     </div>
   );
 }
 
 function ReportMock({ demo }: { demo: SimulationResult }) {
   const fix = demo.recommendations[0];
+  const { t } = useT();
   return (
     <div className="mini-report">
-      <span className="label">Who’s for it, by group</span>
+      <span className="label">{t('Who’s for it, by group')}</span>
       {demo.groups.slice(0, 5).map((g, i) => (
         <div className="row" key={g.personaId}>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.group}</span>
@@ -126,7 +135,7 @@ function ReportMock({ demo }: { demo: SimulationResult }) {
       ))}
       {fix && (
         <motion.div className="tag tag--foam" style={{ justifySelf: 'start', marginTop: 8, fontSize: '0.8rem', padding: '8px 14px' }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-          Try “{fix.title}” → +{fix.projectedLift} pts projected
+          {t('Try “{fix}” → +{lift} pts projected', { fix: fix.title, lift: fix.projectedLift })}
         </motion.div>
       )}
     </div>
@@ -135,6 +144,7 @@ function ReportMock({ demo }: { demo: SimulationResult }) {
 
 export function HowItWorks({ demo }: { demo: SimulationResult }) {
   const [active, setActive] = useState(0);
+  const { t } = useT();
   const refs = useRef<(HTMLDivElement | null)[]>([]);
 
   useLayoutEffect(() => {
@@ -158,9 +168,9 @@ export function HowItWorks({ demo }: { demo: SimulationResult }) {
     <section className="section" id="how" aria-labelledby="how-title">
       <div className="wrap">
         <Reveal className="section-head">
-          <span className="label label--foam">How it works</span>
+          <span className="label label--foam">{t('How it works')}</span>
           <h2 className="h2" id="how-title">
-            A rehearsal for the <em>room</em> you are about to walk into.
+            <Emph text={t('A rehearsal for the *room* you are about to walk into.')} />
           </h2>
         </Reveal>
         <div className="how">
@@ -172,9 +182,9 @@ export function HowItWorks({ demo }: { demo: SimulationResult }) {
                 className={`how__step ${active === i ? 'is-active' : ''}`}
                 style={{ minHeight: 'clamp(220px, 46vh, 420px)' }}
               >
-                <span className="label">Step {i + 1}</span>
-                <h3>{s.title}</h3>
-                <p>{s.body}</p>
+                <span className="label">{t('Step {n}', { n: i + 1 })}</span>
+                <h3>{t(s.title)}</h3>
+                <p>{t(s.body)}</p>
                 <div className="how__mobile-visual">
                   <div className="how__stage-inner">{visual(i)}</div>
                 </div>

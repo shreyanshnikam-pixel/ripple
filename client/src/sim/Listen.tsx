@@ -6,9 +6,12 @@ import { Reveal } from '../components/ui';
 import { copyText } from '../lib/clipboard';
 import { appUrl } from '../lib/config';
 import { createSurvey } from '../lib/surveys';
+import { SaveToProject } from './SaveToProject';
+import { useT } from '../i18n';
 
 /** "Listen for real": turn the simulated question into a 30-second survey for real people. */
-export function ListenPanel({ r, district, onCopied }: { r: SimulationResult; district: string | null; onCopied: (ok: boolean) => void }) {
+export function ListenPanel({ r, district, onCopied, onFlash }: { r: SimulationResult; district: string | null; onCopied: (ok: boolean) => void; onFlash?: (msg: string) => void }) {
+  const { t } = useT();
   const [made, setMade] = useState<{ id: string; key: string; local: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +26,7 @@ export function ListenPanel({ r, district, onCopied }: { r: SimulationResult; di
     try {
       setMade(await createSurvey(r, district));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Couldn’t create the survey.');
+      setError(e instanceof Error ? e.message : t('Couldn’t create the survey.'));
     } finally {
       setBusy(false);
     }
@@ -34,16 +37,15 @@ export function ListenPanel({ r, district, onCopied }: { r: SimulationResult; di
   return (
     <Reveal className="panel listen">
       <div className="listen__text">
-        <span className="label label--foam">Listen for real</span>
-        <h3>Ask the real people.</h3>
+        <span className="label label--foam">{t('Listen for real')}</span>
+        <h3>{t('Ask the real people.')}</h3>
         <p className="reality__note">
-          Turn this question into a 30-second anonymous survey. Ripple saves today’s prediction, so you can see how close the simulation was, group
-          by group, as real answers come in.
+          {t('Turn this question into a 30-second anonymous survey. Ripple saves today’s prediction, so you can see how close the simulation was, group by group, as real answers come in.')}
         </p>
         {!made && (
           <div className="actions">
             <button type="button" className="btn btn--sm" onClick={create} disabled={busy}>
-              {busy ? 'Creating…' : 'Create a survey'}
+              {busy ? t('Creating…') : t('Create a survey')}
             </button>
           </div>
         )}
@@ -55,29 +57,30 @@ export function ListenPanel({ r, district, onCopied }: { r: SimulationResult; di
         {made && (
           <div style={{ display: 'grid', gap: 10 }}>
             {made.local ? (
-              <p className="reality__note">This copy of Ripple has no server, so the survey lives on this device: open it and pass the device around.</p>
+              <p className="reality__note">{t('This copy of Ripple has no server, so the survey lives on this device: open it and pass the device around.')}</p>
             ) : (
-              <input className="survey-share__link" readOnly value={link} onFocus={(e) => e.currentTarget.select()} aria-label="Survey link" />
+              <input className="survey-share__link" readOnly value={link} onFocus={(e) => e.currentTarget.select()} aria-label={t('Survey link')} />
             )}
             <div className="actions">
               {!made.local && (
                 <button type="button" className="btn btn--sm" onClick={async () => onCopied(await copyText(link))}>
-                  Copy survey link
+                  {t('Copy survey link')}
                 </button>
               )}
               <Link className={made.local ? 'btn btn--sm' : 'btn btn--ghost btn--sm'} to={made.local ? `/survey/${made.id}` : results}>
-                {made.local ? 'Start collecting answers' : 'Watch the results'}
+                {made.local ? t('Start collecting answers') : t('Watch the results')}
               </Link>
+              {!made.local && onFlash && <SaveToProject r={r} district={district} surveyId={made.id} onDone={onFlash} />}
               {made.local && (
                 <Link className="btn btn--ghost btn--sm" to={results}>
-                  Results
+                  {t('Results')}
                 </Link>
               )}
             </div>
           </div>
         )}
       </div>
-      {made && !made.local && <QrCode text={link} label="QR code for the survey link" />}
+      {made && !made.local && <QrCode text={link} label={t('QR code for the survey link')} />}
     </Reveal>
   );
 }

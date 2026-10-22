@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import type { Stance } from '../../../shared/types';
 import { personaColor } from '../lib/tokens';
 import { useReducedMotion } from '../lib/motion';
+import { useT } from '../i18n';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -209,11 +210,12 @@ export function StanceIcon({ side }: { side: 'support' | 'neutral' | 'oppose' })
 }
 
 export function StancePill({ stance }: { stance: Stance }) {
+  const { t } = useT();
   const side = stanceSide(stance);
   return (
     <span className={`pill pill--${side}`}>
       <StanceIcon side={side} />
-      {stanceLabel[stance]}
+      {t(stanceLabel[stance])}
     </span>
   );
 }

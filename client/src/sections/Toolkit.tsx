@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { BILLS } from '../../../shared/bills';
 import { Reveal } from '../components/ui';
+import { useT } from '../i18n';
+import { Emph } from './Emph';
 
 const TOOLS = [
   {
@@ -49,25 +51,26 @@ const TOOLS = [
 
 /** The civic tools around the simulator, from your town to the Capitol. */
 export function Toolkit() {
+  const { t } = useT();
   return (
     <section className="section" aria-labelledby="toolkit-title">
       <div className="wrap">
         <Reveal className="section-head">
-          <span className="label label--foam">Civic toolkit</span>
+          <span className="label label--foam">{t('Civic toolkit')}</span>
           <h2 className="h2" id="toolkit-title">
-            From your town <em>to the Capitol.</em>
+            <Emph text={t('From your town *to the Capitol.*')} />
           </h2>
-          <p className="lead">Ripple connects a simulation to the real world: real people, real places and real bills.</p>
+          <p className="lead">{t('Ripple connects a simulation to the real world: real people, real places and real bills.')}</p>
         </Reveal>
         <div className="toolkit">
-          {TOOLS.map((t, i) => (
-            <Reveal key={t.title} delay={(i % 3) * 0.08}>
-              <Link className="tool" to={t.to}>
+          {TOOLS.map((tool, i) => (
+            <Reveal key={tool.title} delay={(i % 3) * 0.08}>
+              <Link className="tool" to={tool.to}>
                 <span className="tool__stat">
-                  <b>{t.stat}</b> {t.unit}
+                  <b>{tool.stat}</b> {t(tool.unit)}
                 </span>
-                <h3>{t.title}</h3>
-                <p>{t.body}</p>
+                <h3>{t(tool.title)}</h3>
+                <p>{t(tool.body)}</p>
                 <span className="tool__go" aria-hidden="true">
                   →
                 </span>

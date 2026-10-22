@@ -6,6 +6,7 @@ import type { SimulationResult } from '../../../shared/types';
 import { RippleField } from '../components/canvas';
 import { Arrow, Avatar, SplitHeading, StanceIcon, stanceSide, useMagnetic } from '../components/ui';
 import { useReducedMotion } from '../lib/motion';
+import { useT } from '../i18n';
 
 const HERO_EXAMPLES = [EXAMPLES[1], EXAMPLES[4], EXAMPLES[8], EXAMPLES[11], EXAMPLES[2]].map((e) => e.text);
 
@@ -53,6 +54,7 @@ export function DecisionBar({ id, autoFocus = false }: { id: string; autoFocus?:
   const [focused, setFocused] = useState(false);
   const typed = useTypewriter(HERO_EXAMPLES, !reduced && !focused && !value);
   const btn = useMagnetic<HTMLButtonElement>(0.15);
+  const { t } = useT();
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const text = value.trim() || HERO_EXAMPLES[0];
@@ -61,7 +63,7 @@ export function DecisionBar({ id, autoFocus = false }: { id: string; autoFocus?:
   return (
     <form className="composer-mini" onSubmit={submit} role="search">
       <label htmlFor={id} className="sr-only" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>
-        Describe a decision
+        {t('Describe a decision')}
       </label>
       <input
         id={id}
@@ -70,12 +72,12 @@ export function DecisionBar({ id, autoFocus = false }: { id: string; autoFocus?:
         onChange={(e) => setValue(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder={focused ? 'What are you deciding?' : typed}
+        placeholder={focused ? t('What are you deciding?') : typed}
         autoComplete="off"
         maxLength={500}
       />
       <button className="btn" type="submit" ref={btn}>
-        Simulate reactions <Arrow />
+        {t('Simulate reactions')} <Arrow />
       </button>
     </form>
   );
@@ -84,6 +86,7 @@ export function DecisionBar({ id, autoFocus = false }: { id: string; autoFocus?:
 export function Hero({ demo }: { demo: SimulationResult }) {
   const ref = useRef<HTMLElement>(null);
   const navigate = useNavigate();
+  const { t, lang } = useT();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const contentY = useTransform(scrollYProgress, [0, 1], [0, 160]);
   const contentO = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
@@ -134,17 +137,18 @@ export function Hero({ demo }: { demo: SimulationResult }) {
 
       <motion.div className="wrap hero__content" style={{ y: contentY, opacity: contentO }}>
         <motion.span className="label label--foam" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          A decision simulator for students, communities & leaders
+          {t('A decision simulator for students, communities & leaders')}
         </motion.span>
         <SplitHeading
           as="h1"
           immediate
           className="display"
-          lines={[['Every', 'decision'], ['makes', <em key="w">waves.</em>]]}
+          lines={lang === 'es' ? [['Cada', 'decisión'], ['genera', <em key="w">ondas.</em>]] : [['Every', 'decision'], ['makes', <em key="w">waves.</em>]]}
         />
         <motion.p className="lead" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75, duration: 0.8 }}>
-          Type a decision you’re weighing. Ripple builds a crowd of 1,000 simulated people, from parents and students to shop owners and
-          retirees, and shows how they’ll react, argue, and change their minds before you commit.
+          {t(
+            'Type a decision you’re weighing. Ripple builds a crowd of 1,000 simulated people, from parents and students to shop owners and retirees, and shows how they’ll react, argue, and change their minds before you commit.',
+          )}
         </motion.p>
         <motion.div style={{ width: '100%', display: 'grid', justifyItems: 'center', gap: 18 }} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.95, duration: 0.8 }}>
           <DecisionBar id="hero-decision" />
@@ -152,7 +156,7 @@ export function Hero({ demo }: { demo: SimulationResult }) {
             {[EXAMPLES[0], EXAMPLES[9], EXAMPLES[12]].map((e) => (
               <button key={e.text} className="chip" onClick={() => navigate(`/simulate?d=${encodeURIComponent(e.text)}&s=${e.scope}&run=1`)}>
                 <span className="label" style={{ fontSize: '0.66rem' }}>
-                  {e.tag}
+                  {t(e.tag)}
                 </span>
                 {e.text}
               </button>
@@ -161,7 +165,7 @@ export function Hero({ demo }: { demo: SimulationResult }) {
         </motion.div>
       </motion.div>
       <div className="scroll-cue" aria-hidden="true">
-        <span className="label">Scroll</span>
+        <span className="label">{t('Scroll')}</span>
         <span />
       </div>
     </section>

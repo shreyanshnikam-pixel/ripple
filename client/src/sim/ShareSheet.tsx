@@ -6,14 +6,21 @@ import { BUILD_MODE } from '../lib/config';
 import { shareUrlFor } from '../lib/share';
 import { canvasToBlob, drawShareCard, fileNameFor } from '../lib/shareImage';
 import { lockScroll } from '../lib/smooth';
+import { useT } from '../i18n';
 
 /** Share a result: a link that reproduces it exactly, and an image card. */
 export function ShareSheet({ r, district, onClose, onDone }: { r: SimulationResult; district: string | null; onClose: () => void; onDone: (msg: string) => void }) {
+  const { t } = useT();
   const [image, setImage] = useState<{ url: string; blob: Blob } | null>(null);
   const [failed, setFailed] = useState(false);
   const dialog = useRef<HTMLDivElement>(null);
   const url = shareUrlFor(r, district ?? undefined);
-  const text = `${r.summary.verdict}: ${r.summary.support}% for, ${r.summary.oppose}% against in a Ripple simulation of “${r.decision}”`;
+  const text = t('{verdict}: {support}% for, {oppose}% against in a Ripple simulation of “{decision}”', {
+    verdict: t(r.summary.verdict),
+    support: r.summary.support,
+    oppose: r.summary.oppose,
+    decision: r.decision,
+  });
 
   useEffect(() => {
     let objectUrl = '';
@@ -66,7 +73,7 @@ export function ShareSheet({ r, district, onClose, onDone }: { r: SimulationResu
     document.body.appendChild(a);
     a.click();
     a.remove();
-    onDone('Image saved');
+    onDone(t('Image saved'));
   };
 
   const file = image ? new File([image.blob], fileNameFor(r), { type: 'image/png' }) : null;
@@ -74,8 +81,8 @@ export function ShareSheet({ r, district, onClose, onDone }: { r: SimulationResu
   const canShare = typeof navigator.share === 'function';
   const nativeShare = async () => {
     try {
-      if (canShareFile && file) await navigator.share({ files: [file], title: 'Ripple simulation', text: `${text} ${url}` });
-      else await navigator.share({ title: 'Ripple simulation', text, url });
+      if (canShareFile && file) await navigator.share({ files: [file], title: t('Ripple simulation'), text: `${text} ${url}` });
+      else await navigator.share({ title: t('Ripple simulation'), text, url });
     } catch {
       /* the person closed the share menu */
     }
@@ -98,37 +105,37 @@ export function ShareSheet({ r, district, onClose, onDone }: { r: SimulationResu
       >
         <div className="sheet__head">
           <h2 id="share-title" className="reality__title">
-            Share this simulation
+            {t('Share this simulation')}
           </h2>
-          <button type="button" className="sheet__close" aria-label="Close" onClick={onClose}>
+          <button type="button" className="sheet__close" aria-label={t('Close')} onClick={onClose}>
             ×
           </button>
         </div>
         <div className="sheet__preview">
           {image ? (
-            <img src={image.url} alt={`Share card: ${text}.`} width={1200} height={630} />
+            <img src={image.url} alt={t('Share card: {text}.', { text })} width={1200} height={630} />
           ) : (
-            <div className="sheet__placeholder">{failed ? 'The image couldn’t be drawn in this browser. The link still works.' : 'Drawing the card…'}</div>
+            <div className="sheet__placeholder">{failed ? t('The image couldn’t be drawn in this browser. The link still works.') : t('Drawing the card…')}</div>
           )}
         </div>
         <label className="sheet__link">
-          <span className="label">Link</span>
+          <span className="label">{t('Link')}</span>
           <input readOnly value={url} onFocus={(e) => e.currentTarget.select()} />
         </label>
-        <p className="reality__note">Anyone who opens the link sees this same result: Ripple gives the same answer to the same question every time.</p>
+        <p className="reality__note">{t('Anyone who opens the link sees this same result: Ripple gives the same answer to the same question every time.')}</p>
         <div className="actions">
-          <button type="button" className="btn btn--sm" onClick={async () => onDone((await copyText(url)) ? 'Link copied' : 'Couldn’t copy. Select the link instead.')}>
-            Copy link
+          <button type="button" className="btn btn--sm" onClick={async () => onDone((await copyText(url)) ? t('Link copied') : t('Couldn’t copy. Select the link instead.'))}>
+            {t('Copy link')}
           </button>
           {/* The hosted preview can't save files; the real site can. */}
           {BUILD_MODE !== 'artifact' && (
             <button type="button" className="btn btn--ghost btn--sm" onClick={download} disabled={!image}>
-              Download image
+              {t('Download image')}
             </button>
           )}
           {canShare && (
             <button type="button" className="btn btn--ghost btn--sm" onClick={nativeShare}>
-              Share…
+              {t('Share…')}
             </button>
           )}
         </div>

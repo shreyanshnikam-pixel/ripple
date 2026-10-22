@@ -9,17 +9,28 @@ import { FinalCTA, Principles, UseCases } from '../sections/Closing';
 import { WordsMatter } from '../sections/WordsMatter';
 import { Toolkit } from '../sections/Toolkit';
 import { ScrollTrigger } from '../lib/smooth';
+import { useT } from '../i18n';
 
 export default function Landing() {
   // One real simulation powers every demo on the page, so what visitors see is what the engine produces.
   const demo = useMemo(() => simulate({ decision: EXAMPLES[0].text, scope: EXAMPLES[0].scope, crowdSize: 900 }), []);
+  const { t, lang } = useT();
 
   useEffect(() => {
-    document.title = 'Ripple Decision Simulator';
+    document.title = t('Ripple Decision Simulator');
+  }, [t]);
+
+  // Spanish text runs longer, so pinned sections need their scroll distances measured again.
+  useEffect(() => {
+    const id = setTimeout(() => ScrollTrigger.refresh(), 150);
+    return () => clearTimeout(id);
+  }, [lang]);
+
+  useEffect(() => {
     // Fonts and pinned sections change layout after first paint.
-    const t = setTimeout(() => ScrollTrigger.refresh(), 600);
+    const timer = setTimeout(() => ScrollTrigger.refresh(), 600);
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, []);
 
   return (

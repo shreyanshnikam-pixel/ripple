@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { PERSONAS } from '../../../shared/personas';
 import { DistrictCard, DistrictPicker } from '../components/district';
 import { Arrow, Reveal, SplitHeading } from '../components/ui';
+import { useT } from '../i18n';
 import { districtFromCode, recalledDistrict, rememberDistrict, type DistrictPick } from '../lib/district';
 import { simulatorPath } from '../lib/share';
 
@@ -33,9 +34,13 @@ export default function District() {
   const [pick, setPick] = useState<DistrictPick | null>(null);
   const [changing, setChanging] = useState(false);
   const [decision, setDecision] = useState('');
+  const { t, lang } = useT();
 
   useEffect(() => {
-    document.title = 'Your district · Ripple';
+    document.title = t('Your district · Ripple');
+  }, [t]);
+
+  useEffect(() => {
     const saved = recalledDistrict();
     if (saved) districtFromCode(saved).then((p) => p && setPick(p));
   }, []);
@@ -54,15 +59,25 @@ export default function District() {
   return (
     <div className="wrap page">
       <header className="page__head">
-        <span className="label label--foam">Your district</span>
-        <SplitHeading as="h1" immediate className="display" lines={[['Your', 'neighbors,'], [<em key="r">in</em>, <em key="t">the</em>, <em key="m">room.</em>]]} />
+        <span className="label label--foam">{t('Your district')}</span>
+        <SplitHeading
+          as="h1"
+          immediate
+          className="display"
+          lines={
+            lang === 'es'
+              ? [['Tus', 'vecinos,'], [<em key="e">en</em>, <em key="l">la</em>, <em key="s">sala.</em>]]
+              : [['Your', 'neighbors,'], [<em key="r">in</em>, <em key="t">the</em>, <em key="m">room.</em>]]
+          }
+        />
         <p className="lead">
-          Every congressional district is a different crowd. Enter your ZIP code and Ripple builds the room from your district’s real population in
-          U.S. Census data, shows who represents you, and lets you simulate any decision with your neighbors.
+          {t(
+            'Every congressional district is a different crowd. Enter your ZIP code and Ripple builds the room from your district’s real population in U.S. Census data, shows who represents you, and lets you simulate any decision with your neighbors.',
+          )}
         </p>
       </header>
 
-      <section className="page__section" aria-label="Find your district">
+      <section className="page__section" aria-label={t('Find your district')}>
         <AnimatePresence mode="wait" initial={false}>
           {!pick || changing ? (
             <motion.div key="picker" className="panel" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
@@ -72,11 +87,11 @@ export default function District() {
             <motion.div key={pick.code} style={{ display: 'grid', gap: 20 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="actions" style={{ alignItems: 'center' }}>
                 <span className="district-pill">
-                  {pick.district.label} · remembered on this device
+                  {pick.district.label} · {t('remembered on this device')}
                   <button
                     type="button"
-                    aria-label="Forget my district"
-                    title="Forget my district"
+                    aria-label={t('Forget my district')}
+                    title={t('Forget my district')}
                     onClick={() => {
                       rememberDistrict(null);
                       setPick(null);
@@ -86,15 +101,23 @@ export default function District() {
                   </button>
                 </span>
                 <button type="button" className="linkish" onClick={() => setChanging(true)}>
-                  Change district
+                  {t('Change district')}
                 </button>
               </div>
               <DistrictCard pick={pick} />
 
               <Reveal className="panel district-run">
-                <span className="label label--foam">Simulate for {pick.district.label}</span>
+                <span className="label label--foam">{t('Simulate for {district}', { district: pick.district.label })}</span>
                 <h2 className="h2" style={{ fontSize: 'clamp(1.6rem, 3vw, 2.3rem)' }}>
-                  What would <em>your district</em> think?
+                  {lang === 'es' ? (
+                    <>
+                      ¿Qué pensaría <em>tu distrito</em>?
+                    </>
+                  ) : (
+                    <>
+                      What would <em>your district</em> think?
+                    </>
+                  )}
                 </h2>
                 <form
                   className="district-run__form"
@@ -104,16 +127,16 @@ export default function District() {
                   }}
                 >
                   <label htmlFor="district-decision" className="sr-only">
-                    A decision to simulate
+                    {t('A decision to simulate')}
                   </label>
-                  <input id="district-decision" value={decision} maxLength={500} onChange={(e) => setDecision(e.target.value)} placeholder="Type a decision, like “Add bike lanes on Main Street”" />
+                  <input id="district-decision" value={decision} maxLength={500} onChange={(e) => setDecision(e.target.value)} placeholder={t('Type a decision, like “Add bike lanes on Main Street”')} />
                   <button className="btn" type="submit" disabled={decision.trim().length < 3}>
-                    Simulate <Arrow />
+                    {t('Simulate')} <Arrow />
                   </button>
                 </form>
                 <div className="examples-row">
                   <span className="label" style={{ marginRight: 4 }}>
-                    Or try
+                    {t('Or try')}
                   </span>
                   {IDEAS.map((idea) => (
                     <button key={idea} type="button" className="chip" onClick={() => simulate(idea)}>
@@ -128,55 +151,56 @@ export default function District() {
       </section>
 
       <section className="page__section" aria-labelledby="how-room">
-        <span className="label">How the room is built</span>
+        <span className="label">{t('How the room is built')}</span>
         <h2 className="h2" id="how-room">
-          From Census tables <em>to voices.</em>
+          {t('From Census tables')} <em>{t('to voices.')}</em>
         </h2>
         <p className="lead">
-          Ripple’s eight community voices each stand for a group. For your district, each group’s share of the room grows or shrinks with the Census
-          measure that best describes it, compared with the national figure. A district with twice the national share of retirees gets more
-          retirees in its crowd.
+          {t(
+            'Ripple’s eight community voices each stand for a group. For your district, each group’s share of the room grows or shrinks with the Census measure that best describes it, compared with the national figure. A district with twice the national share of retirees gets more retirees in its crowd.',
+          )}
         </p>
         <ul className="stack-list">
           {PERSONAS.community.map((p) => (
             <li key={p.id}>
               <b>{p.group}</b>
-              <span>{BASIS[p.id] ?? 'a typical share'}</span>
+              <span>{t(BASIS[p.id] ?? 'a typical share')}</span>
             </li>
           ))}
         </ul>
       </section>
 
       <section className="page__section" aria-labelledby="district-sources">
-        <span className="label">Sources and limits</span>
+        <span className="label">{t('Sources and limits')}</span>
         <h2 className="h2" id="district-sources" style={{ fontSize: 'clamp(1.6rem, 3vw, 2.3rem)' }}>
-          Where the numbers <em>come from.</em>
+          {t('Where the numbers')} <em>{t('come from.')}</em>
         </h2>
         <ul className="limits">
           <li>
-            Population figures: U.S. Census Bureau,{' '}
+            {t('Population figures: U.S. Census Bureau,')}{' '}
             <a href="https://www.census.gov/programs-surveys/acs" target="_blank" rel="noreferrer">
               American Community Survey
             </a>{' '}
-            2024 1-year estimates for the districts of the 119th Congress. Survey estimates have margins of error.
+            {t('2024 1-year estimates for the districts of the 119th Congress. Survey estimates have margins of error.')}
           </li>
           <li>
-            ZIP codes: the Census Bureau’s 2020 ZIP Code Tabulation Area to congressional district relationship file. Some ZIP codes cross district
-            lines, so Ripple asks which one is yours. PO boxes and business-only ZIP codes aren’t residential areas and won’t match.
+            {t(
+              'ZIP codes: the Census Bureau’s 2020 ZIP Code Tabulation Area to congressional district relationship file. Some ZIP codes cross district lines, so Ripple asks which one is yours. PO boxes and business-only ZIP codes aren’t residential areas and won’t match.',
+            )}
           </li>
           <li>
-            Members of Congress:{' '}
+            {t('Members of Congress:')}{' '}
             <a href="https://github.com/unitedstates/congress-legislators" target="_blank" rel="noreferrer">
               unitedstates/congress-legislators
             </a>{' '}
-            (public domain). To double-check your representative, use the House’s{' '}
+            {t('(public domain). To double-check your representative, use the House’s')}{' '}
             <a href="https://www.house.gov/representatives/find-your-representative" target="_blank" rel="noreferrer">
               Find Your Representative
-            </a>{' '}
-            tool.
+            </a>
+            {t(' tool.')}
           </li>
-          <li>Several states have redrawn their maps for the 2026 elections. Ripple uses the districts of the current Congress.</li>
-          <li>Your ZIP code is looked up on this device. Ripple only remembers the district you choose, and only in this browser.</li>
+          <li>{t('Several states have redrawn their maps for the 2026 elections. Ripple uses the districts of the current Congress.')}</li>
+          <li>{t('Your ZIP code is looked up on this device. Ripple only remembers the district you choose, and only in this browser.')}</li>
         </ul>
       </section>
     </div>

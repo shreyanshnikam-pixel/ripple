@@ -8,6 +8,7 @@ import { Counter, Reveal } from '../components/ui';
 import { gsap, ScrollTrigger } from '../lib/smooth';
 import { prefersReducedMotion } from '../lib/motion';
 import { C } from '../lib/tokens';
+import { useT } from '../i18n';
 
 function MarqueeRow({ items, dir, speed = 40 }: { items: string[]; dir: 1 | -1; speed?: number }) {
   const x = useMotionValue(0);
@@ -51,9 +52,13 @@ export function Marquee() {
 const STATEMENT =
   'Every big decision lands on real people: a parent juggling school pickups, a shop owner watching thin margins, a student who never got a vote. Most decisions get made without hearing from them. Ripple lets you hear them first.';
 const KEY = new Set(['real', 'people:', 'hear', 'first.']);
+// The Spanish words that carry the same weight as KEY in the translated statement.
+const KEY_ES = new Set(['personas', 'reales:', 'escucharlas', 'primero.']);
 
 export function Statement() {
   const ref = useRef<HTMLDivElement>(null);
+  const { t, lang } = useT();
+  const key = lang === 'es' ? KEY_ES : KEY;
   useLayoutEffect(() => {
     if (prefersReducedMotion() || !ref.current) return;
     const ctx = gsap.context(() => {
@@ -65,17 +70,17 @@ export function Statement() {
       });
     }, ref);
     return () => ctx.revert();
-  }, []);
+  }, [lang]);
   return (
-    <section className="section statement" aria-label="Why Ripple exists">
+    <section className="section statement" aria-label={t('Why Ripple exists')}>
       <div className="wrap" ref={ref}>
         <span className="label label--foam" style={{ display: 'block', marginBottom: 28 }}>
-          The problem
+          {t('The problem')}
         </span>
         <p>
-          {STATEMENT.split(' ').map((w, i) => (
-            <span key={i}>
-              <span className={`w ${KEY.has(w) ? 'w--key' : ''}`}>{w}</span>{' '}
+          {t(STATEMENT).split(' ').map((w, i) => (
+            <span key={`${lang}-${i}`}>
+              <span className={`w ${key.has(w) ? 'w--key' : ''}`}>{w}</span>{' '}
             </span>
           ))}
         </p>
@@ -90,7 +95,7 @@ export function Statement() {
               <span className="stat__n">
                 <Counter value={x.n} suffix={x.s} />
               </span>
-              <p>{x.t}</p>
+              <p>{t(x.t)}</p>
             </Reveal>
           ))}
         </div>

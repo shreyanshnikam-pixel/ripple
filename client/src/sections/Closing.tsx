@@ -5,6 +5,8 @@ import { EXAMPLES } from '../../../shared/examples';
 import { Reveal, SplitHeading } from '../components/ui';
 import { DecisionBar } from './Hero';
 import { prefersReducedMotion } from '../lib/motion';
+import { useT } from '../i18n';
+import { Emph } from './Emph';
 
 const CASES = [
   {
@@ -37,6 +39,7 @@ function TiltCard({ c }: { c: (typeof CASES)[number] }) {
   const ref = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
   const reduced = prefersReducedMotion();
+  const { t } = useT();
   const move = (e: React.PointerEvent) => {
     const el = ref.current;
     if (!el || reduced || e.pointerType !== 'mouse') return;
@@ -60,9 +63,9 @@ function TiltCard({ c }: { c: (typeof CASES)[number] }) {
       style={{ transition: 'transform 0.5s cubic-bezier(.22,1,.36,1), border-color .3s', font: 'inherit', color: 'inherit' }}
     >
       <span className="case__glow" />
-      <span className="label label--foam">{c.who}</span>
-      <h3>{c.title}</h3>
-      <p>{c.body}</p>
+      <span className="label label--foam">{t(c.who)}</span>
+      <h3>{t(c.title)}</h3>
+      <p>{t(c.body)}</p>
       <span className="case__decision">
         <span>“{c.example.text}”</span>
         <span className="case__go" aria-hidden="true">
@@ -74,13 +77,14 @@ function TiltCard({ c }: { c: (typeof CASES)[number] }) {
 }
 
 export function UseCases() {
+  const { t } = useT();
   return (
     <section className="section" aria-labelledby="cases-title">
       <div className="wrap">
         <Reveal className="section-head">
-          <span className="label label--foam">Who it’s for</span>
+          <span className="label label--foam">{t('Who it’s for')}</span>
           <h2 className="h2" id="cases-title">
-            Anyone about to make a call that <em>other people</em> have to live with.
+            <Emph text={t('Anyone about to make a call that *other people* have to live with.')} />
           </h2>
         </Reveal>
         <div className="cases">
@@ -120,6 +124,7 @@ const icons = {
 };
 
 export function Principles() {
+  const { t } = useT();
   const items = [
     {
       icon: icons.eye,
@@ -141,17 +146,17 @@ export function Principles() {
     <section className="section" id="principles" aria-labelledby="principles-title">
       <div className="wrap">
         <Reveal className="section-head">
-          <span className="label label--foam">Principles</span>
+          <span className="label label--foam">{t('Principles')}</span>
           <h2 className="h2" id="principles-title">
-            Built to widen the circle of people you <em>consider</em>.
+            <Emph text={t('Built to widen the circle of people you *consider*.')} />
           </h2>
         </Reveal>
         <div className="principles">
           {items.map((it, i) => (
             <Reveal className="principle" key={it.title} delay={i * 0.1}>
               {it.icon}
-              <h3>{it.title}</h3>
-              <p>{it.body}</p>
+              <h3>{t(it.title)}</h3>
+              <p>{t(it.body)}</p>
             </Reveal>
           ))}
         </div>
@@ -162,6 +167,7 @@ export function Principles() {
 
 export function FinalCTA() {
   const ref = useRef<HTMLElement>(null);
+  const { t, lang } = useT();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const scale = useTransform(scrollYProgress, [0, 1], [0.4, 1.5]);
   const rot = useTransform(scrollYProgress, [0, 1], [0, 40]);
@@ -173,8 +179,16 @@ export function FinalCTA() {
         ))}
       </motion.div>
       <div className="wrap" style={{ position: 'relative' }}>
-        <span className="label label--foam">Your turn</span>
-        <SplitHeading as="h2" className="display" lines={[['Before', 'you', 'decide,'], [<em key="r">hear</em>, 'the', 'room.']]} />
+        <span className="label label--foam">{t('Your turn')}</span>
+        <SplitHeading
+          as="h2"
+          className="display"
+          lines={
+            lang === 'es'
+              ? [['Antes', 'de', 'decidir,'], [<em key="r">escucha</em>, 'a', 'tu', 'gente.']]
+              : [['Before', 'you', 'decide,'], [<em key="r">hear</em>, 'the', 'room.']]
+          }
+        />
         <DecisionBar id="final-decision" />
       </div>
     </section>

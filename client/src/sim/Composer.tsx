@@ -6,6 +6,7 @@ import { PERSONAS, SCOPE_META } from '../../../shared/personas';
 import type { Scope, ScopeChoice } from '../../../shared/types';
 import { DistrictPicker } from '../components/district';
 import { Arrow, useMagnetic } from '../components/ui';
+import { useT } from '../i18n';
 import type { DistrictPick } from '../lib/district';
 
 const SCOPES: { id: ScopeChoice; label: string }[] = [
@@ -44,6 +45,7 @@ export function Composer({
   district: string | null;
   onDistrict: (p: DistrictPick | null) => void;
 }) {
+  const { t } = useT();
   const live = useMemo(() => (decision.trim().length >= 3 ? analyze(decision, scope) : null), [decision, scope]);
   const btn = useMagnetic<HTMLButtonElement>(0.12);
   const detail = live?.detail ?? 0;
@@ -75,7 +77,7 @@ export function Composer({
     >
       <div style={{ display: 'grid', gap: 10 }}>
         <label className="label" htmlFor="decision">
-          The decision
+          {t('The decision')}
         </label>
         <textarea
           id="decision"
@@ -88,42 +90,43 @@ export function Composer({
               onRun();
             }
           }}
-          placeholder="e.g. Start high school at 9:00 a.m. instead of 7:30 so students get more sleep"
+          placeholder={t('e.g. Start high school at 9:00 a.m. instead of 7:30 so students get more sleep')}
         />
       </div>
 
       <div className="composer__row">
-        <div className="signals" aria-live="polite" aria-label="What Ripple picked up">
-          {topics.length === 0 && mitigations.length === 0 && <span style={{ color: 'var(--fog)', fontSize: '0.86rem' }}>Ripple will show what it picks up as you type.</span>}
+        <div className="signals" aria-live="polite" aria-label={t('What Ripple picked up')}>
+          {topics.length === 0 && mitigations.length === 0 && <span style={{ color: 'var(--fog)', fontSize: '0.86rem' }}>{t('Ripple will show what it picks up as you type.')}</span>}
           {live?.anchor && (
             <motion.span
               key={live.anchor.id}
               className={`tag ${live.anchor.basis === 'poll' ? 'tag--poll' : 'tag--foam'}`}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              title={live.anchor.basis === 'poll' ? 'Ripple will start from a published poll' : 'Ripple will start from its own labeled estimate'}
+              title={live.anchor.basis === 'poll' ? t('Ripple will start from a published poll') : t('Ripple will start from its own labeled estimate')}
             >
-              {live.anchor.basis === 'poll' ? 'Real poll · ' : 'Known debate · '}
+              {live.anchor.basis === 'poll' ? t('Real poll') : t('Known debate')}
+              {' · '}
               {live.anchor.label}
             </motion.span>
           )}
           {topics.map((s) => (
-            <motion.span key={s.id} className="tag tag--foam" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} title={`Matched: ${s.matches.join(', ')}`}>
+            <motion.span key={s.id} className="tag tag--foam" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} title={t('Matched: {words}', { words: s.matches.join(', ') })}>
               {s.label}
             </motion.span>
           ))}
           {mitigations.map((s) => (
-            <motion.span key={s.id} className="tag" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} title={`Matched: ${s.matches.join(', ')}`}>
+            <motion.span key={s.id} className="tag" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} title={t('Matched: {words}', { words: s.matches.join(', ') })}>
               ✓ {s.label}
             </motion.span>
           ))}
         </div>
-        <div className="detail-meter" title="How much Ripple could read from your description">
-          Detail
+        <div className="detail-meter" title={t('How much Ripple could read from your description')}>
+          {t('Detail')}
           <div className="detail-meter__bar">
             <span style={{ width: `${Math.round(detail * 100)}%` }} />
           </div>
-          <b style={{ color: 'var(--paper)', fontWeight: 600, minWidth: 44 }}>{detailWord}</b>
+          <b style={{ color: 'var(--paper)', fontWeight: 600, minWidth: 44 }}>{t(detailWord)}</b>
         </div>
       </div>
 
@@ -140,15 +143,15 @@ export function Composer({
       <div className="composer__row">
         <div style={{ display: 'grid', gap: 8 }}>
           <span className="label" id="scope-label">
-            Who it affects
+            {t('Who it affects')}
           </span>
           <div className="segmented" role="radiogroup" aria-labelledby="scope-label">
             {SCOPES.map((s) => (
               <button type="button" key={s.id} role="radio" aria-checked={scope === s.id} onClick={() => setScope(s.id)}>
                 {scope === s.id && <motion.span layoutId="seg" className="seg-bg" transition={{ type: 'spring', stiffness: 400, damping: 34 }} />}
                 <span>
-                  {s.label}
-                  {s.id === 'auto' && live && scope === 'auto' ? ` · ${SCOPE_META[live.scope].label}` : ''}
+                  {t(s.label)}
+                  {s.id === 'auto' && live && scope === 'auto' ? ` · ${t(SCOPE_META[live.scope].label)}` : ''}
                 </span>
               </button>
             ))}
@@ -156,24 +159,24 @@ export function Composer({
         </div>
         <div style={{ display: 'grid', gap: 8 }}>
           <label className="label" htmlFor="crowd-size">
-            Crowd size
+            {t('Crowd size')}
           </label>
           <div className="range">
             <input id="crowd-size" type="range" min={250} max={2000} step={250} value={crowdSize} onChange={(e) => setCrowdSize(Number(e.target.value))} />
             <span className="num" style={{ color: 'var(--paper)', minWidth: 90 }}>
-              {crowdSize.toLocaleString()} people
+              {t('{n} people', { n: crowdSize.toLocaleString() })}
             </span>
           </div>
         </div>
         <button className="btn" type="submit" disabled={busy || decision.trim().length < 3} ref={btn} style={{ alignSelf: 'end' }}>
-          {busy ? 'Simulating…' : 'Simulate reactions'} <Arrow />
+          {busy ? t('Simulating…') : t('Simulate reactions')} <Arrow />
         </button>
       </div>
 
       <div style={{ display: 'grid', gap: 12 }}>
         <button type="button" className="linkish room-toggle" aria-expanded={roomOpen} aria-controls="room-panel" onClick={() => setRoomOpen((o) => !o)}>
-          {roomOpen ? '−' : '+'} Who’s in the room
-          {effectiveScope === 'community' && district ? ` (${district} population)` : customized ? ' (customized)' : ''}: {SCOPE_META[effectiveScope].crowdNoun}
+          {roomOpen ? '−' : '+'} {t('Who’s in the room')}
+          {effectiveScope === 'community' && district ? ` (${t('{district} population', { district })})` : customized ? ` (${t('customized')})` : ''}: {t(SCOPE_META[effectiveScope].crowdNoun)}
         </button>
         {roomOpen && (
           <RoomPanel
@@ -191,7 +194,7 @@ export function Composer({
 
       <div className="examples-row">
         <span className="label" style={{ marginRight: 4 }}>
-          Try
+          {t('Try')}
         </span>
         {[EXAMPLES[0], EXAMPLES[5], EXAMPLES[8], EXAMPLES[13]].map((e) => (
           <button
@@ -251,34 +254,35 @@ function RoomPanel({
   district: string | null;
   onDistrict: (p: DistrictPick | null) => void;
 }) {
+  const { t } = useT();
   const people = PERSONAS[scope];
   const same = (a: Record<string, number>, b: Record<string, number>) => people.every((p) => (a[p.id] ?? 1) === (b[p.id] ?? 1));
   return (
     <motion.div id="room-panel" className="room" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
       <p style={{ color: 'var(--mist)', fontSize: '0.88rem' }}>
-        The same decision lands differently in a retirement community and a college town. Pick a room, or set how much of the crowd each group makes up.
+        {t('The same decision lands differently in a retirement community and a college town. Pick a room, or set how much of the crowd each group makes up.')}
       </p>
       {scope === 'community' && (
         <div className="room__district">
           {district ? (
             <span className="district-pill">
-              Using the Census population of {district}
-              <button type="button" aria-label={`Stop using ${district}`} title="Back to a typical town" onClick={() => setMix({})}>
+              {t('Using the Census population of {district}', { district })}
+              <button type="button" aria-label={t('Stop using {district}', { district })} title={t('Back to a typical town')} onClick={() => setMix({})}>
                 ×
               </button>
             </span>
           ) : (
             <>
-              <span className="label">Use your congressional district’s real population</span>
+              <span className="label">{t('Use your congressional district’s real population')}</span>
               <DistrictPicker id="room-district" compact onPick={(p) => onDistrict(p)} />
             </>
           )}
         </div>
       )}
-      <div className="room__presets" role="group" aria-label="Room presets">
+      <div className="room__presets" role="group" aria-label={t('Room presets')}>
         {PRESETS[scope].map((pr) => (
           <button type="button" key={pr.label} className="chip" aria-pressed={same(mix, pr.mix)} onClick={() => setMix(pr.mix)}>
-            {pr.label}
+            {t(pr.label)}
           </button>
         ))}
       </div>
@@ -288,7 +292,7 @@ function RoomPanel({
           return (
             <label className="room__row" key={p.id}>
               <span>{p.group}</span>
-              <input type="range" min={0} max={4} step={0.25} value={v} aria-label={`How many ${p.group.toLowerCase()} are in the room`} onChange={(e) => setMix({ ...mix, [p.id]: Number(e.target.value) })} />
+              <input type="range" min={0} max={4} step={0.25} value={v} aria-label={t('How many {group} are in the room', { group: p.group.toLowerCase() })} onChange={(e) => setMix({ ...mix, [p.id]: Number(e.target.value) })} />
               <span className="mono num" style={{ textAlign: 'right' }}>
                 ×{v.toFixed(v % 1 ? 2 : 0)}
               </span>
@@ -300,15 +304,10 @@ function RoomPanel({
   );
 }
 
-const STAGES = (n: number) => [
-  'Reading your decision',
-  'Choosing the voices in the room',
-  `Simulating ${n.toLocaleString()} people`,
-  'Letting opinions spread for a year',
-  'Writing your report',
-];
+const STAGES = ['Reading your decision', 'Choosing the voices in the room', 'Simulating {n} people', 'Letting opinions spread for a year', 'Writing your report'];
 
 export function Loading({ stage, crowdSize }: { stage: number; crowdSize: number }) {
+  const { t } = useT();
   return (
     <div className="loading" role="status" aria-live="polite">
       <div className="loading__rings" aria-hidden="true">
@@ -319,10 +318,10 @@ export function Loading({ stage, crowdSize }: { stage: number; crowdSize: number
         <b />
       </div>
       <ul className="stages">
-        {STAGES(crowdSize).map((s, i) => (
+        {STAGES.map((s, i) => (
           <li key={s} className={i < stage ? 'is-done' : i === stage ? 'is-now' : ''}>
             <span className="dot">{i < stage ? '✓' : ''}</span>
-            {s}
+            {t(s, { n: crowdSize.toLocaleString() })}
           </li>
         ))}
       </ul>

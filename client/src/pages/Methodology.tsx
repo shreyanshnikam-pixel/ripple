@@ -7,6 +7,7 @@ import { simulate } from '../../../shared/engine';
 import { PERSONAS, SCOPE_META } from '../../../shared/personas';
 import type { Scope } from '../../../shared/types';
 import { Reveal, SplitHeading } from '../components/ui';
+import { useT } from '../i18n';
 
 type Row = { id: string; label: string; support: number; basis: 'poll' | 'estimate'; population: string; source?: { org: string; year: number; url: string; finding: string }; note?: string; settings: Scope[] };
 
@@ -32,9 +33,10 @@ const STEPS = [
 const POP = { adults: 'Adults', parents: 'Parents', everyone: 'Everyone in the room' } as Record<string, string>;
 
 export default function Methodology() {
+  const { t, lang } = useT();
   useEffect(() => {
-    document.title = 'Methodology · Ripple';
-  }, []);
+    document.title = t('Methodology · Ripple');
+  }, [t]);
   const rows = useMemo(anchorRows, []);
   const [filter, setFilter] = useState<'all' | 'poll' | 'estimate'>('all');
   const [query, setQuery] = useState('');
@@ -62,42 +64,52 @@ export default function Methodology() {
   return (
     <div className="wrap page">
       <header className="page__head">
-        <span className="label label--foam">Methodology</span>
-        <SplitHeading as="h1" immediate className="display" lines={[['How', 'Ripple'], [<em key="w">works,</em>, 'honestly.']]} />
+        <span className="label label--foam">{t('Methodology')}</span>
+        <SplitHeading
+          as="h1"
+          immediate
+          className="display"
+          lines={
+            lang === 'es'
+              ? [['Cómo', 'funciona'], ['Ripple,', <em key="w">sin</em>, <em key="r">rodeos.</em>]]
+              : [['How', 'Ripple'], [<em key="w">works,</em>, 'honestly.']]
+          }
+        />
         <p className="lead">
-          Ripple is a rehearsal, not a crystal ball. Here is exactly where its numbers come from, which ones are real polls, which ones are
-          estimates, and what it can’t tell you.
+          {t(
+            'Ripple is a rehearsal, not a crystal ball. Here is exactly where its numbers come from, which ones are real polls, which ones are estimates, and what it can’t tell you.',
+          )}
         </p>
         <div className="page__stats">
           <div>
             <b className="num">{rows.length}</b>
-            <span>well-known decisions Ripple recognizes</span>
+            <span>{t('well-known decisions Ripple recognizes')}</span>
           </div>
           <div>
             <b className="num">{pollCount}</b>
-            <span>starting points from published polls</span>
+            <span>{t('starting points from published polls')}</span>
           </div>
           <div>
             <b className="num">{sources}</b>
-            <span>poll sources, each linked below</span>
+            <span>{t('poll sources, each linked below')}</span>
           </div>
           <div>
             <b className="num">32</b>
-            <span>simulated voices in four settings</span>
+            <span>{t('simulated voices in four settings')}</span>
           </div>
         </div>
       </header>
 
       <section className="page__section" aria-labelledby="pipeline">
         <h2 className="h2" id="pipeline">
-          Six steps, <em>every time.</em>
+          {t('Six steps,')} <em>{t('every time.')}</em>
         </h2>
         <ol className="steps">
           {STEPS.map(([title, body], i) => (
             <Reveal as="li" key={title} delay={i * 0.05}>
-              <span className="label">Step {i + 1}</span>
-              <h3>{title}</h3>
-              <p>{body}</p>
+              <span className="label">{t('Step {n}', { n: i + 1 })}</span>
+              <h3>{t(title)}</h3>
+              <p>{t(body)}</p>
             </Reveal>
           ))}
         </ol>
@@ -105,26 +117,27 @@ export default function Methodology() {
 
       <section className="page__section" aria-labelledby="checks">
         <h2 className="h2" id="checks">
-          Checked against <em>real polls.</em>
+          {t('Checked against')} <em>{t('real polls.')}</em>
         </h2>
         <p className="lead">
-          Run the same checks as Ripple’s automated tests, right here in your browser. Because these polls set Ripple’s starting point,
-          close agreement is expected. The check confirms the full simulation, with its crowd, social spread and group mix, doesn’t drift
-          away from them.
+          {t(
+            'Run the same checks as Ripple’s automated tests, right here in your browser. Because these polls set Ripple’s starting point, close agreement is expected. The check confirms the full simulation, with its crowd, social spread and group mix, doesn’t drift away from them.',
+          )}
         </p>
         <button className="btn" onClick={runChecks} disabled={checking}>
-          {checking ? 'Running 24 simulations…' : checks ? 'Run the checks again' : 'Run the realism checks'}
+          {checking ? t('Running {n} simulations…', { n: BENCHMARKS.length }) : checks ? t('Run the checks again') : t('Run the realism checks')}
         </button>
         {checks && (
           <motion.div className="panel checks" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
             <p className="checks__summary">
-              Average gap between Ripple and the published poll: <b className="num">{meanGap.toFixed(1)} points</b> across {checks.length} decisions.
+              {t('Average gap between Ripple and the published poll:')} <b className="num">{t('{n} points', { n: meanGap.toFixed(1) })}</b>{' '}
+              {t('across {n} decisions.', { n: checks.length })}
             </p>
-            <div className="checks__grid" role="table" aria-label="Ripple compared with published polls">
+            <div className="checks__grid" role="table" aria-label={t('Ripple compared with published polls')}>
               <div className="checks__row checks__row--head" role="row">
-                <span role="columnheader">Decision</span>
-                <span role="columnheader">Poll vs Ripple (support, day one)</span>
-                <span role="columnheader">Gap</span>
+                <span role="columnheader">{t('Decision')}</span>
+                <span role="columnheader">{t('Poll vs Ripple (support, day one)')}</span>
+                <span role="columnheader">{t('Gap')}</span>
               </div>
               {checks.map((c) => (
                 <div className="checks__row" role="row" key={c.decision}>
@@ -134,7 +147,7 @@ export default function Methodology() {
                       {c.source}, {c.year}: {c.poll}%
                     </small>
                   </span>
-                  <span role="cell" className="checks__track" aria-label={`Poll ${c.poll}%, Ripple ${c.got}%`}>
+                  <span role="cell" className="checks__track" aria-label={t('Poll {poll}%, Ripple {got}%', { poll: c.poll, got: c.got })}>
                     <i className="checks__poll" style={{ left: `${c.poll}%` }} />
                     <i className="checks__got" style={{ left: `${c.got}%` }} />
                   </span>
@@ -147,10 +160,10 @@ export default function Methodology() {
             </div>
             <p className="reality__note">
               <span className="key">
-                <i style={{ background: 'var(--paper)', borderRadius: 1, width: 3 }} /> Published poll
+                <i style={{ background: 'var(--paper)', borderRadius: 1, width: 3 }} /> {t('Published poll')}
               </span>{' '}
               <span className="key">
-                <i style={{ background: 'var(--foam)' }} /> Ripple’s simulated crowd
+                <i style={{ background: 'var(--foam)' }} /> {t('Ripple’s simulated crowd')}
               </span>
             </p>
           </motion.div>
@@ -159,14 +172,22 @@ export default function Methodology() {
 
       <section className="page__section" aria-labelledby="sources">
         <h2 className="h2" id="sources">
-          Every <em>starting point.</em>
+          {lang === 'es' ? (
+            <>
+              Cada <em>punto de partida.</em>
+            </>
+          ) : (
+            <>
+              Every <em>starting point.</em>
+            </>
+          )}
         </h2>
-        <div className="filters" role="group" aria-label="Filter starting points">
+        <div className="filters" role="group" aria-label={t('Filter starting points')}>
           {(
             [
-              ['all', `All ${rows.length}`],
-              ['poll', `Real polls · ${pollCount}`],
-              ['estimate', `Estimates · ${rows.length - pollCount}`],
+              ['all', t('All {n}', { n: rows.length })],
+              ['poll', t('Real polls · {n}', { n: pollCount })],
+              ['estimate', t('Estimates · {n}', { n: rows.length - pollCount })],
             ] as const
           ).map(([k, l]) => (
             <button key={k} className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>
@@ -174,19 +195,19 @@ export default function Methodology() {
             </button>
           ))}
           <label className="search">
-            <span className="sr-only">Search</span>
-            <input id="method-search" placeholder="Search, e.g. phones or Pew" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <span className="sr-only">{t('Search')}</span>
+            <input id="method-search" placeholder={t('Search, e.g. phones or Pew')} value={query} onChange={(e) => setQuery(e.target.value)} />
           </label>
         </div>
         <div className="table-scroll panel" style={{ padding: 0 }}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Decision</th>
-                <th style={{ textAlign: 'right' }}>Starts at</th>
-                <th>Basis</th>
-                <th>Among</th>
-                <th>Source or note</th>
+                <th>{t('Decision')}</th>
+                <th style={{ textAlign: 'right' }}>{t('Starts at')}</th>
+                <th>{t('Basis')}</th>
+                <th>{t('Among')}</th>
+                <th>{t('Source or note')}</th>
               </tr>
             </thead>
             <tbody>
@@ -195,16 +216,16 @@ export default function Methodology() {
                   <td>{r.label}</td>
                   <td className="n">{r.support}%</td>
                   <td>
-                    <span className={`basis basis--${r.basis}`}>{r.basis === 'poll' ? 'Real poll' : 'Estimate'}</span>
+                    <span className={`basis basis--${r.basis}`}>{r.basis === 'poll' ? t('Real poll') : t('Estimate')}</span>
                   </td>
-                  <td>{POP[r.population]}</td>
+                  <td>{POP[r.population] ? t(POP[r.population]) : r.population}</td>
                   <td style={{ minWidth: 260 }}>
                     {r.source ? (
                       <a className="reality__source" href={r.source.url} target="_blank" rel="noreferrer">
                         {r.source.org} ({r.source.year}) ↗
                       </a>
                     ) : (
-                      <span className="reality__note">{r.note ?? 'Ripple estimate.'}</span>
+                      <span className="reality__note">{r.note ?? t('Ripple estimate.')}</span>
                     )}
                   </td>
                 </tr>
@@ -216,12 +237,20 @@ export default function Methodology() {
 
       <section className="page__section" aria-labelledby="voices-list">
         <h2 className="h2" id="voices-list">
-          The <em>32 voices.</em>
+          {lang === 'es' ? (
+            <>
+              Las <em>32 voces.</em>
+            </>
+          ) : (
+            <>
+              The <em>32 voices.</em>
+            </>
+          )}
         </h2>
         <div className="voices-grid">
           {(Object.keys(PERSONAS) as Scope[]).map((s) => (
             <div className="panel" key={s}>
-              <span className="label">{SCOPE_META[s].label}</span>
+              <span className="label">{t(SCOPE_META[s].label)}</span>
               <ul className="plain-list">
                 {PERSONAS[s].map((p) => (
                   <li key={p.id}>
@@ -237,17 +266,25 @@ export default function Methodology() {
 
       <section className="page__section" aria-labelledby="limits">
         <h2 className="h2" id="limits">
-          What Ripple <em>can’t</em> do.
+          {lang === 'es' ? (
+            <>
+              Lo que Ripple <em>no puede</em> hacer.
+            </>
+          ) : (
+            <>
+              What Ripple <em>can’t</em> do.
+            </>
+          )}
         </h2>
         <ul className="limits">
-          <li>It simulates reactions from patterns. It is not a poll of real people, and it can be wrong.</li>
-          <li>Several polls are a few years old. Opinion moves, and each report shows the year of its source.</li>
-          <li>Estimates are Ripple’s own judgment. They are labeled, and you can see the reasoning in each report.</li>
-          <li>The 32 voices are archetypes. Real communities are more varied than any set of characters.</li>
-          <li>Ripple does not model party, race or religion, and it never guesses yours.</li>
+          <li>{t('It simulates reactions from patterns. It is not a poll of real people, and it can be wrong.')}</li>
+          <li>{t('Several polls are a few years old. Opinion moves, and each report shows the year of its source.')}</li>
+          <li>{t('Estimates are Ripple’s own judgment. They are labeled, and you can see the reasoning in each report.')}</li>
+          <li>{t('The 32 voices are archetypes. Real communities are more varied than any set of characters.')}</li>
+          <li>{t('Ripple does not model party, race or religion, and it never guesses yours.')}</li>
           <li>
-            The best use of Ripple is to prepare: find who you might be forgetting, then go talk to them. Try{' '}
-            <Link to="/simulate">a simulation</Link> and use “Ask real people” to compare.
+            {t('The best use of Ripple is to prepare: find who you might be forgetting, then go talk to them. Try')}{' '}
+            <Link to="/simulate">{t('a simulation')}</Link> {t('and use “Ask real people” to compare.')}
           </li>
         </ul>
       </section>
