@@ -1,0 +1,32 @@
+# Every Monday, refreshes bill progress from Congress.gov's official bill-status data (via GovInfo)
+# and commits any changes; the Pages workflow then redeploys the site.
+name: Update bills from Congress.gov
+
+on:
+  schedule:
+    - cron: '17 13 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsx scripts/update-bills.ts
+      - run: npm test
+      - name: Commit changes
+        run: |
+          if git diff --quiet shared/bill-status.json; then echo "No changes."; exit 0; fi
+          git config user.name "ripple-bot"
+          git config user.email "ripple-bot@users.noreply.github.com"
+          git add shared/bill-status.json
+          git commit -m "Update bill status from Congress.gov"
+          git push

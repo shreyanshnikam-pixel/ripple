@@ -8,6 +8,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Commits made by the weekly bill updater don't trigger pushes, so redeploy after it runs.
+  workflow_run:
+    workflows: ['Update bills from Congress.gov']
+    types: [completed]
   workflow_dispatch:
 
 permissions:

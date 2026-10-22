@@ -3,6 +3,8 @@
  * Every fact was checked against Congress.gov, official member or committee pages, or
  * major news on the date in `checked`. Bills move: Congress.gov has the latest.
  */
+import STATUS from './bill-status.json';
+import { applyStatus, type ParsedStatus } from './billStatus';
 import type { Scope } from './types';
 
 export type BillStage = 'introduced' | 'committee' | 'passed-one' | 'passed-both' | 'law';
@@ -40,6 +42,8 @@ export interface Bill {
   sources: string[];
   /** YYYY-MM-DD the facts were checked. */
   checked: string;
+  /** False for "vehicle" bills whose text was replaced, where the official stage can overstate progress. */
+  autoStage?: boolean;
 }
 
 const KIND: Record<string, string> = {
@@ -78,7 +82,8 @@ const bill = (d: Draft): Bill => ({
   checked: CHECKED,
 });
 
-export const BILLS: Bill[] = [
+/** Bills as hand-checked on CHECKED. */
+export const HAND_CHECKED_BILLS: Bill[] = [
   // ── Congress itself ──
   bill({
     topic: 'stock-trading', number: 'H.R. 7008', congress: 119, title: 'Stop Insider Trading Act', sponsor: 'Rep. Bryan Steil (R-WI)', introduced: '2026-01-12',
@@ -128,6 +133,7 @@ export const BILLS: Bill[] = [
     summary: 'Keeps the SAVE Act’s proof-of-citizenship rule for registering and adds a requirement to show photo ID to get a ballot in federal elections. Voters without ID could cast a provisional ballot that counts only if they show ID within three days.',
     decision: 'Require voters to show a photo ID to vote in federal elections',
     sources: [GOV(119, 's', '1383')],
+    autoStage: false,
   }),
   bill({
     topic: 'election-holiday', number: 'H.R. 154', congress: 119, title: 'Election Day Act', sponsor: 'Rep. Brian Fitzpatrick (R-PA)', introduced: '2025-01-03',
@@ -287,5 +293,12 @@ export const BILLS: Bill[] = [
     sources: [GOV(119, 's', '4518')],
   }),
 ];
+
+/** Bills with any newer official actions merged in (see scripts/update-bills.ts). */
+export const BILLS: Bill[] = HAND_CHECKED_BILLS.map((b) => {
+  const s = (STATUS.bills as Record<string, ParsedStatus | undefined>)[b.id];
+  return s ? applyStatus(b, s) : b;
+});
+export const BILL_STATUS_UPDATED: string | null = STATUS.updated;
 
 export const billsForTopic = (topic: string): Bill[] => BILLS.filter((b) => b.topic === topic);
