@@ -16,6 +16,8 @@ export interface SurveyDef {
   predicted: { support: number; neutral: number; oppose: number; byGroup: Record<string, number> };
   district: string | null;
   created: number;
+  /** The topic Ripple matched (for calibration), when it started from a poll or estimate. */
+  anchor?: string | null;
 }
 
 export interface SurveyResponse {
@@ -39,6 +41,7 @@ export function makeSurvey(r: SimulationResult, id: string, district: string | n
     },
     district,
     created: now,
+    anchor: r.reality && r.reality.anchor.basis !== 'model' ? r.reality.anchor.id : null,
   };
 }
 

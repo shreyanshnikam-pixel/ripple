@@ -474,7 +474,7 @@ interface Target {
   target: number;
 }
 
-function startingPoint(fa: FullAnalysis): Target {
+function startingPoint(fa: FullAnalysis, calibration?: DecisionInput['calibration']): Target {
   const a = fa.analysis;
   let anchor: RealityCheck['anchor'];
   if (fa.match) {
@@ -537,6 +537,12 @@ function startingPoint(fa: FullAnalysis): Target {
     const next = clamp(logistic(logit(p) + s.d), 0.02, 0.97);
     const points = Math.round((next - p) * 100);
     if (points !== 0) adjustments.push({ label: s.label, points });
+    p = next;
+  }
+  const cal = fa.match ? calibration?.[anchor.id] : undefined;
+  if (cal && cal.points) {
+    const next = clamp(p + cal.points / 100, 0.02, 0.97);
+    adjustments.push({ label: `Calibrated with ${cal.surveys} real surveys (${cal.answers.toLocaleString('en-US')} answers)`, points: Math.round((next - p) * 100) });
     p = next;
   }
   return { anchor, adjustments, target: p };
@@ -667,7 +673,7 @@ function prepare(input: DecisionInput, noisesOverride?: number[]): Prepared {
   const lowStakes = fa.topicCount === 0 && !fa.match;
   const sigma = agentSigma(fa.analysis) * (lowStakes ? 0.45 : 1);
   if (lowStakes) for (const s of scored) s.shock *= 0.4;
-  const start = startingPoint(fa);
+  const start = startingPoint(fa, input.calibration);
 
   // Calibrate on a typical room, then apply the user's mix of who's in it.
   const typical = personas.map((p) => p.share);

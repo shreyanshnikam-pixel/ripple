@@ -18,6 +18,7 @@ const pages = {
   survey: () => import('./pages/Survey'),
   surveyResults: () => import('./pages/SurveyResults'),
   notFound: () => import('./pages/NotFound'),
+  trackRecord: () => import('./pages/TrackRecord'),
 };
 const Simulator = lazy(pages.simulator);
 const Methodology = lazy(pages.methodology);
@@ -28,6 +29,7 @@ const Compare = lazy(pages.compare);
 const Survey = lazy(pages.survey);
 const SurveyResults = lazy(pages.surveyResults);
 const NotFound = lazy(pages.notFound);
+const TrackRecord = lazy(pages.trackRecord);
 
 function prefetchPages() {
   const run = () => Object.values(pages).forEach((load) => load().catch(() => undefined));
@@ -62,6 +64,7 @@ function AnimatedRoutes() {
         <Route path="/compare" element={<Page><Compare /></Page>} />
         <Route path="/survey/:id" element={<Page><Survey /></Page>} />
         <Route path="/survey/:id/results" element={<Page><SurveyResults /></Page>} />
+        <Route path="/track-record" element={<Page><TrackRecord /></Page>} />
         <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
     </AnimatePresence>

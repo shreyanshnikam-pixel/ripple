@@ -18,7 +18,9 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { analyze, ENGINE_VERSION, simulate } from '../shared/engine';
 import { AI_ENABLED, aiRouter } from './ai';
-import { surveyRouter } from './surveys';
+import { calibrationRecords, surveyRouter } from './surveys';
+import { calibrationTable, trackRecord } from '../shared/calibration';
+import { ANCHORS } from '../shared/anchors';
 import type { DecisionInput, ScopeChoice, SimulationResult } from '../shared/types';
 
 interface Engine {
@@ -45,7 +47,9 @@ app.use((req, res, next) => (req.path.startsWith('/api/ai/') ? next() : json(req
 // Behind a hosting proxy (Render, Railway…) the real client IP is in X-Forwarded-For.
 if (process.env.TRUST_PROXY) app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
 
-// Small in-memory rate limit so a public demo can't be hammered.
+// Small in-memory rate limit so a public demo can't be hammered. A classroom shares one network
+// address, so schools running their own copy can raise it with RATE_LIMIT_PER_MIN.
+const RATE_LIMIT = Number(process.env.RATE_LIMIT_PER_MIN ?? 120);
 const hits = new Map<string, { count: number; reset: number }>();
 setInterval(() => {
   const now = Date.now();
@@ -56,7 +60,7 @@ app.use('/api', (req, res, next) => {
   const now = Date.now();
   const entry = hits.get(key);
   if (!entry || entry.reset < now) hits.set(key, { count: 1, reset: now + 60_000 });
-  else if (++entry.count > 60) return res.status(429).json({ error: 'Too many simulations at once. Wait a minute and try again.' });
+  else if (++entry.count > RATE_LIMIT) return res.status(429).json({ error: 'Too many simulations at once. Wait a minute and try again.' });
   next();
 });
 
@@ -89,13 +93,34 @@ app.post('/api/analyze', (req, res, next) => {
   }
 });
 
-app.use('/api/ai', aiRouter(readInput));
-app.use('/api/surveys', surveyRouter(readInput));
+// Calibration from real surveys (see shared/calibration.ts). Rebuilt every few minutes; CALIBRATION=off disables it.
+let calibration = { at: 0, table: {} as NonNullable<DecisionInput['calibration']> };
+function currentCalibration() {
+  if (process.env.CALIBRATION === 'off') return undefined;
+  if (Date.now() - calibration.at > 5 * 60_000) calibration = { at: Date.now(), table: calibrationTable(calibrationRecords()) };
+  return calibration.table;
+}
+/** Visitor input, plus the server's own calibration (never taken from the request). */
+const readCalibrated = (body: unknown): DecisionInput => ({ ...readInput(body), calibration: currentCalibration() });
+
+app.get('/api/track-record', (_req, res) => {
+  const records = calibrationRecords();
+  const label = (id: string) => ANCHORS.find((a) => a.id === id)?.label ?? id;
+  res.json({
+    ...trackRecord(records),
+    calibration: Object.entries(calibrationTable(records)).map(([id, c]) => ({ topic: label(id), ...c })),
+    // Topics and numbers only: what people wrote in surveys stays private.
+    list: records.filter((r) => r.n >= 30).map((r) => ({ topic: label(r.anchor), predicted: r.predicted, actual: r.actual, answers: r.n })),
+  });
+});
+
+app.use('/api/ai', aiRouter(readCalibrated));
+app.use('/api/surveys', surveyRouter(readCalibrated));
 
 app.post('/api/simulate', async (req, res, next) => {
   try {
     const started = Date.now();
-    const result = await engine.run(readInput(req.body));
+    const result = await engine.run(readCalibrated(req.body));
     res.setHeader('Server-Timing', `engine;dur=${Date.now() - started}`);
     res.json(result);
   } catch (err) {

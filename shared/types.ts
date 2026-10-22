@@ -31,6 +31,11 @@ export interface DecisionInput {
   crowdSize?: number;
   /** Who's in the room: multiplies a persona's share of the crowd (0 – 4, default 1). */
   mix?: Record<string, number>;
+  /**
+   * Set by the Ripple server only (never accepted from visitors): small, labeled corrections per topic,
+   * learned from real surveys. See shared/calibration.ts.
+   */
+  calibration?: Record<string, { points: number; surveys: number; answers: number }>;
 }
 
 export type Role =

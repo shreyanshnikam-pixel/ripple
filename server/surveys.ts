@@ -14,6 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { simulate } from '../shared/engine';
+import type { CalibrationRecord } from '../shared/calibration';
 import { makeSurvey, readResponse, tally, type SurveyDef, type SurveyStance } from '../shared/surveys';
 import type { DecisionInput } from '../shared/types';
 
@@ -51,6 +52,22 @@ function load(id: string): { def: SurveyDef; key: string } {
   const row = db.prepare('SELECT def, key FROM surveys WHERE id = ?').get(id) as { def: string; key: string } | undefined;
   if (!row) throw fail(404, 'That survey doesn’t exist.');
   return { def: JSON.parse(row.def) as SurveyDef, key: row.key };
+}
+
+/** Every survey with a known topic: what Ripple predicted and what people answered. */
+export function calibrationRecords(): CalibrationRecord[] {
+  const rows = db
+    .prepare(
+      `SELECT s.def AS def, COUNT(r.id) AS n, SUM(CASE WHEN r.stance = 'support' THEN 1 ELSE 0 END) AS yes
+       FROM surveys s JOIN responses r ON r.survey = s.id GROUP BY s.id`,
+    )
+    .all() as { def: string; n: number; yes: number }[];
+  const out: CalibrationRecord[] = [];
+  for (const row of rows) {
+    const def = JSON.parse(row.def) as SurveyDef;
+    if (def.anchor && row.n > 0) out.push({ anchor: def.anchor, predicted: def.predicted.support, actual: Math.round((row.yes / row.n) * 100), n: row.n });
+  }
+  return out;
 }
 
 export function surveyRouter(readInput: (body: unknown) => DecisionInput): Router {
