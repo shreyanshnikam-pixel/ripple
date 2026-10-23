@@ -43,3 +43,9 @@ test('translate falls back to English and fills placeholders', () => {
   assert.equal(translate('es', 'A sentence nobody translated'), 'A sentence nobody translated');
   assert.equal(translate('en', 'Hi {name}', { name: 'Ana' }), 'Hi Ana');
 });
+
+test('local decisions have Spanish titles, categories and deciders', async () => {
+  const { LOCAL_CATEGORIES, LOCAL_DECISIONS } = await import('../../../shared/local');
+  const need = [...LOCAL_CATEGORIES.map((c) => c.label), ...LOCAL_DECISIONS.flatMap((d) => [d.title, d.who])];
+  assert.deepEqual([...new Set(need)].filter((x) => !(x in ES)), []);
+});

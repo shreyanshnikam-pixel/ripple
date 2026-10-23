@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PERSONAS } from '../../../shared/personas';
 import { DistrictCard, DistrictPicker } from '../components/district';
+import { LocalDecisions } from '../components/LocalDecisions';
 import { Arrow, Reveal, SplitHeading } from '../components/ui';
 import { useT } from '../i18n';
 import { districtFromCode, recalledDistrict, rememberDistrict, type DistrictPick } from '../lib/district';
@@ -55,6 +56,9 @@ export default function District() {
     if (!pick || text.trim().length < 3) return;
     navigate(simulatorPath({ decision: text.trim(), scope: 'community', mix: pick.mix, district: pick.district.label }));
   };
+
+  const runLocal = (d: { decision: string; scope: 'community' | 'school' | 'business' | 'personal' }) =>
+    navigate(simulatorPath(pick ? { decision: d.decision, scope: d.scope, mix: pick.mix, district: pick.district.label } : { decision: d.decision, scope: d.scope }));
 
   return (
     <div className="wrap page">
@@ -148,6 +152,28 @@ export default function District() {
             </motion.div>
           )}
         </AnimatePresence>
+      </section>
+
+      <section className="page__section" aria-labelledby="local">
+        <span className="label">{t('Local decisions')}</span>
+        <h2 className="h2" id="local">
+          {lang === 'es' ? (
+            <>
+              Lo que se decide <em>en tu ciudad.</em>
+            </>
+          ) : (
+            <>
+              What gets decided <em>in your town.</em>
+            </>
+          )}
+        </h2>
+        <p className="lead" style={{ maxWidth: '62ch' }}>
+          {pick
+            ? t('Parks, bond votes, school start times: the questions city councils and school boards settle. Pick one to run it with {district}’s crowd.', { district: pick.district.label })
+            : t('Parks, bond votes, school start times: the questions city councils and school boards settle. Pick one to simulate it, or enter your ZIP code above to run it with your district’s crowd.')}
+        </p>
+        <LocalDecisions onRun={runLocal} place={pick?.district.label} />
+        <p className="reality__note">{t('Most of these start from a published national poll. Your town may differ, which is why every report ends with a way to ask real people.')}</p>
       </section>
 
       <section className="page__section" aria-labelledby="how-room">

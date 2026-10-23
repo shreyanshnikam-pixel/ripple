@@ -13,7 +13,7 @@
     "build:pages": "vite build --mode pages",
     "start": "NODE_ENV=production tsx server/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test shared/engine.test.ts shared/realism.test.ts shared/topics.test.ts shared/districts.test.ts shared/civics.test.ts shared/ai.test.ts shared/surveys.test.ts shared/bills.test.ts shared/billStatus.test.ts shared/calibration.test.ts shared/projects.test.ts client/src/i18n/i18n.test.ts"
+    "test": "tsx --test shared/engine.test.ts shared/realism.test.ts shared/topics.test.ts shared/districts.test.ts shared/civics.test.ts shared/ai.test.ts shared/surveys.test.ts shared/bills.test.ts shared/billStatus.test.ts shared/calibration.test.ts shared/projects.test.ts shared/local.test.ts client/src/i18n/i18n.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.132.1",

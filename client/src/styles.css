@@ -4152,3 +4152,69 @@ body::before {
 .act__letter .actions .btn {
   min-height: 38px;
 }
+
+/* ── Local decisions (District page) ── */
+.local {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.local__group {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.local__group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.local__item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 'who arrow' 'title arrow' 'basis arrow';
+  gap: 4px 12px;
+  align-items: center;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--raised-2);
+  color: var(--paper);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.local__item:hover,
+.local__item:focus-visible {
+  border-color: rgba(166, 240, 218, 0.5);
+  transform: translateY(-1px);
+}
+.local__who {
+  grid-area: who;
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+.local__title {
+  grid-area: title;
+  font-weight: 500;
+  font-size: 1.02rem;
+  line-height: 1.3;
+}
+.local__item .basis {
+  grid-area: basis;
+  justify-self: start;
+  white-space: normal;
+  border-radius: 10px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.local__item > svg {
+  grid-area: arrow;
+}
