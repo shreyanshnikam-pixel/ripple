@@ -45,7 +45,7 @@ export function Composer({
   district: string | null;
   onDistrict: (p: DistrictPick | null) => void;
 }) {
-  const { t } = useT();
+  const { t, lang } = useT();
   const live = useMemo(() => (decision.trim().length >= 3 ? analyze(decision, scope) : null), [decision, scope]);
   const btn = useMagnetic<HTMLButtonElement>(0.12);
   const detail = live?.detail ?? 0;
@@ -130,6 +130,12 @@ export function Composer({
         </div>
       </div>
 
+      {live?.readAs && (
+        <p className="reality__note composer__readas" title={t('Ripple’s keywords are in English, so it reads Spanish word by word. Results use what you typed.')}>
+          {t('Ripple read it as: “{text}”', { text: live.readAs })}
+        </p>
+      )}
+
       {live?.tips[0] && (
         <p className="tips">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -196,7 +202,7 @@ export function Composer({
         <span className="label" style={{ marginRight: 4 }}>
           {t('Try')}
         </span>
-        {[EXAMPLES[0], EXAMPLES[5], EXAMPLES[8], EXAMPLES[13]].map((e) => (
+        {[EXAMPLES[0], EXAMPLES[5], EXAMPLES[8], EXAMPLES[13]].map((e) => ({ ...e, text: lang === 'es' ? e.es : e.text })).map((e) => (
           <button
             type="button"
             key={e.text}

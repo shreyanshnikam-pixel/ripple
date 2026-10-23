@@ -4,7 +4,7 @@ export default {
   'Simulator · Ripple': 'Simulador · Ripple',
   'Decision lab': 'Laboratorio de decisiones',
   'Describe it in a sentence. Add who it affects, what it costs, and when it starts for a sharper simulation.':
-    'Descríbela en una oración. Para una simulación más precisa, di a quién afecta, cuánto cuesta y cuándo empieza. Por ahora, escríbela en inglés: Ripple todavía no lee español.',
+    'Descríbela en una oración. Para una simulación más precisa, di a quién afecta, cuánto cuesta y cuándo empieza. Puedes escribir en español o en inglés.',
   'Your recent decisions': 'Tus decisiones recientes',
   Clear: 'Borrar',
   'Report sections': 'Secciones del informe',
@@ -56,7 +56,7 @@ export default {
   // ── Composer
   'The decision': 'La decisión',
   'e.g. Start high school at 9:00 a.m. instead of 7:30 so students get more sleep':
-    'Escríbela en inglés, p. ej.: Start high school at 9:00 a.m. instead of 7:30 so students get more sleep',
+    'p. ej.: Empezar la secundaria a las 9:00 a.m. en vez de las 7:30 para que los estudiantes duerman más',
   'What Ripple picked up': 'Lo que Ripple detectó',
   'Ripple will show what it picks up as you type.': 'Mientras escribes, Ripple te mostrará lo que va detectando.',
   'Ripple will start from a published poll': 'Ripple partirá de una encuesta publicada',

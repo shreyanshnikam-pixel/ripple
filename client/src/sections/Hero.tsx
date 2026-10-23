@@ -8,7 +8,8 @@ import { Arrow, Avatar, SplitHeading, StanceIcon, stanceSide, useMagnetic } from
 import { useReducedMotion } from '../lib/motion';
 import { useT } from '../i18n';
 
-const HERO_EXAMPLES = [EXAMPLES[1], EXAMPLES[4], EXAMPLES[8], EXAMPLES[11], EXAMPLES[2]].map((e) => e.text);
+const HERO = [EXAMPLES[1], EXAMPLES[4], EXAMPLES[8], EXAMPLES[11], EXAMPLES[2]];
+const HERO_EXAMPLES = { en: HERO.map((e) => e.text), es: HERO.map((e) => e.es) };
 
 function useTypewriter(texts: string[], enabled: boolean) {
   const [out, setOut] = useState(texts[0]);
@@ -52,12 +53,13 @@ export function DecisionBar({ id, autoFocus = false }: { id: string; autoFocus?:
   const reduced = useReducedMotion();
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);
-  const typed = useTypewriter(HERO_EXAMPLES, !reduced && !focused && !value);
   const btn = useMagnetic<HTMLButtonElement>(0.15);
-  const { t } = useT();
+  const { t, lang } = useT();
+  const examples = HERO_EXAMPLES[lang === 'es' ? 'es' : 'en'];
+  const typed = useTypewriter(examples, !reduced && !focused && !value);
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const text = value.trim() || HERO_EXAMPLES[0];
+    const text = value.trim() || examples[0];
     navigate(`/simulate?d=${encodeURIComponent(text)}&run=1`);
   };
   return (
@@ -153,7 +155,7 @@ export function Hero({ demo }: { demo: SimulationResult }) {
         <motion.div style={{ width: '100%', display: 'grid', justifyItems: 'center', gap: 18 }} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.95, duration: 0.8 }}>
           <DecisionBar id="hero-decision" />
           <div className="hero__examples">
-            {[EXAMPLES[0], EXAMPLES[9], EXAMPLES[12]].map((e) => (
+            {[EXAMPLES[0], EXAMPLES[9], EXAMPLES[12]].map((e) => ({ ...e, text: lang === 'es' ? e.es : e.text })).map((e) => (
               <button key={e.text} className="chip" onClick={() => navigate(`/simulate?d=${encodeURIComponent(e.text)}&s=${e.scope}&run=1`)}>
                 <span className="label" style={{ fontSize: '0.66rem' }}>
                   {t(e.tag)}

@@ -171,7 +171,7 @@ export default function ProjectPage() {
           <label className="sr-only" htmlFor="proj-decision">
             {t('A decision to simulate')}
           </label>
-          <input id="proj-decision" value={decision} maxLength={500} onChange={(e) => setDecision(e.target.value)} placeholder={lang === 'es' ? t('Write it in English for now, e.g. “Start school at 8:30 a.m.”') : 'e.g. Start school at 8:30 a.m. instead of 7:30'} />
+          <input id="proj-decision" value={decision} maxLength={500} onChange={(e) => setDecision(e.target.value)} placeholder={t('e.g. Start school at 8:30 a.m. instead of 7:30')} />
           <select value={scope} onChange={(e) => setScope(e.target.value as Scope)} aria-label={t('Who it affects')}>
             {SCOPES.map((s) => (
               <option key={s} value={s}>

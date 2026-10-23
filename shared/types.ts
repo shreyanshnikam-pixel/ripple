@@ -104,6 +104,8 @@ export interface Analysis {
   /** The best-matching well-known policy, if any (id + label). */
   anchor?: { id: string; label: string; basis: 'poll' | 'estimate' };
   tips: string[];
+  /** For a decision typed in Spanish: the rough English Ripple read it as. */
+  readAs?: string;
 }
 
 export interface PersonaReaction {

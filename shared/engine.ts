@@ -20,6 +20,7 @@
  * produces the same report. The engine runs on the server and in the browser.
  */
 import { ANCHORS, type Anchor, type AnchorVariant, type Line } from './anchors';
+import { glossSpanish, looksSpanish } from './gloss';
 import { ALL_VALUES, MITIGATIONS, NEGATIVE_WORDS, POSITIVE_WORDS, TOPICS } from './lexicon';
 import { GENERIC_LINES, LOSE, PERSONAS, SCOPE_META, VALUE_LABELS, WIN_OVER, WIN_OVER_PERSONAL, type Persona } from './personas';
 import type {
@@ -315,7 +316,10 @@ export function analyze(decision: string, scopeChoice: ScopeChoice = 'auto'): An
   return analyzeFull(decision, scopeChoice).analysis;
 }
 
-function analyzeFull(decision: string, scopeChoice: ScopeChoice = 'auto'): FullAnalysis {
+function analyzeFull(typed: string, scopeChoice: ScopeChoice = 'auto'): FullAnalysis {
+  // Spanish is read through a word-by-word English gloss; the person still sees what they typed.
+  const readAs = looksSpanish(typed) ? glossSpanish(typed) : null;
+  const decision = readAs ?? typed;
   const idx = indexText(decision);
   const norm = normalize(decision);
   const lifted = LIFT_RE.test(norm) || NEG_RE.test(norm);
@@ -426,7 +430,8 @@ function analyzeFull(decision: string, scopeChoice: ScopeChoice = 'auto'): FullA
   const mentionsTime = /\b(next|fall|spring|summer|winter|month|months|year|years|week|weeks|20\d\d|semester|starting|by)\b/.test(norm);
   if (!mentionsTime && words >= 6 && !match) tips.push('Add a timeline, like “starting next fall.”');
 
-  const { phrase, selfPhrase } = extractPhrase(decision, scope);
+  // Voices speak English, so a Spanish decision is called "this plan" rather than quoted in a rough gloss.
+  const { phrase, selfPhrase } = readAs ? extractPhrase('', scope) : extractPhrase(decision, scope);
   const analysis: Analysis = {
     scope,
     scopeWasDetected,
@@ -444,6 +449,7 @@ function analyzeFull(decision: string, scopeChoice: ScopeChoice = 'auto'): FullA
       ? { id: match.anchor.id, label: anchorLabel(match), basis: match.flipped ? 'estimate' : (match.variant?.basis ?? match.anchor.basis) }
       : undefined,
     tips: tips.slice(0, 2),
+    ...(readAs ? { readAs } : {}),
   };
   return { analysis, idx, norm, match, burden, effExtremity, extremeWords, restricted, immediate: IMMEDIATE_RE.test(norm), pct, topicCount };
 }
