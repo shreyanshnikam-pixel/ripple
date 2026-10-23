@@ -24,16 +24,20 @@ councils, city councils, families, small businesses and members of Congress.
 | **Who's in the room** | A college town vs. a retirement community, a student vote vs. a staff meeting, or **your own congressional district's real population**. |
 | **Fixes** | Narrower versions and add-ons (a pilot, an opt-out, help with costs), each tested by re-running the simulation. |
 | **AI report (optional)** | Claude writes a full report from the simulation's data: group by group, risks, recommendations, questions to ask real people, a voice for each group, and answers to follow-up questions. |
-| **Take it further** | Who decides this for real (Congress, your city council, your school board), related bills, and a starter letter to your representative that cites real polls only. |
+| **Take it further** | Who decides this for real (Congress, your state legislature, your city council or school board), related bills, and a starter letter to your representative or state legislator that cites real polls only. |
 | **Listen for real** | Turn the question into a 30-second anonymous survey with a QR code, then watch real answers arrive next to Ripple's frozen prediction. |
 | **Share** | A link that reproduces the exact result, a 1200×630 image card, and the phone's share menu. |
+| **Save to a project** | Keep simulations and surveys together in a project or a class, and see how close the predictions were. |
+| **En español** | The whole site has a Spanish version (the **ES** button). Decisions can be typed in Spanish too: Ripple reads them word by word and shows how it read them. |
 
 ### Civic tools
 
 | Page | What it does |
 | --- | --- |
-| **Your district** (`/district`) | Enter a ZIP code (looked up on your device). See your district's Census profile next to the national figures, your representative and senators, and simulate any decision with your district's real population. |
-| **Real bills** (`/bills`) | 25 real bills and laws (stock trading, daylight saving time, kids' online safety, voting, minimum wage and more), each with a plain-language summary, its progress through Congress, the published poll on the idea, and a one-click simulation. |
+| **Your district** (`/district`) | Enter a ZIP code (looked up on your device). See your district's Census profile next to the national figures, your representative and senators, and simulate any decision with your district's real population. A **local decisions** set (a park, a school bond vote, a later school start, housing, bike lanes, a solar farm and more) runs your town's questions in one click. |
+| **Real bills** (`/bills`) | 27 real bills and laws (stock trading, housing, school safety, daylight saving time, kids' online safety, voting, minimum wage and more), each with a plain-language summary, its progress through Congress, the published poll on the idea, and a one-click simulation. Status updates weekly from Congress.gov. |
+| **Projects & classes** (`/projects`) | Save a semester of decisions and surveys, like a student council's. Teachers start a class; students join with a 6-character code and a nickname, and their work rolls up on the teacher's page. No accounts or passwords. |
+| **Track record** (`/track-record`) | Every survey with enough answers, predicted vs. real, and how far off Ripple was. Topics with enough real answers nudge future predictions (at most 5 points). |
 | **Compare** (`/compare`) | Two wordings, one crowd, and a group-by-group chart of who moves. |
 | **Methodology** (`/methodology`) | Every starting point and source, the 32 voices, live realism checks against real polls, and limitations. |
 
@@ -47,7 +51,7 @@ npm run dev        # web app on http://localhost:5173, API on http://localhost:8
 ```
 
 ```bash
-npm test           # 83 tests: engine, realism vs. real polls, districts, bills, letters, AI, surveys
+npm test           # 166 tests: engine, realism vs. real polls, Spanish, districts, bills, projects, surveys, AI
 npm run typecheck  # TypeScript, whole project
 npm run build      # production build into dist/
 npm start          # serve the built app and the API together on :8787
@@ -92,19 +96,28 @@ shared/              Shared by the server and the browser
   engine.ts            analyze → starting point → score → calibrate → crowd → report
   anchors.ts           well-known decisions: poll or estimate, stakes by role, voice lines
   anchors-civic.ts     Congress, elections and national policy (Pew, Gallup, AP-NORC, KFF…)
-  bills.ts             25 verified bills and laws, mapped to the policies they're about
+  anchors-topics.ts    housing, school safety, climate and energy (YouGov, PDK, Pew, AEI, NORC)
+  gloss.ts             reads decisions typed in Spanish
+  local.ts             the local decisions set (parks, bonds, start times, housing…)
+  bills.ts             27 verified bills and laws, mapped to the policies they're about
+  billStatus.ts        reads Congress.gov bill status (GovInfo BILLSTATUS XML)
+  calibration.ts       learns from real survey answers; the public track record
+  projects.ts          projects, classes, join codes and the class roll-up
   districts.ts         Census measures → who's in the room, ZIP → district
   civics.ts            who decides, and the starter letter
   ai.ts                grounded context, report schema and Claude requests
   surveys.ts           tallies and the honest comparison with the prediction
-  *.test.ts            83 tests
+  *.test.ts            166 tests
 server/
-  index.ts             Express API, validation, rate limits
+  index.ts             Express API, validation, rate limits, /api/track-record
   ai.ts                /api/ai: status, report, ask
   surveys.ts           /api/surveys with SQLite (node:sqlite)
+  projects.ts          /api/projects: projects, classes, joining, saved work
 scripts/build-district-data.ts   builds the district files from public data
+scripts/update-bills.ts          refreshes bill status from Congress.gov (weekly GitHub Action)
 client/src/
-  pages/               Landing, Simulator, District, Bills, Compare, Survey, Methodology, About
+  pages/               Landing, Simulator, District, Bills, Compare, Survey, Projects, Track record, Methodology, About
+  i18n/                English and Spanish
   sim/                 Composer, results, AI panel, share sheet, take action, surveys
   components/          Canvas renderers, district picker, QR code, UI pieces
   data/                districts.json and zips.json (generated)
@@ -147,20 +160,32 @@ Results are deterministic: the same decision always gives the same report.
 | Elect the president by popular vote | 63% ([Pew, 2024](https://www.pewresearch.org/short-reads/2024/09/25/majority-of-americans-continue-to-favor-moving-away-from-electoral-college/)) | within ±8 |
 | Let Medicare negotiate drug prices | 85% ([KFF, 2024](https://www.kff.org/health-costs/allowing-medicare-to-negotiate-drug-prices-remains-broadly-popular-among-voters-though-most-are-unaware-of-the-law-and-its-projected-savings/)) | within ±7 |
 | Ban TikTok | 34% ([Pew, 2025](https://www.pewresearch.org/short-reads/2025/03/25/fewer-americans-now-support-tiktok-ban-see-the-platform-as-a-national-security-threat-than-in-spring-2023/)) | within ±8 |
+| Cap yearly rent increases at 5% | 69% ([YouGov, 2022](https://yougov.com/en-us/articles/43242-housing-policy-yougov-poll-july-19-22-2022)) | within ±8 |
+| Rezone for high-density apartment towers | 30% ([YouGov, 2022](https://yougov.com/en-us/articles/43242-housing-policy-yougov-poll-july-19-22-2022)) | within ±8 |
+| Put armed police officers in every school | 80% ([PDK Poll, 2022](https://pdkpoll.org/2022-pdk-poll-results/)) | within ±8 |
+| Allow teachers to carry guns at school | 50% ([Pew, 2023](https://www.pewresearch.org/politics/2023/06/28/gun-violence-widely-viewed-as-a-major-and-growing-national-problem/)) | within ±8 |
+| Prioritize wind and solar over fossil fuels | 57% ([Pew, 2026](https://www.pewresearch.org/science/2026/04/03/americans-shifting-views-on-energy-issues/)) | within ±8 |
+| Ban gas stoves | 40% ([YouGov, 2023](https://yougov.com/en-us/daily-results/20230111-063d4-3)) | within ±8 |
 | Ban all devices at school | no poll | at most 12–20% support |
 
-The Methodology page runs 24 of these checks live in the browser.
+The Methodology page runs 40 of these checks live in the browser. `shared/topics.test.ts` covers housing,
+school safety, climate and local taxes, and `shared/gloss.test.ts` checks that 19 decisions typed in Spanish
+start from the same poll as their English versions.
 
 ## Data sources
 
-- **Polls:** Pew Research Center, Gallup, AP-NORC, KFF, the University of Maryland's
-  Program for Public Consultation, Marist and others. Every source is linked in the app.
+- **Polls:** Pew Research Center, Gallup, AP-NORC, KFF, YouGov, the PDK Poll, the AEI
+  Housing Center with Ipsos, NORC, the University of Maryland's Program for Public
+  Consultation, Marist and others. Every source is linked in the app. One solar poll was
+  paid for by an advocacy group (GoodPower), and the app says so.
 - **Districts:** U.S. Census Bureau, American Community Survey 2024 1-year estimates
   (119th Congress districts), and the 2020 ZIP Code Tabulation Area to district
   relationship file. Rebuild with `npx tsx scripts/build-district-data.ts` after
   downloading the files listed at the top of that script into `data/raw/`.
 - **Members of Congress:** [unitedstates/congress-legislators](https://github.com/unitedstates/congress-legislators) (public domain).
-- **Bills:** Congress.gov bill status data (via GovInfo), checked October 21, 2026.
+- **Bills:** Congress.gov bill status data (via GovInfo). Hand-checked October 21, 2026, then
+  refreshed weekly by `.github/workflows/update-bills.yml`, which can only move a bill forward.
+- **State and local government:** [Open States](https://openstates.org/) and [USA.gov](https://www.usa.gov/local-governments) links in Take it further.
 
 ## Accessibility & privacy
 
@@ -169,6 +194,9 @@ The Methodology page runs 24 of these checks live in the browser.
 - `prefers-reduced-motion` turns off smooth scrolling, pinning and ambient animation.
 - No accounts and no tracking. ZIP codes are looked up on your device. Survey answers are
   anonymous, and written reasons are visible only to the survey's creator.
+- Projects open with a private link. Students join classes with a nickname; emails and
+  phone numbers are refused so nobody shares them by accident.
+- English and Spanish, switchable on every page.
 - The AI report is optional. When used, the decision and its simulated results go to Anthropic.
 
 ## Limitations

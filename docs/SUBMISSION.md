@@ -23,21 +23,26 @@
 > one would help.
 >
 > Ripple is grounded in reality. When a decision matches a well-studied policy, the simulation starts from
-> published polling (Pew Research Center, Gallup, AP-NORC, KFF and others) and links the source. Enter your ZIP
-> code and Ripple fills the crowd with your congressional district's real population from U.S. Census data and
-> shows who represents you. A gallery of 25 real bills and laws from Congress, verified against Congress.gov,
-> lets you simulate the public reaction to each one.
+> published polling (Pew Research Center, Gallup, AP-NORC, KFF, YouGov, PDK and others) and links the source,
+> including the issues districts raise most: housing, school safety and climate. Enter your ZIP code and Ripple
+> fills the crowd with your congressional district's real population from U.S. Census data, shows who represents
+> you, and offers a set of local decisions (a park, a school bond vote, a later school start) to run with your
+> neighbors. A gallery of 27 real bills and laws from Congress, updated weekly from Congress.gov, lets you
+> simulate the public reaction to each one.
 >
 > Ripple is a rehearsal, not a replacement. Every report says who really decides, drafts a letter to your
 > representative that cites real polls (never simulated numbers), and can turn the question into a 30-second
-> anonymous survey with a QR code, so you can compare real answers with the prediction. An optional AI report,
+> anonymous survey with a QR code, so you can compare real answers with the prediction. Those real answers
+> feed a public track record and gently correct future predictions. Teachers can run Ripple with a whole class:
+> students join with a code and a nickname, and their simulations and surveys roll up in one place. The whole
+> site works in English and Spanish, and Ripple reads decisions typed in either language. An optional AI report,
 > written by Claude from the simulation's data, adds recommendations and questions to ask real people.
 >
 > **Built with:** React, TypeScript, Vite, GSAP, Lenis, Framer Motion, Canvas, Node.js, Express, SQLite, U.S.
 > Census data, and the Anthropic API. The simulation engine is written from scratch: it reads a decision, starts
 > from real polling where it exists, lets 32 personas weigh the decision by their values and their own stake,
-> and uses an opinion-dynamics model so 1,000 agents influence their neighbors over time. 83 automated tests
-> check it against real polls.
+> and uses an opinion-dynamics model so 1,000 agents influence their neighbors over time. 166 automated tests
+> check it, including 40 checks against real polls.
 
 ## The ready-made demo video
 
@@ -74,14 +79,17 @@ for the smoothest animations. For the AI report in the video, set `ANTHROPIC_API
 ## How Ripple lines up with what judges look for
 
 - **Civic impact:** built for student councils, city councils, families, small businesses and Congress. It
-  connects each decision to the people who make it for real (your representative, your council) and pushes
-  users to listen to real people with surveys.
+  connects each decision to the people who make it for real (your representative, your state legislature, your
+  council or school board) and pushes users to listen to real people with surveys. Classes can use it together.
+- **Access:** a full Spanish version, with Spanish input, for the 40+ million Americans who speak Spanish at home.
 - **Technical depth:** a custom simulation engine (topic analysis, poll anchors, calibration, persona
   self-interest, agent-based opinion dynamics), a Census data pipeline for 437 districts and 33,000 ZIP codes,
-  a verified bills dataset, a SQLite survey service, an optional AI layer with structured outputs, and 83
-  automated tests including realism checks against real polls.
+  a bills dataset that updates itself from Congress.gov, a SQLite service for surveys, projects and classes,
+  calibration from real survey answers, a Spanish reading layer, an optional AI layer with structured outputs,
+  and 166 automated tests including 40 realism checks against real polls.
 - **Realism you can verify:** every report shows its starting point and links to the poll; every bill links to
-  Congress.gov; the Methodology page runs the realism checks live.
+  Congress.gov; the Methodology page runs the realism checks live; the Track record page shows how close
+  predictions came to real survey answers.
 - **Design:** a distinct visual identity, scroll-driven storytelling, accessible data visualizations
   (color-blind-safe palettes, shapes and labels on top of color, table views, reduced motion).
 - **Responsibility:** simulated numbers are never presented as real results; letters cite real polls only;
