@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-22",
+  "updated": "2026-10-23",
   "bills": {
     "hr7008-119": {
       "stage": "passed-one",
@@ -294,6 +294,30 @@
       "latest": {
         "date": "2026-05-13",
         "text": "Read twice and referred to the Committee on Agriculture, Nutrition, and Forestry."
+      },
+      "passed": {
+        "house": null,
+        "senate": null
+      },
+      "law": null
+    },
+    "hr6644-119": {
+      "stage": "law",
+      "latest": {
+        "date": "2026-07-11",
+        "text": "Became Public Law No: 119-101."
+      },
+      "passed": {
+        "house": "2026-02-09",
+        "senate": "2026-03-12"
+      },
+      "law": "119-101"
+    },
+    "s1189-119": {
+      "stage": "introduced",
+      "latest": {
+        "date": "2025-03-27",
+        "text": "Read twice and referred to the Committee on Finance."
       },
       "passed": {
         "house": null,

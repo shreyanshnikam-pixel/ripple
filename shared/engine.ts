@@ -254,7 +254,7 @@ const LIFT_RE =
   /\b(lift|lifting|end|ending|repeal|repealing|remove|removing|reverse|reversing|overturn|overturning|scrap|scrapping|undo|undoing|drop|dropping|cancel|canceling|cancelling|get rid of|relax|relaxing|loosen|loosening)\b(?:\s+[\w'-]+){0,3}?\s+(ban|bans|restriction|restrictions|rule|rules|requirement|requirements|mandate|mandates|prohibition|curfew|limit|limits)\b/;
 const NEG_RE = /\b(don'?t|do not|stop|no longer|never|shouldn'?t|should not|not)\s+(ban|banning|require|requiring|restrict|restricting|prohibit|prohibiting|limit|limiting|mandate|mandating)\b/;
 /** Quantifiers that widen a rule. Time spans ("the entire school day") describe a variant, not extremity. */
-const QUANT_RE = /\b(all|every|any|entire|entirely|whole|total|totally|completely|everyone|everybody|anyone)\b(?!\s+(?:day|school day|week|weekend|year|semester|class|period|time|times|of the time))/g;
+const QUANT_RE = /\b(all|every|any|entire|entirely|whole|total|totally|completely|everyone|everybody|anyone)\b(?!-)(?!\s+(?:day|school day|week|weekend|year|semester|class|period|time|times|of the time))/g;
 const ABSOLUTE_RE = /\b(forever|permanent|permanently|always|never|zero tolerance|outright|at all times|no exceptions|without exception)\b|100\s?%/g;
 const IMMEDIATE_RE = /\b(immediately|overnight|tomorrow|right away|effective immediately|next week|starting monday)\b/;
 
@@ -528,7 +528,9 @@ function startingPoint(fa: FullAnalysis, calibration?: DecisionInput['calibratio
     if (fa.pct >= 10) shifts.push({ label: `A large increase (${fa.pct}%)`, d: -0.4 });
     else if (fa.pct <= 2) shifts.push({ label: `A small increase (${fa.pct}%)`, d: 0.15 });
   }
-  for (const s of a.signals) if (s.kind === 'mitigation' && MITIGATION_LOGIT[s.id]) shifts.push(MITIGATION_LOGIT[s.id]);
+  // Some polls already asked about the help a decision offers (e.g. "low-income housing"); don't count it twice.
+  const covered = new Set(fa.match ? (fa.match.variant?.includes ?? fa.match.anchor.includes ?? []) : []);
+  for (const s of a.signals) if (s.kind === 'mitigation' && MITIGATION_LOGIT[s.id] && !covered.has(s.id)) shifts.push(MITIGATION_LOGIT[s.id]);
   if (Math.abs(a.framing) >= 0.04) shifts.push({ label: a.framing > 0 ? 'Hopeful wording' : 'Heavy-handed wording', d: a.framing * 3 });
 
   let p = clamp(anchor.support / 100, 0.02, 0.97);

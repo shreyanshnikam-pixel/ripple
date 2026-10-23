@@ -274,6 +274,24 @@ export const HAND_CHECKED_BILLS: Bill[] = [
     decision: 'Phase out sales of new gas-powered cars by 2035',
     sources: [GOV(119, 'hjres', '88')],
   }),
+  // ── Housing ──
+  bill({
+    topic: 'housing', number: 'H.R. 6644', congress: 119, title: '21st Century ROAD to Housing Act', sponsor: 'Rep. J. French Hill (R-AR)', introduced: '2025-12-11',
+    status: 'Became Public Law 119-101 on July 11, 2026. It passed the House 390–9 and the Senate 89–10, and the House approved the final version 358–32 on June 23, 2026.',
+    stage: 'law',
+    summary: 'A broad housing law. It speeds up environmental reviews for some housing projects, changes HUD grant and Community Development Block Grant rules to support more affordable homes, and raises FHA loan limits for apartment buildings. It also bars large institutional investors (with 350 or more single-family homes) from buying more single-family homes, and temporarily bars the Federal Reserve from issuing a digital currency.',
+    decision: 'Speed up reviews and approvals so more new housing gets built',
+    sources: [GOV(119, 'hr', '6644')],
+  }),
+  // ── School safety ──
+  bill({
+    topic: 'school-security', number: 'S. 1189', congress: 119, title: 'School Guardian Act of 2025', sponsor: 'Sen. Rick Scott (R-FL)', introduced: '2025-03-27',
+    status: 'Introduced; referred to the Senate Finance Committee.',
+    stage: 'introduced',
+    summary: 'Would have the Justice Department give block grants to states to assign armed law enforcement officers to provide security at elementary and secondary schools.',
+    decision: 'Fund armed police officers at every K–12 school',
+    sources: [GOV(119, 's', '1189')],
+  }),
   // ── Schools ──
   bill({
     topic: 'phones-school', number: 'S. 404', congress: 119, title: 'Focus on Learning Act', sponsor: 'Sen. Tom Cotton (R-AR)', introduced: '2025-02-05',

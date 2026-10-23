@@ -13,6 +13,7 @@
  */
 import type { PollSource, Role, Scope } from './types';
 import { CIVIC_ANCHORS, PEW_TAXES } from './anchors-civic';
+import { TOPIC_ANCHORS } from './anchors-topics';
 
 /** One or more phrasings per role; different people in the same role get different ones. */
 export type Line = { pro?: string | string[]; con?: string | string[]; win?: string | string[]; lose?: string | string[] };
@@ -25,6 +26,8 @@ export interface AnchorVariant {
   source?: PollSource;
   note?: string;
   population?: 'adults' | 'parents' | 'everyone';
+  /** Wording effects the poll already measured (signal ids such as 'support'), so they aren't added again. */
+  includes?: string[];
 }
 
 export interface Anchor {
@@ -50,6 +53,8 @@ export interface Anchor {
   polar?: number;
   /** "All"/"every" is part of what this decision means, so it is not penalized again. */
   inherentlyBroad?: boolean;
+  /** Wording effects the poll already measured (signal ids such as 'support'), so they aren't added again. */
+  includes?: string[];
 }
 
 // ── sources (verified) ─────────────────────────────────────────
@@ -127,6 +132,7 @@ const CUT = ['=cut', '=cuts', '=cutting', 'eliminat', '=end', '=drop', 'defund',
 /** Ordered from most to least specific: the first match wins. */
 export const ANCHORS: Anchor[] = [
   ...CIVIC_ANCHORS,
+  ...TOPIC_ANCHORS,
   // ───────────── devices & phones ─────────────
   {
     id: 'devices-school', label: 'Banning all devices at school', scopes: ['school'], weakHint: 'school',
@@ -290,11 +296,15 @@ export const ANCHORS: Anchor[] = [
     stakes: { owner: -0.3, investor: -0.5, taxpayer: -0.1, worker: 0.2, activist: 0.4, 'young-adult': 0.15 },
   },
   {
-    id: 'local-tax', label: 'Raising a local tax', scopes: ['community'],
+    id: 'local-tax', label: 'Raising a local tax', scopes: ['community'], hint: 'community',
     all: [['=tax', '=taxes', 'levy', '=bond', 'millage']], none: ['cut taxes', 'lower taxes', 'tax cut', 'tax break', 'tax relief', 'reduce taxes', 'tax credit'],
     support: 45, basis: 'estimate', population: 'everyone', polar: 0.6,
     note: 'Ripple estimate. Local tax measures often land near an even split, depending on what they fund.',
     variants: [
+      {
+        when: ['teacher', 'educator'], support: 67, label: 'A local tax to raise teacher pay', basis: 'poll',
+        source: { org: 'PDK Poll', year: 2023, url: 'https://pdkpoll.org/2023-pdk-poll-results/', finding: '67% of U.S. adults would support raising local property taxes to increase teacher salaries; 31% oppose' },
+      },
       { when: ['school', 'library', 'librar', '=park', '=parks', 'fire', 'police', 'roads', 'hospital'], support: 50, label: 'A local tax for public services', basis: 'estimate', note: 'Ripple estimate. Taxes tied to schools, libraries or safety tend to do better than general increases.' },
     ],
     stakes: { taxpayer: -0.6, elder: -0.35, owner: -0.3, parent: 0.05, student: 0.15, 'young-adult': 0.1, activist: 0.2, health: 0.1 },
@@ -341,27 +351,6 @@ export const ANCHORS: Anchor[] = [
     id: 'plastic', label: 'Banning single-use plastics', scopes: ['community', 'business'],
     all: [['plastic bag', 'plastic straw', 'styrofoam', 'single-use', 'plastic utensil', 'plastic cup']], support: 50, basis: 'estimate', population: 'everyone',
     stakes: { activist: 0.5, owner: -0.3, customer: -0.15, 'young-adult': 0.15, student: 0.2, elder: -0.1, creator: 0.3 },
-  },
-  {
-    id: 'shelter', label: 'Opening a homeless shelter', scopes: ['community'],
-    all: [['homeless', 'unhoused', '=shelter']], support: 45, basis: 'estimate', population: 'everyone', polar: 0.85,
-    stakes: { owner: -0.4, parent: -0.25, elder: -0.3, health: 0.4, activist: 0.5, 'young-adult': 0.2, student: 0.2, taxpayer: -0.25 },
-    lines: {
-      owner: { con: 'I want to help. Just not in front of my door.', win: 'Security, outreach staff, and a say in the location.' },
-      health: { pro: 'I treat people who sleep outside every winter. A shelter saves lives.' },
-      parent: { con: 'I need to know it’s safe for my kids to walk by.' },
-      activist: { pro: 'Everyone deserves a safe place to sleep, and winter is coming.' },
-    },
-  },
-  {
-    id: 'housing', label: 'Building new housing', scopes: ['community'],
-    all: [['apartment', '=housing', '=condo', '=condos', 'rezon', 'zoning', 'duplex', 'townhome', 'high-rise', 'new homes']], none: ['homeless', 'shelter'],
-    support: 50, basis: 'estimate', population: 'everyone', polar: 0.7,
-    stakes: { elder: -0.35, 'young-adult': 0.45, worker: 0.3, student: 0.25, owner: 0.15, taxpayer: -0.15, activist: 0.1, commuter: -0.1, neighbor: -0.4 },
-    lines: {
-      'young-adult': { pro: 'I grew up here and I can’t afford to live here. That has to change.' },
-      elder: { con: 'More traffic, more noise, and the town I knew disappears.' },
-    },
   },
   {
     id: 'speed-cameras', label: 'Adding traffic cameras', scopes: ['community', 'school'], hint: 'community',
@@ -565,11 +554,6 @@ export const ANCHORS: Anchor[] = [
     id: 'mental-health-days', label: 'Mental health days', scopes: ['school'], hint: 'school',
     all: [['mental health day', 'wellness day', 'mental-health day']], support: 70, basis: 'estimate', population: 'everyone',
     stakes: { student: 0.5, counselor: 0.5, parent: 0.15, teacher: 0, admin: -0.1 },
-  },
-  {
-    id: 'school-security', label: 'More security at school', scopes: ['school'],
-    all: [['metal detector', 'police officer', 'resource officer', 'armed guard', '=police', 'security guard', 'clear backpack']], support: 52, basis: 'estimate', population: 'everyone', polar: 0.8,
-    stakes: { parent: 0.3, admin: 0.3, teacher: 0.05, student: -0.25, counselor: -0.15 },
   },
   // ───────────── business ─────────────
   {
