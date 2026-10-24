@@ -13,6 +13,7 @@
  *   BASE_URL  where the app runs        (default http://localhost:8787)
  *   NAME      your name for the cards   (optional)
  *   SCHOOL    your school               (optional)
+ *   GRADE     your grade, e.g. Freshman (optional)
  *   ZIP       a ZIP code in your district (default 48104)
  *   OUT       output file               (default ripple-demo.mp4)
  */
@@ -25,6 +26,7 @@ import { chromium } from 'playwright';
 const BASE = (process.env.BASE_URL ?? 'http://localhost:8787').replace(/\/$/, '');
 const NAME = process.env.NAME ?? '';
 const SCHOOL = process.env.SCHOOL ?? '';
+const GRADE = process.env.GRADE ?? '';
 const ZIP = process.env.ZIP ?? '48104';
 const OUT = path.resolve(process.env.OUT ?? 'ripple-demo.mp4');
 const W = 1920;
@@ -98,7 +100,7 @@ const OVERLAY = () => {
 };
 
 const MARK = `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="7" fill="#a6f0da"/><circle cx="32" cy="32" r="16" fill="none" stroke="#a6f0da" stroke-width="3" opacity=".75"/><circle cx="32" cy="32" r="26" fill="none" stroke="#a6f0da" stroke-width="3" opacity=".35"/></svg>`;
-const byline = [NAME, SCHOOL].filter(Boolean).join(' · ');
+const byline = [NAME, [GRADE, SCHOOL].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
 
 // ───────────────────────── recording ─────────────────────────
 const frameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ripple-frames-'));
@@ -511,7 +513,7 @@ async function main() {
     '',
     `| Time | On screen | Say |`,
     `| --- | --- | --- |`,
-    `| 0:00 | Title card | "Hi, I'm ${NAME || '___'}${SCHOOL ? ` from ${SCHOOL}` : ' from ___'}, and this is Ripple, a decision simulator for civic life." |`,
+    `| 0:00 | Title card | "Hi, I'm ${NAME || '___'}, ${GRADE ? `a ${GRADE.toLowerCase()} ` : ''}${SCHOOL ? `at ${SCHOOL}` : 'from ___'}, and this is Ripple, a decision simulator for civic life." |`,
     ...captions.map((c) => `| ${mmss(c.start)} | ${c.label || ''} | "${c.text.replace(/…/g, '...')}" |`),
     `| ${mmss(end - 5)} | End card | "Use Ripple to prepare, then go listen to the real people. Thank you!" |`,
     '',

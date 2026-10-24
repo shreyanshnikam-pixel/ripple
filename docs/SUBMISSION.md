@@ -46,7 +46,7 @@
 
 ## The ready-made demo video
 
-`ripple-demo.mp4` (2:44, 1920×1080, smoothed to 60 fps) is a captioned walkthrough of the real app: the simulator,
+`ripple-demo.mp4` (2:39, 1920×1080, smoothed to 60 fps) is a captioned walkthrough of the real app: the simulator,
 fixes, the crowd and voices, your district and local decisions, a real housing law, a survey, a class, the
 Spanish version and the realism checks. To finish it:
 
@@ -106,7 +106,7 @@ for the smoothest animations. For the AI report in the video, set `ANTHROPIC_API
 
 - [ ] Run `npm install && npm run dev` on your own computer and try several decisions.
 - [ ] Change anything you want in your own style, and make sure you can explain all of it.
-- [ ] Fill in `client/src/content/team.ts` (your name, school, district, story) so the About page credits you.
+- [x] Name, school and district are in `client/src/content/team.ts`. Add your `story` (a sentence or two, in your own words).
 - [ ] Push the code to a public GitHub repository, turn on GitHub Pages (see README), and add both links to your submission.
 - [ ] Record and upload the demo video (public, under 3 minutes).
 - [ ] Fill in the form on your district's page before the deadline.

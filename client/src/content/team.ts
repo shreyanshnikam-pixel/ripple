@@ -4,11 +4,11 @@
  */
 export const TEAM = {
   /** e.g. "Alex R." — leave empty to show "a high school student". */
-  members: [] as { name: string; role?: string }[],
+  members: [{ name: 'Shreyansh Nikam', role: 'Freshman · design and code' }] as { name: string; role?: string }[],
   /** e.g. "Lincoln High School" */
-  school: '',
+  school: 'Livingston High School, Livingston, New Jersey',
   /** e.g. "NJ-5" — your congressional district for the Congressional App Challenge. */
-  district: '',
+  district: 'NJ-11',
   /** A sentence or two in your own words about why you built Ripple. */
   story: '',
   /** Optional public links (GitHub repo, demo video). */
