@@ -46,12 +46,12 @@
 
 ## The ready-made demo video
 
-`ripple-demo.mp4` (2:39, 1920×1080, smoothed to 60 fps) is a captioned walkthrough of the real app: the simulator,
+`ripple-demo.mp4` (2:54, 1920×1080, 60 fps) is a captioned walkthrough of the real app: the simulator,
 fixes, the crowd and voices, your district and local decisions, a real housing law, a survey, a class, the
 Spanish version and the realism checks. To finish it:
 
-1. Record your voice over it with `docs/video/narration.md`, which is timed to the video. Start with your name,
-   your school, the app's name and its purpose. Free editors such as CapCut, iMovie or Clipchamp can add a voice track.
+1. Record your voice over it with `docs/video/narration.md`, a script timed to the video: the problem, how
+   Ripple fixes it, then the demo. It opens with your name and school. Free editors such as CapCut, iMovie or Clipchamp can add a voice track.
 2. Upload it to YouTube as **Public** (or Vimeo), with `docs/video/thumbnail.png` as the thumbnail. The captions are
    already in the video; `docs/video/captions.srt` is there if you want closed captions too.
 3. To put your name on the title and end cards, or to re-record after changing the app:

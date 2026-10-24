@@ -1,33 +1,60 @@
-# Ripple demo: narration script
+# Ripple demo: voiceover script
 
-Read this over the video (or record your voice while it plays). Start by saying your name, your school, the app’s name and its purpose.
+Read this over `ripple-demo.mp4` (2:54). It goes **problem → how Ripple fixes it → demo**.
+Speak calmly, about as fast as normal conversation. The times are when each line starts; if you
+fall behind, skip a sentence rather than rush. About 430 words in total.
+
+---
+
+## 1 · The problem (0:00 – 0:18)
+
+**On screen:** title card
+
+> Hi, I'm Shreyansh Nikam, a freshman at Livingston High School in New Jersey.
+>
+> School boards, town councils and Congress make decisions that affect real people every day.
+> But most get made without asking those people, and by the time they find out, it's too late
+> to change.
+
+## 2 · How Ripple fixes it (0:18 – 0:32)
+
+**On screen:** the homepage, then scrolling through the story
+
+> So I built Ripple.
+>
+> You type in a decision, and Ripple simulates how a thousand people would react, starting
+> from real polls. You see who's with you, who isn't, and why, before you decide.
+
+## 3 · The demo (0:32 – 2:54)
 
 | Time | On screen | Say |
 | --- | --- | --- |
-| 0:00 | Title card | "Hi, I'm Shreyansh Nikam, a freshman at Livingston High School, New Jersey, and this is Ripple, a decision simulator for civic life." |
-| 0:04 | Ripple | "Every decision makes waves. Ripple lets you see them before you decide." |
-| 0:07 | How it works | "Ripple simulates 1,000 people. As you scroll, a year passes and opinions spread." |
-| 0:18 | The simulator | "Type any decision. Ripple reads it as you type." |
-| 0:22 | Reality check | "It simulates 1,000 students, teachers and families, starting from real polls." |
-| 0:29 | Fixes | "Ripple suggests a narrower version and tests it by re-running the simulation." |
-| 0:36 | Before → after | "Phones only during class: 68% of adults support that in a Pew Research poll." |
-| 0:39 | Share | "Share a link that reproduces the exact result, or an image card." |
-| 0:44 | The crowd | "Watch the crowd make up its mind over a year." |
-| 0:56 | The voices | "Hear what each group would say, in its own words." |
-| 1:00 | Town hall | "...and a town hall where the voices answer each other." |
-| 1:05 | Your district | "Enter a ZIP code. Ripple builds the crowd from your district’s real Census data." |
-| 1:12 | Local decisions | "Then run the questions your town actually decides: parks, bond votes, school start times." |
-| 1:21 | Local decisions | "Housing, school safety and climate start from real polls, with your neighbors in the room." |
-| 1:27 | Real bills | "27 real bills from Congress, updated every week from Congress.gov." |
-| 1:30 | Real bills | "Read what a bill does, see how far it got, and simulate it in your own district." |
-| 1:37 | Take it further | "Take it further: who decides, from Congress to your city council, and a letter that cites real polls." |
-| 1:43 | Listen for real | "Ripple is a rehearsal. Send a 30-second survey to real people." |
-| 1:49 | Listen for real · demo answers | "Real answers appear live next to Ripple’s prediction, group by group." |
-| 1:55 | Classes | "Teachers can start a class. Students join with a code and a nickname, with no accounts." |
-| 2:02 | Classes · demo students | "Everything students simulate and survey rolls up here, with how close the predictions were." |
-| 2:09 | En español | "Ripple also works in Spanish, including decisions typed in Spanish." |
-| 2:20 | En español | "It starts from the same real poll as the English version." |
-| 2:28 | Methodology | "Every number shows its source, and Ripple checks itself against 40 real polls." |
-| 2:34 | End card | "Use Ripple to prepare, then go listen to the real people. Thank you!" |
+| 0:32 | Typing in the simulator | "Let's try one: ban all devices at school." |
+| 0:36 | The verdict and reality check | "Ripple starts from a real Pew Research poll. Banning every device gets almost no support." |
+| 0:43 | Suggested fixes | "So it suggests a narrower version, phones only during class, and runs the simulation again." |
+| 0:50 | Before and after | "Now it's divided instead of a dead end." |
+| 0:53 | Share card | "I can share the exact result with a link or an image." |
+| 0:58 | The crowd plays | "Every dot is one person. Press play and you watch opinions spread over a year, as neighbors influence each other." |
+| 1:10 | Voices, then the town hall | "Each group explains itself in its own words, and in a town hall, they answer each other." |
+| 1:19 | Your district | "With my ZIP code, Ripple builds the crowd from my district's real Census data: New Jersey's 11th." |
+| 1:26 | Local decisions | "Then I can run the questions my town actually decides, like a park, a school bond or rent caps." |
+| 1:35 | Rent cap result | "Rent caps start from a real YouGov poll, with my neighbors in the room." |
+| 1:41 | Real bills | "Ripple follows 27 real bills in Congress, updated every week. This housing law passed in July, and I can simulate it in my district." |
+| 1:51 | Take it further | "It shows who actually decides, and drafts a letter to my state legislators." |
+| 1:57 | Survey and live results | "But a simulation isn't real people. So Ripple turns the question into a 30-second survey, and real answers show up next to the prediction." |
+| 2:09 | A class and its roll-up | "Teachers can run Ripple with a whole class. Students join with a code and a nickname, and everything they do rolls up for the teacher." |
+| 2:23 | Switching to Spanish | "Ripple also works in Spanish. You can even type the decision in Spanish, and it starts from the same real poll." |
+| 2:42 | Realism checks | "Every number shows its source, and Ripple checks itself against 40 real polls." |
+| 2:49 | End card | "Use Ripple to prepare. Then go listen to the real people. Thank you." |
 
-Length: 2:39.
+---
+
+**Tips**
+
+- Record in a quiet room, phone or laptop mic about a hand's width from your mouth.
+- In CapCut, iMovie or Clipchamp: put the video on the timeline, record your voice on a second
+  track, then nudge clips so each line starts with its scene.
+- If a section runs long, cut words, not the pauses. Judges remember a calm voice.
+- The survey answers and the two students in the class are sample data, and the video says so
+  on screen. If you run a real survey at school before Monday, you can say:
+  "When I asked ___ students at Livingston, ___% supported it, and Ripple predicted ___%."

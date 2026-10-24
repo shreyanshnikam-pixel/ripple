@@ -1,91 +1,91 @@
 1
-00:00:04,211 --> 00:00:07,464
+00:00:18,211 --> 00:00:21,464
 Every decision makes waves. Ripple lets you see them before you decide.
 
 2
-00:00:07,464 --> 00:00:18,192
+00:00:21,464 --> 00:00:32,192
 Ripple simulates 1,000 people. As you scroll, a year passes and opinions spread.
 
 3
-00:00:18,192 --> 00:00:22,000
+00:00:32,192 --> 00:00:36,000
 Type any decision. Ripple reads it as you type.
 
 4
-00:00:22,000 --> 00:00:29,421
+00:00:36,000 --> 00:00:43,421
 It simulates 1,000 students, teachers and families, starting from real polls.
 
 5
-00:00:29,421 --> 00:00:36,343
+00:00:43,421 --> 00:00:50,343
 Ripple suggests a narrower version and tests it by re-running the simulation.
 
 6
-00:00:36,343 --> 00:00:39,745
+00:00:50,343 --> 00:00:53,745
 Phones only during class: 68% of adults support that in a Pew Research poll.
 
 7
-00:00:39,745 --> 00:00:44,735
+00:00:53,745 --> 00:00:58,735
 Share a link that reproduces the exact result, or an image card.
 
 8
-00:00:44,735 --> 00:00:56,158
+00:00:58,735 --> 00:01:10,158
 Watch the crowd make up its mind over a year.
 
 9
-00:00:56,158 --> 00:01:00,158
+00:01:10,158 --> 00:01:14,158
 Hear what each group would say, in its own words.
 
 10
-00:01:00,158 --> 00:01:05,679
+00:01:14,158 --> 00:01:19,679
 …and a town hall where the voices answer each other.
 
 11
-00:01:05,679 --> 00:01:12,287
+00:01:19,679 --> 00:01:26,287
 Enter a ZIP code. Ripple builds the crowd from your district’s real Census data.
 
 12
-00:01:12,287 --> 00:01:21,071
+00:01:26,287 --> 00:01:35,071
 Then run the questions your town actually decides: parks, bond votes, school start times.
 
 13
-00:01:21,071 --> 00:01:27,337
+00:01:35,071 --> 00:01:41,337
 Housing, school safety and climate start from real polls, with your neighbors in the room.
 
 14
-00:01:27,337 --> 00:01:30,770
+00:01:41,337 --> 00:01:44,770
 27 real bills from Congress, updated every week from Congress.gov.
 
 15
-00:01:30,770 --> 00:01:37,781
+00:01:44,770 --> 00:01:51,781
 Read what a bill does, see how far it got, and simulate it in your own district.
 
 16
-00:01:37,781 --> 00:01:43,623
+00:01:51,781 --> 00:01:57,623
 Take it further: who decides, from Congress to your city council, and a letter that cites real polls.
 
 17
-00:01:43,623 --> 00:01:49,483
+00:01:57,623 --> 00:02:03,483
 Ripple is a rehearsal. Send a 30-second survey to real people.
 
 18
-00:01:49,483 --> 00:01:55,612
+00:02:03,483 --> 00:02:09,612
 Real answers appear live next to Ripple’s prediction, group by group.
 
 19
-00:01:55,612 --> 00:02:02,125
+00:02:09,612 --> 00:02:16,125
 Teachers can start a class. Students join with a code and a nickname, with no accounts.
 
 20
-00:02:02,125 --> 00:02:09,830
+00:02:16,125 --> 00:02:23,830
 Everything students simulate and survey rolls up here, with how close the predictions were.
 
 21
-00:02:09,830 --> 00:02:20,823
+00:02:23,830 --> 00:02:34,823
 Ripple also works in Spanish, including decisions typed in Spanish.
 
 22
-00:02:20,823 --> 00:02:28,297
+00:02:34,823 --> 00:02:42,297
 It starts from the same real poll as the English version.
 
 23
-00:02:28,297 --> 00:02:35,601
+00:02:42,297 --> 00:02:49,601
 Every number shows its source, and Ripple checks itself against 40 real polls.
