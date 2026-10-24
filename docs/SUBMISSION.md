@@ -46,7 +46,9 @@
 
 ## The ready-made demo video
 
-`ripple-demo.mp4` (2:48, 1920×1080) is a captioned walkthrough of the real app. To finish it:
+`ripple-demo.mp4` (2:44, 1920×1080, smoothed to 60 fps) is a captioned walkthrough of the real app: the simulator,
+fixes, the crowd and voices, your district and local decisions, a real housing law, a survey, a class, the
+Spanish version and the realism checks. To finish it:
 
 1. Record your voice over it with `docs/video/narration.md`, which is timed to the video. Start with your name,
    your school, the app's name and its purpose. Free editors such as CapCut, iMovie or Clipchamp can add a voice track.
@@ -57,7 +59,12 @@
    `NAME="Your Name" SCHOOL="Your School" ZIP="your ZIP" BASE_URL=http://localhost:8787 node scripts/video/record-demo.mjs`
    (needs `npm i -D playwright && npx playwright install chromium`, and ffmpeg).
 
-The survey results in the video use sample answers submitted by the recording script, and the video says so on screen.
+The survey answers and the two students in the class are samples submitted by the recording script, and the
+video says so on screen ("demo answers", "demo students").
+
+The recorder saves 30 fps. For the smoother 60 fps version, run
+`ffmpeg -i ripple-demo.mp4 -vf "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1" -crf 17 ripple-demo-60.mp4`
+(slow: split the file into parts to use several cores).
 
 ## Demo video script (about 2:55, if you'd rather record your own)
 
