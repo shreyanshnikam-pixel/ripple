@@ -4218,3 +4218,11 @@ body::before {
 .local__item > svg {
   grid-area: arrow;
 }
+
+.proj-ondevice {
+  max-width: 72ch;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 8px;
+}

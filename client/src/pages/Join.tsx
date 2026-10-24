@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useT } from '../i18n';
-import { HAS_SERVER } from '../lib/config';
+import { PROJECTS_ON_DEVICE } from '../lib/projects';
 import { JoinForm } from './Projects';
 
 /** Where a class's QR code or join link lands. */
@@ -19,7 +19,8 @@ export default function Join() {
           {t('Your teacher started a class on Ripple.')}
         </h1>
       </header>
-      {HAS_SERVER ? <JoinForm initialCode={(params.get('code') ?? '').toUpperCase()} /> : <p className="lead">{t('Projects and classes need the Ripple server, and this copy runs only in your browser. Everything else works here.')}</p>}
+      {PROJECTS_ON_DEVICE && <p className="reality__note proj-ondevice">{t('This copy of Ripple runs without a server, so projects and classes are saved on this device. Students join a class on the same device (a classroom computer, or a phone passed around). To let students join from their own devices, run Ripple with its server (see the README).')}</p>}
+      <JoinForm initialCode={(params.get('code') ?? '').toUpperCase()} />
     </div>
   );
 }

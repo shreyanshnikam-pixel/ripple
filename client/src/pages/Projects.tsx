@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SplitHeading } from '../components/ui';
 import { useT } from '../i18n';
-import { HAS_SERVER } from '../lib/config';
-import { createProject, joinClass, savedProjects, type SavedProject } from '../lib/projects';
+import { createProject, joinClass, PROJECTS_ON_DEVICE, savedProjects, type SavedProject } from '../lib/projects';
 
 function CreateForm({ kind, onDone }: { kind: 'project' | 'class'; onDone: (id: string) => void }) {
   const { t } = useT();
@@ -66,7 +65,9 @@ export function JoinForm({ initialCode = '' }: { initialCode?: string }) {
         setBusy(true);
         setError(null);
         try {
-          navigate(`/p/${(await joinClass(code, nickname)).id}`);
+          const joined = await joinClass(code, nickname);
+          // Open the student's own view, even on a device where the teacher's key is saved too.
+          navigate(`/p/${joined.id}`, { state: { k: joined.token } });
         } catch (err) {
           setError(err instanceof Error ? t(err.message) : t('Something went wrong.'));
         } finally {
@@ -123,9 +124,8 @@ export default function Projects() {
         </p>
       </header>
 
-      {!HAS_SERVER ? (
-        <p className="lead">{t('Projects and classes need the Ripple server, and this copy runs only in your browser. Everything else works here.')}</p>
-      ) : (
+      {PROJECTS_ON_DEVICE && <p className="reality__note proj-ondevice">{t('This copy of Ripple runs without a server, so projects and classes are saved on this device. Students join a class on the same device (a classroom computer, or a phone passed around). To let students join from their own devices, run Ripple with its server (see the README).')}</p>}
+      {
         <>
           {mine.length > 0 && (
             <section className="page__section" aria-labelledby="mine">
@@ -149,7 +149,7 @@ export default function Projects() {
             <JoinForm />
           </section>
         </>
-      )}
+      }
     </div>
   );
 }

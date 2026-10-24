@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { SimulationResult } from '../../../shared/types';
 import { useT } from '../i18n';
-import { HAS_SERVER } from '../lib/config';
 import { addSimulation, addSurvey, savedProjects } from '../lib/projects';
 
 /** Saves this result (or a survey made from it) to one of the projects or classes on this device. */
@@ -11,7 +10,6 @@ export function SaveToProject({ r, district, surveyId, onDone }: { r: Simulation
   const { t } = useT();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
-  if (!HAS_SERVER) return null;
   const projects = savedProjects();
 
   const save = async (id: string, key: string, name: string) => {

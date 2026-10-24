@@ -159,4 +159,11 @@ export default {
   "Free city buses": "Autobuses gratis",
   "A solar farm": "Una granja solar",
   "Ban gas leaf blowers": "Prohibir sopladoras de hojas a gasolina",
+  "This copy of Ripple runs without a server, so projects and classes are saved on this device. Students join a class on the same device (a classroom computer, or a phone passed around). To let students join from their own devices, run Ripple with its server (see the README).": "Esta copia de Ripple funciona sin servidor, así que los proyectos y las clases se guardan en este dispositivo. Los estudiantes se unen a una clase en el mismo dispositivo (una computadora del salón o un teléfono que se pasa de mano en mano). Para que se unan desde sus propios dispositivos, usa Ripple con su servidor (ver el README).",
+  "This class is saved on this device. Students join here: open “Join a class” on the Projects page and enter the code.": "Esta clase está guardada en este dispositivo. Los estudiantes se unen aquí: abre «Unirse a una clase» en la página de Proyectos y escribe el código.",
+  "This {kind} is saved in this browser. The link reopens it here; it won’t open on another device.": "Este {kind} está guardado en este navegador. El enlace lo vuelve a abrir aquí; no se abrirá en otro dispositivo.",
+  "This project was made on another device. Projects on this copy of Ripple only open where they were made.": "Este proyecto se creó en otro dispositivo. En esta copia de Ripple, los proyectos solo se abren donde se crearon.",
+  "No class on this device has that code. In this copy of Ripple, classes live on the device that made them. To join from your own device, your teacher needs the version with the Ripple server.": "Ninguna clase en este dispositivo tiene ese código. En esta copia de Ripple, las clases viven en el dispositivo donde se crearon. Para unirte desde tu propio dispositivo, tu maestro necesita la versión con el servidor de Ripple.",
+  "That survey isn’t on this device, so it can’t be added to an on-device project.": "Esa encuesta no está en este dispositivo, así que no se puede agregar a un proyecto guardado aquí.",
+  "Describe the decision in a few words.": "Describe la decisión en pocas palabras.",
 } as Record<string, string>;
