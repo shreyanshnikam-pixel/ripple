@@ -1,6 +1,7 @@
 /**
- * Optional AI routes. They turn on when the server has Claude credentials
- * (ANTHROPIC_API_KEY, or RIPPLE_AI=1 with another credential source the SDK understands).
+ * Optional AI routes. They turn on when the server has a Google Gemini API key
+ * (GEMINI_API_KEY, in the environment or in a git-ignored .env file). Free keys:
+ * https://aistudio.google.com/apikey. GEMINI_MODELS can override the model list.
  *
  *   GET  /api/ai/status                                   → { enabled, model }
  *   POST /api/ai/report  { decision, scope?, crowdSize?, mix?, district? }            → { report }
@@ -9,18 +10,19 @@
  * The server re-runs the simulation itself (it is deterministic), so the model only ever
  * sees Ripple's own data, never context supplied by the caller.
  */
-import Anthropic from '@anthropic-ai/sdk';
 import express, { type Router } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AI_MODEL, AiError, answer, buildContext, writeReport, type ChatTurn } from '../shared/ai';
+import { AI_MODELS, AiError, answer, buildContext, writeReport, type ChatTurn, type GeminiOptions } from '../shared/ai';
 import { districtSummary, type DistrictData } from '../shared/districts';
 import { simulate } from '../shared/engine';
 import type { DecisionInput } from '../shared/types';
 
-const enabled = !!(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN || process.env.RIPPLE_AI === '1');
-const client = enabled ? new Anthropic() : null;
+const KEY = process.env.GEMINI_API_KEY?.trim() || '';
+const enabled = KEY.length > 0;
+const MODELS = (process.env.GEMINI_MODELS ?? '').split(',').map((m) => m.trim()).filter(Boolean);
+const gemini: GeminiOptions | null = enabled ? { key: KEY, models: MODELS.length ? MODELS : AI_MODELS, timeoutMs: 60_000 } : null;
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 let districts: DistrictData | null = null;
@@ -63,14 +65,11 @@ function readHistory(x: unknown): ChatTurn[] {
   return turns;
 }
 
-/** Turns SDK errors into short messages people can act on. */
+/** Keeps error messages short, and never blames the visitor for the server's key. */
 function friendly(err: unknown): AiError {
-  if (err instanceof AiError) return err;
-  if (err instanceof Anthropic.RateLimitError) return new AiError('Claude is busy right now. Try again in a minute.', 429);
-  if (err instanceof Anthropic.AuthenticationError || err instanceof Anthropic.PermissionDeniedError) return new AiError('The AI report isn’t set up correctly on this server.', 503);
-  if (err instanceof Anthropic.BadRequestError) return new AiError('Claude couldn’t take that request. Try a shorter decision or question.', 400);
-  if (err instanceof Anthropic.APIConnectionError) return new AiError('Couldn’t reach Claude. Check the server’s connection.', 502);
-  if (err instanceof Anthropic.APIError) return new AiError('Claude had a problem. Try again in a moment.', 502);
+  if (err instanceof AiError) return err.status === 401 ? new AiError('The AI report isn’t set up correctly on this server.', 503) : err;
+  // Input checks (an empty decision, a bad scope) already carry a readable message.
+  if (err instanceof Error && (err as { status?: number }).status === 400) return new AiError(err.message, 400);
   console.error(err);
   return new AiError('The AI report failed. Try again in a moment.', 500);
 }
@@ -78,10 +77,10 @@ function friendly(err: unknown): AiError {
 export function aiRouter(readInput: (body: unknown) => DecisionInput): Router {
   const r = express.Router();
   r.use(express.json({ limit: '32kb' }));
-  r.get('/status', (_req, res) => res.json({ enabled, model: enabled ? AI_MODEL : null }));
+  r.get('/status', (_req, res) => res.json({ enabled, provider: 'gemini', model: enabled ? gemini!.models![0] : null }));
   r.use((req, res, next) => {
     if (req.method !== 'POST') return next();
-    if (!client) return res.status(503).json({ error: 'The AI report isn’t turned on for this server.' });
+    if (!gemini) return res.status(503).json({ error: 'The AI report isn’t turned on for this server.' });
     const why = allow(req.ip ?? 'anon');
     if (why) return res.status(429).json({ error: why });
     next();
@@ -92,16 +91,16 @@ export function aiRouter(readInput: (body: unknown) => DecisionInput): Router {
   };
   r.post('/report', async (req, res) => {
     try {
-      res.json({ report: await writeReport(client!, contextFor(req.body)) });
+      res.json({ report: await writeReport(gemini!, contextFor(req.body)) });
     } catch (err) {
       const e = friendly(err);
-      res.status((err as { status?: number }).status === 400 && !(err instanceof AiError) ? 400 : e.status).json({ error: e.message });
+      res.status(e.status).json({ error: e.message });
     }
   });
   r.post('/ask', async (req, res) => {
     try {
       const history = readHistory((req.body as Record<string, unknown>)?.history);
-      res.json({ answer: await answer(client!, contextFor(req.body), history) });
+      res.json({ answer: await answer(gemini!, contextFor(req.body), history) });
     } catch (err) {
       const e = friendly(err);
       res.status(e.status).json({ error: e.message });

@@ -349,7 +349,7 @@ export default {
     'puntos de partida, personajes y dinámica de opiniones, compartidos por el servidor y el navegador',
   'U.S. Census Bureau data': 'Datos de la Oficina del Censo de EE. UU.',
   'district demographics': 'la demografía de los distritos',
-  'Claude by Anthropic (optional)': 'Claude de Anthropic (opcional)',
+  'Gemini by Google (optional)': 'Gemini de Google (opcional)',
   'AI-written reports and voices': 'informes y voces escritos con IA',
   'Every number’s source is listed on the': 'La fuente de cada número aparece en la página de',
   ' page.': '.',
@@ -359,8 +359,8 @@ export default {
   'Your recent decisions are saved only in your own browser.': 'Tus decisiones recientes se guardan solo en tu propio navegador.',
   'Survey answers are anonymous: Ripple never asks for names, emails or locations.':
     'Las respuestas de las encuestas son anónimas: Ripple nunca pide nombres, correos ni ubicaciones.',
-  'AI features are optional. When you use them, your decision and its simulated results are sent to Anthropic to write the report.':
-    'Las funciones de IA son opcionales. Si las usas, tu decisión y sus resultados simulados se envían a Anthropic para escribir el informe.',
+  'AI features are optional. When you use them, your decision and its simulated results are sent to Google’s Gemini to write the report.':
+    'Las funciones de IA son opcionales. Si las usas, tu decisión y sus resultados simulados se envían a Gemini de Google para escribir el informe.',
   'ZIP codes are looked up on your device and never sent anywhere.': 'Los códigos postales se buscan en tu dispositivo y nunca se envían a ningún lado.',
 
   // ── Methodology ──

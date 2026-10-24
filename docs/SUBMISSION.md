@@ -36,10 +36,10 @@
 > feed a public track record and gently correct future predictions. Teachers can run Ripple with a whole class:
 > students join with a code and a nickname, and their simulations and surveys roll up in one place. The whole
 > site works in English and Spanish, and Ripple reads decisions typed in either language. An optional AI report,
-> written by Claude from the simulation's data, adds recommendations and questions to ask real people.
+> written by Google Gemini from the simulation's data, adds recommendations and questions to ask real people.
 >
 > **Built with:** React, TypeScript, Vite, GSAP, Lenis, Framer Motion, Canvas, Node.js, Express, SQLite, U.S.
-> Census data, and the Anthropic API. The simulation engine is written from scratch: it reads a decision, starts
+> Census data, and the Gemini API. The simulation engine is written from scratch: it reads a decision, starts
 > from real polling where it exists, lets 32 personas weigh the decision by their values and their own stake,
 > and uses an opinion-dynamics model so 1,000 agents influence their neighbors over time. 166 automated tests
 > check it, including 40 checks against real polls.
@@ -77,11 +77,11 @@ The recorder saves 30 fps. For the smoother 60 fps version, run
 | 1:20–1:45 | Your district: enter your ZIP, show the profile and your representative, click a suggested decision | "Ripple can also fill the room with my own congressional district's real population from Census data, and it shows who represents me." |
 | 1:45–2:10 | Real bills: filter "Passed a chamber", open the Stop Insider Trading Act, Simulate reactions, scroll to Take it further | "These are real bills from Congress. I can simulate the reaction, see who decides, and get a starter letter to my representative that cites real polls and names the bill." |
 | 2:10–2:35 | "Ask the real people": create a survey, show the QR code, open results with a few answers | "Ripple is a rehearsal. I can send a 30-second survey and compare real answers with the prediction, group by group." |
-| 2:35–2:50 | Compare page with "Phones at school" (or the AI report, if a key is set up) | "I can compare two wordings with the same crowd, or have Claude write a full report." |
+| 2:35–2:50 | Compare page with "Phones at school" (or the AI report, if a key is set up) | "I can compare two wordings with the same crowd, or have Gemini write a full report." |
 | 2:50–2:55 | Methodology page | "Every number shows its source. Use Ripple to prepare, then go listen. Thank you!" |
 
 Tips: record at 1920×1080 with the browser zoomed to about 110%, close other tabs, and run `npm run build && npm start`
-for the smoothest animations. For the AI report in the video, set `ANTHROPIC_API_KEY` first.
+for the smoothest animations. For the AI report in the video, put `GEMINI_API_KEY` in `.env` first.
 
 ## How Ripple lines up with what judges look for
 

@@ -23,7 +23,7 @@ councils, city councils, families, small businesses and members of Congress.
 | **Voices, crosstabs, over time, town hall** | One voice per group in their own words, support by group, a timeline, and a simulated forum where the voices answer each other. |
 | **Who's in the room** | A college town vs. a retirement community, a student vote vs. a staff meeting, or **your own congressional district's real population**. |
 | **Fixes** | Narrower versions and add-ons (a pilot, an opt-out, help with costs), each tested by re-running the simulation. |
-| **AI report (optional)** | Claude writes a full report from the simulation's data: group by group, risks, recommendations, questions to ask real people, a voice for each group, and answers to follow-up questions. |
+| **AI report (optional)** | Google Gemini writes a full report from the simulation's data: group by group, risks, recommendations, questions to ask real people, a voice for each group, and answers to follow-up questions. |
 | **Take it further** | Who decides this for real (Congress, your state legislature, your city council or school board), related bills, and a starter letter to your representative or state legislator that cites real polls only. |
 | **Listen for real** | Turn the question into a 30-second anonymous survey with a QR code, then watch real answers arrive next to Ripple's frozen prediction. |
 | **Share** | A link that reproduces the exact result, a 1200×630 image card, and the phone's share menu. |
@@ -61,16 +61,20 @@ npm run build:demo   # single-file preview (dist-artifact/ripple.html)
 
 ### Turning on the AI report
 
-The AI report is optional and uses Claude (`claude-opus-5-5`) through the official
-Anthropic SDK.
+The AI report is optional and uses Google Gemini through its REST API. A free key from
+[Google AI Studio](https://aistudio.google.com/apikey) is enough.
 
-- **On a server:** set `ANTHROPIC_API_KEY` before `npm start` or `npm run dev`. The key
+- **On a server:** put `GEMINI_API_KEY=your-key` in a file named `.env` next to `package.json`
+  (git ignores it, so the key is never committed), then `npm start` or `npm run dev`. The key
   stays on the server, the server re-runs the simulation itself (so the model only sees
   Ripple's own data), and AI requests have their own rate limit and a daily cap
-  (`AI_DAILY_LIMIT`, default 300). Refusals are retried on another model server-side
-  (`fallbacks: "default"`).
-- **On a static site:** visitors can paste their own Anthropic API key. It is used straight
-  from their browser and kept only for that tab, or on that device if they choose.
+  (`AI_DAILY_LIMIT`, default 300).
+- **Busy models:** the free tier is often busy, so Ripple tries a short list of Gemini models
+  in order and moves on when one is busy or retired. Set `GEMINI_MODELS` (comma-separated)
+  to choose your own list.
+- **On a static site:** visitors can paste their own free Gemini key. It is used straight
+  from their browser to Google and kept only for that tab, or on that device if they choose.
+  Never put a key in the site's code: anything in a static site is public.
 
 ### Putting it online (GitHub Pages)
 
@@ -105,7 +109,7 @@ shared/              Shared by the server and the browser
   projects.ts          projects, classes, join codes and the class roll-up
   districts.ts         Census measures → who's in the room, ZIP → district
   civics.ts            who decides, and the starter letter
-  ai.ts                grounded context, report schema and Claude requests
+  ai.ts                grounded context, report schema and Gemini requests
   surveys.ts           tallies and the honest comparison with the prediction
   *.test.ts            166 tests
 server/
@@ -127,7 +131,7 @@ client/src/
 and hand-written Canvas 2D for the ripple field, the crowd and the share card.
 
 **Back end:** Node + Express, input validation, rate limits, SQLite for surveys, and
-the Anthropic SDK for the optional AI report. If the server is unreachable, the client
+the Gemini API for the optional AI report. If the server is unreachable, the client
 runs the same engine in the browser.
 
 ### The simulation engine
@@ -197,7 +201,7 @@ start from the same poll as their English versions.
 - Projects open with a private link. Students join classes with a nickname; emails and
   phone numbers are refused so nobody shares them by accident.
 - English and Spanish, switchable on every page.
-- The AI report is optional. When used, the decision and its simulated results go to Anthropic.
+- The AI report is optional. When used, the decision and its simulated results go to Google's Gemini API.
 
 ## Limitations
 

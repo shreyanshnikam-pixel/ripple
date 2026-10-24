@@ -11,6 +11,7 @@
  * The engine is pluggable: swap `heuristicEngine` for an LLM-backed engine
  * that returns the same SimulationResult shape.
  */
+import './env';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import cors from 'cors';
 import path from 'node:path';
@@ -145,4 +146,4 @@ app.use((err: Error & { status?: number }, _req: Request, res: Response, _next: 
 });
 
 const port = Number(process.env.PORT ?? 8787);
-app.listen(port, () => console.log(`Ripple API listening on http://localhost:${port} (engine: ${engine.name}, AI report: ${AI_ENABLED ? 'on' : 'off'})`));
+app.listen(port, () => console.log(`Ripple API listening on http://localhost:${port} (engine: ${engine.name}, AI report: ${AI_ENABLED ? 'on (Gemini)' : 'off'})`));

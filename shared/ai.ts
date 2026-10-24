@@ -1,20 +1,22 @@
 /**
- * The optional AI layer: Claude writes a full report, in-character voices, and answers
+ * The optional AI layer: Google Gemini writes a full report, in-character voices, and answers
  * follow-up questions, using only one simulation's data. Shared by the server (which keeps
- * the API key) and the browser (when someone brings their own key on a static site).
- * The SDK is passed in, so this file only imports its types.
+ * the API key) and the browser (when someone brings their own free key on a static site).
+ * It talks to the Gemini REST API with fetch, so it runs the same in Node and in the browser.
  */
-import type Anthropic from '@anthropic-ai/sdk';
 import { BILL_STAGES, billsForTopic } from './bills';
 import { whoDecides } from './civics';
 import { SCOPE_META } from './personas';
 import type { SimulationResult } from './types';
 
-export const AI_MODEL = 'claude-opus-5-5';
-/** Refusals are retried on another model server-side ("default" picks it by refusal category). */
-const FALLBACK = { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' as const };
+/**
+ * Models to try, in order. The free tier is often busy, so a busy or retired model hands the
+ * request to the next one. The server can override the list with GEMINI_MODELS (comma-separated).
+ */
+export const AI_MODELS = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest'];
+export const AI_MODEL = AI_MODELS[0];
+export const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-type Params = Anthropic.Beta.Messages.MessageCreateParamsNonStreaming;
 export type ChatTurn = { role: 'user' | 'assistant'; content: string };
 
 export interface AiDistrict {
@@ -33,6 +35,13 @@ export interface AiReport {
   questions: string[];
   voices: { group: string; quote: string }[];
   caveats: string[];
+}
+
+/** A Gemini generateContent request body. */
+export interface GeminiRequest {
+  systemInstruction: { parts: { text: string }[] };
+  contents: { role: 'user' | 'model'; parts: { text: string }[] }[];
+  generationConfig: { responseMimeType?: string; responseJsonSchema?: unknown; maxOutputTokens: number; temperature: number };
 }
 
 const str = { type: 'string' } as const;
@@ -106,11 +115,9 @@ export function buildContext(r: SimulationResult, extras: { district?: AiDistric
   return JSON.stringify(ctx);
 }
 
-const system = (context: string): Params['system'] => [
-  { type: 'text', text: SYSTEM },
-  // The simulation is stable for a whole conversation, so it is cached after the first request.
-  { type: 'text', text: `<simulation>\n${context}\n</simulation>`, cache_control: { type: 'ephemeral' } },
-];
+const system = (context: string, extra = '') => ({
+  parts: [{ text: `${SYSTEM}${extra ? `\n\n${extra}` : ''}\n\n<simulation>\n${context}\n</simulation>` }],
+});
 
 const REPORT_TASK = `Write a full report on this simulation.
 - headline: one sentence on what the simulation suggests.
@@ -122,25 +129,19 @@ const REPORT_TASK = `Write a full report on this simulation.
 - voices: one first-person quote of at most 35 words for each group, in character and consistent with that group's simulated stance and reasons. These are illustrations of simulated people, not real people.
 - caveats: two or three limits of this simulation.`;
 
-export function reportParams(context: string): Params {
+export function reportParams(context: string): GeminiRequest {
   return {
-    model: AI_MODEL,
-    max_tokens: 16000,
-    ...FALLBACK,
-    system: system(context),
-    output_config: { effort: 'medium', format: { type: 'json_schema', schema: REPORT_SCHEMA } },
-    messages: [{ role: 'user', content: REPORT_TASK }],
+    systemInstruction: system(context),
+    contents: [{ role: 'user', parts: [{ text: REPORT_TASK }] }],
+    generationConfig: { responseMimeType: 'application/json', responseJsonSchema: REPORT_SCHEMA, maxOutputTokens: 8192, temperature: 0.6 },
   };
 }
 
-export function askParams(context: string, history: ChatTurn[]): Params {
+export function askParams(context: string, history: ChatTurn[]): GeminiRequest {
   return {
-    model: AI_MODEL,
-    max_tokens: 16000,
-    ...FALLBACK,
-    system: [...(system(context) as Anthropic.Beta.Messages.BetaTextBlockParam[]), { type: 'text', text: 'Answer follow-up questions about this simulation in at most 150 words. Plain text, no headings.' }],
-    output_config: { effort: 'low' },
-    messages: history.map((t) => ({ role: t.role, content: t.content })),
+    systemInstruction: system(context, 'Answer follow-up questions about this simulation in at most 150 words. Plain text, no headings.'),
+    contents: history.map((t) => ({ role: t.role === 'assistant' ? 'model' : 'user', parts: [{ text: t.content }] })),
+    generationConfig: { maxOutputTokens: 2048, temperature: 0.5 },
   };
 }
 
@@ -153,14 +154,66 @@ export class AiError extends Error {
   }
 }
 
-function textOf(msg: Anthropic.Beta.Messages.BetaMessage): string {
-  if (msg.stop_reason === 'refusal') throw new AiError('Claude declined to answer this one. Try rewording the decision or the question.', 422);
-  if (msg.stop_reason === 'max_tokens') throw new AiError('The answer ran too long. Try again.', 502);
-  return msg.content
-    .filter((b): b is Anthropic.Beta.Messages.BetaTextBlock => b.type === 'text')
-    .map((b) => b.text)
-    .join('')
-    .trim();
+type GeminiResponse = {
+  candidates?: { finishReason?: string; content?: { parts?: { text?: string; thought?: boolean }[] } }[];
+  promptFeedback?: { blockReason?: string };
+  error?: { code?: number; message?: string; status?: string };
+};
+
+/** Turns an API error into a short message people can act on. */
+function httpError(status: number, body: GeminiResponse): AiError {
+  const msg = body.error?.message ?? '';
+  if (status === 400 && /api key|API_KEY/i.test(msg + (body.error?.status ?? ''))) return new AiError('That Gemini API key didn’t work. Check it and try again.', 401);
+  if (status === 401 || status === 403) return new AiError('That Gemini API key isn’t allowed to use this model.', 401);
+  if (status === 429) return new AiError('The free Gemini key hit its limit for now. Try again in a minute.', 429);
+  if (status === 400) return new AiError('Gemini couldn’t take that request. Try a shorter decision or question.', 400);
+  return new AiError('Gemini is busy right now. Try again in a minute.', 503);
+}
+
+function textOf(body: GeminiResponse): string {
+  if (body.promptFeedback?.blockReason) throw new AiError('Gemini declined to answer this one. Try rewording the decision or the question.', 422);
+  const c = body.candidates?.[0];
+  if (!c) throw new AiError('Gemini sent back an empty answer. Try again.');
+  if (c.finishReason && ['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII', 'RECITATION'].includes(c.finishReason))
+    throw new AiError('Gemini declined to answer this one. Try rewording the decision or the question.', 422);
+  if (c.finishReason === 'MAX_TOKENS') throw new AiError('The answer ran too long. Try again.', 502);
+  const text = (c.content?.parts ?? []).filter((x) => !x.thought && typeof x.text === 'string').map((x) => x.text).join('').trim();
+  if (!text) throw new AiError('Gemini sent back an empty answer. Try again.');
+  return text;
+}
+
+export interface GeminiOptions {
+  key: string;
+  models?: string[];
+  /** Per model, in milliseconds. */
+  timeoutMs?: number;
+  fetch?: typeof fetch;
+}
+
+/** Sends one request, moving down the model list while a model is busy, rate-limited or retired. */
+export async function callGemini(req: GeminiRequest, o: GeminiOptions): Promise<string> {
+  const f = o.fetch ?? fetch;
+  let last: AiError = new AiError('Gemini is busy right now. Try again in a minute.', 503);
+  for (const model of o.models?.length ? o.models : AI_MODELS) {
+    let res: Response;
+    try {
+      res = await f(`${GEMINI_URL}/${encodeURIComponent(model)}:generateContent`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-goog-api-key': o.key },
+        body: JSON.stringify(req),
+        signal: AbortSignal.timeout(o.timeoutMs ?? 60_000),
+      });
+    } catch {
+      last = new AiError('Couldn’t reach Gemini, or it took too long. Try again in a minute.', 504);
+      continue;
+    }
+    const body = (await res.json().catch(() => ({}))) as GeminiResponse;
+    if (res.ok) return textOf(body);
+    last = httpError(res.status, body);
+    // A bad key or a bad request won't get better on another model.
+    if (last.status === 401 || last.status === 400) throw last;
+  }
+  throw last;
 }
 
 const isStr = (x: unknown): x is string => typeof x === 'string';
@@ -186,9 +239,8 @@ export function parseReport(x: unknown): AiReport {
   return o;
 }
 
-export async function writeReport(client: Anthropic, context: string): Promise<AiReport> {
-  const msg = await client.beta.messages.create(reportParams(context));
-  const text = textOf(msg);
+export async function writeReport(o: GeminiOptions, context: string): Promise<AiReport> {
+  const text = await callGemini(reportParams(context), o);
   try {
     return parseReport(JSON.parse(text));
   } catch (err) {
@@ -197,8 +249,8 @@ export async function writeReport(client: Anthropic, context: string): Promise<A
   }
 }
 
-export async function answer(client: Anthropic, context: string, history: ChatTurn[]): Promise<string> {
-  return textOf(await client.beta.messages.create(askParams(context, history)));
+export async function answer(o: GeminiOptions, context: string, history: ChatTurn[]): Promise<string> {
+  return callGemini(askParams(context, history), o);
 }
 
 /** A report as Markdown, for copying into a doc or an email. */
@@ -227,7 +279,7 @@ export function reportMarkdown(r: SimulationResult, rep: AiReport): string {
     '## Caveats',
     ...rep.caveats.map((x) => `- ${x}`),
     '',
-    '_Written by Claude from a Ripple simulation. Simulated reactions are not survey results._',
+    '_Written by Gemini from a Ripple simulation. Simulated reactions are not survey results._',
   ];
   return lines.join('\n');
 }

@@ -312,8 +312,8 @@ export default function Simulator() {
               <Block
                 id="report"
                 eyebrow={t('AI report')}
-                title={lang === 'es' ? <>La historia completa, <em>escrita por Claude.</em></> : <>The full story, <em>written by Claude.</em></>}
-                intro={t('Optional. Claude turns this simulation into a report you can share, and answers follow-up questions about it.')}
+                title={lang === 'es' ? <>La historia completa, <em>escrita por Gemini.</em></> : <>The full story, <em>written by Gemini.</em></>}
+                intro={t('Optional. Gemini turns this simulation into a report you can share, and answers follow-up questions about it.')}
               >
                 <AiPanel r={result} district={result.scope === 'community' ? district : null} onFlash={flash} />
               </Block>

@@ -36,9 +36,9 @@ const TOOLS = [
   {
     to: '/simulate?d=Make+Election+Day+a+national+holiday&s=community&run=1',
     stat: 'AI',
-    unit: 'report by Claude',
+    unit: 'report by Gemini',
     title: 'The full report',
-    body: 'Optional: Claude writes a report from the simulation’s data, with a voice for every group and answers to your follow-up questions.',
+    body: 'Optional: Gemini writes a report from the simulation’s data, with a voice for every group and answers to your follow-up questions.',
   },
   {
     to: '/simulate?d=Ban+members+of+Congress+from+trading+individual+stocks&s=community&run=1',

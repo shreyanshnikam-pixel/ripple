@@ -134,7 +134,7 @@ export default {
   'bills & laws': 'proyectos y leyes',
   'versions, 1 crowd': 'versiones, 1 multitud',
   'second surveys': 'segundos por encuesta',
-  'report by Claude': 'informe hecho por Claude',
+  'report by Gemini': 'informe hecho por Gemini',
   'letter away': 'carta de distancia',
   'Enter a ZIP code. Ripple fills the room with your congressional district’s real population from Census data, and shows who represents you.':
     'Escribe un código postal. Ripple llena la sala con la población real de tu distrito del Congreso, según datos del Censo, y te muestra quién te representa.',
@@ -147,8 +147,8 @@ export default {
   'Turn any simulation into an anonymous survey with a QR code, then watch real answers arrive next to Ripple’s prediction.':
     'Convierte cualquier simulación en una encuesta anónima con código QR y mira cómo llegan respuestas reales junto a la predicción de Ripple.',
   'The full report': 'El informe completo',
-  'Optional: Claude writes a report from the simulation’s data, with a voice for every group and answers to your follow-up questions.':
-    'Opcional: Claude escribe un informe con los datos de la simulación, con una voz para cada grupo y respuestas a tus preguntas de seguimiento.',
+  'Optional: Gemini writes a report from the simulation’s data, with a voice for every group and answers to your follow-up questions.':
+    'Opcional: Gemini escribe un informe con los datos de la simulación, con una voz para cada grupo y respuestas a tus preguntas de seguimiento.',
   'Take it further': 'Llévalo más lejos',
   'Every report says who decides for real, and drafts a letter to your representative that cites real polls, never simulated numbers.':
     'Cada informe dice quién decide de verdad y redacta una carta para tu representante que cita encuestas reales, nunca números simulados.',

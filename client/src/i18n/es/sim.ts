@@ -19,8 +19,8 @@ export default {
   Act: 'Actúa',
   Method: 'Método',
   Share: 'Compartir',
-  'Optional. Claude turns this simulation into a report you can share, and answers follow-up questions about it.':
-    'Opcional. Claude convierte esta simulación en un informe que puedes compartir y responde tus preguntas sobre ella.',
+  'Optional. Gemini turns this simulation into a report you can share, and answers follow-up questions about it.':
+    'Opcional. Gemini convierte esta simulación en un informe que puedes compartir y responde tus preguntas sobre ella.',
   'The crowd': 'La multitud',
   'Every dot is one simulated person. Press play to move from the announcement to a year later, or hover a group to see where its people live in the crowd.':
     'Cada punto es una persona simulada. Dale play para ir del anuncio a un año después, o pasa el cursor sobre un grupo para ver dónde está su gente en la multitud.',
@@ -260,10 +260,10 @@ export default {
   'Weighing every group': 'Considerando cada grupo',
   'Checking the starting poll': 'Revisando la encuesta de partida',
   'Writing the report': 'Escribiendo el informe',
-  'This copy of Ripple runs without a server, so the AI report uses your own Anthropic API key. The key goes straight from this browser to Anthropic and is never sent to Ripple. Create one at':
-    'Esta copia de Ripple funciona sin servidor, así que el informe de IA usa tu propia clave de API de Anthropic. La clave va directo de este navegador a Anthropic y nunca se envía a Ripple. Crea una en',
-  'A report costs a few cents.': 'Un informe cuesta unos centavos.',
-  'Anthropic API key': 'Clave de API de Anthropic',
+  'This copy of Ripple runs without a server, so the AI report uses your own free Gemini API key. The key goes straight from this browser to Google and is never sent to Ripple. Get one free at':
+    'Esta copia de Ripple funciona sin servidor, así que el informe de IA usa tu propia clave gratuita de la API de Gemini. La clave va directo de este navegador a Google y nunca se envía a Ripple. Consigue una gratis en',
+  'Google’s free tier covers it.': 'El nivel gratuito de Google lo cubre.',
+  'Gemini API key': 'Clave de API de Gemini',
   'Use this key': 'Usar esta clave',
   'Remember it on this device (otherwise it’s forgotten when you close the tab)':
     'Recordarla en este dispositivo (si no, se olvida al cerrar la pestaña)',
@@ -278,15 +278,15 @@ export default {
   'Who is most likely to change their mind?': '¿Quién tiene más probabilidades de cambiar de opinión?',
   'What would make this fairer?': '¿Qué haría esto más justo?',
   'What is the biggest risk?': '¿Cuál es el mayor riesgo?',
-  'Written by Claude from this simulation': 'Escrito por Claude a partir de esta simulación',
+  'Written by Gemini from this simulation': 'Escrito por Gemini a partir de esta simulación',
   'Group by group': 'Grupo por grupo',
   Recommendations: 'Recomendaciones',
   Risks: 'Riesgos',
   'Questions to ask real people': 'Preguntas para hacerle a gente real',
-  'Simulated voices, written by Claude': 'Voces simuladas, escritas por Claude',
+  'Simulated voices, written by Gemini': 'Voces simuladas, escritas por Gemini',
   '{group} (simulated)': '{group} (simulado)',
-  'Claude reads this simulation’s data, every group, the starting poll and the tested fixes, and writes a full report: who’s affected and why, risks, recommendations, questions to ask real people, and a voice for each group.':
-    'Claude lee los datos de esta simulación (cada grupo, la encuesta de partida y los ajustes probados) y escribe un informe completo: a quién afecta y por qué, riesgos, recomendaciones, preguntas para hacerle a gente real y una voz para cada grupo.',
+  'Gemini reads this simulation’s data, every group, the starting poll and the tested fixes, and writes a full report: who’s affected and why, risks, recommendations, questions to ask real people, and a voice for each group.':
+    'Gemini lee los datos de esta simulación (cada grupo, la encuesta de partida y los ajustes probados) y escribe un informe completo: a quién afecta y por qué, riesgos, recomendaciones, preguntas para hacerle a gente real y una voz para cada grupo.',
   'Checking whether AI is available…': 'Revisando si la IA está disponible…',
   'Writing…': 'Escribiendo…',
   'Write the full report': 'Escribir el informe completo',
@@ -296,8 +296,8 @@ export default {
   'Couldn’t copy the report': 'No se pudo copiar el informe',
   'Copy report': 'Copiar informe',
   'Write a new one': 'Escribir otro',
-  'AI writing can contain mistakes. Claude only sees this simulation’s data, and its report describes simulated people, not real survey results.':
-    'Lo que escribe la IA puede tener errores. Claude solo ve los datos de esta simulación, y su informe describe personas simuladas, no resultados de encuestas reales.',
+  'AI writing can contain mistakes. Gemini only sees this simulation’s data, and its report describes simulated people, not real survey results.':
+    'Lo que escribe la IA puede tener errores. Gemini solo ve los datos de esta simulación, y su informe describe personas simuladas, no resultados de encuestas reales.',
 
   // ── Share sheet
   '{verdict}: {support}% for, {oppose}% against in a Ripple simulation of “{decision}”':

@@ -27,17 +27,17 @@ function KeyForm({ onKey }: { onKey: (key: string) => void }) {
       }}
     >
       <p className="reality__note">
-        {t('This copy of Ripple runs without a server, so the AI report uses your own Anthropic API key. The key goes straight from this browser to Anthropic and is never sent to Ripple. Create one at')}{' '}
-        <a className="reality__source" href="https://console.anthropic.com/" target="_blank" rel="noreferrer">
-          console.anthropic.com
+        {t('This copy of Ripple runs without a server, so the AI report uses your own free Gemini API key. The key goes straight from this browser to Google and is never sent to Ripple. Get one free at')}{' '}
+        <a className="reality__source" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
+          aistudio.google.com/apikey
         </a>
-        . {t('A report costs a few cents.')}
+        . {t('Google’s free tier covers it.')}
       </p>
       <div className="ai-key__row">
         <label className="sr-only" htmlFor="ai-key">
-          {t('Anthropic API key')}
+          {t('Gemini API key')}
         </label>
-        <input id="ai-key" type="password" autoComplete="off" spellCheck={false} placeholder="sk-ant-…" value={value} onChange={(e) => setValue(e.target.value)} />
+        <input id="ai-key" type="password" autoComplete="off" spellCheck={false} placeholder="AIza… or AQ.…" value={value} onChange={(e) => setValue(e.target.value)} />
         <button className="btn btn--sm" type="submit" disabled={!value.trim()}>
           {t('Use this key')}
         </button>
@@ -83,13 +83,13 @@ function Ask({ mode, r, district, apiKey }: { mode: AiMode; r: SimulationResult;
         <ol className="ai-ask__log" aria-live="polite">
           {turns.map((turn, i) => (
             <li key={i} className={`ai-ask__turn ai-ask__turn--${turn.role}`}>
-              <span className="label">{turn.role === 'user' ? t('You') : 'Claude'}</span>
+              <span className="label">{turn.role === 'user' ? t('You') : 'Gemini'}</span>
               <p>{turn.content}</p>
             </li>
           ))}
           {busy && (
             <li className="ai-ask__turn ai-ask__turn--assistant">
-              <span className="label">Claude</span>
+              <span className="label">Gemini</span>
               <p className="ai-dots" aria-label={t('Thinking')}>
                 <i />
                 <i />
@@ -141,7 +141,7 @@ function Report({ rep }: { rep: AiReport }) {
   return (
     <motion.div className="ai-report" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
       <div className="panel ai-report__lead">
-        <span className="label label--foam">{t('Written by Claude from this simulation')}</span>
+        <span className="label label--foam">{t('Written by Gemini from this simulation')}</span>
         <h3 className="ai-report__headline">{rep.headline}</h3>
         {rep.summary.map((p, i) => (
           <p key={i}>{p}</p>
@@ -190,7 +190,7 @@ function Report({ rep }: { rep: AiReport }) {
         </ol>
       </div>
       <div>
-        <span className="label">{t('Simulated voices, written by Claude')}</span>
+        <span className="label">{t('Simulated voices, written by Gemini')}</span>
         <div className="ai-voices">
           {rep.voices.map((v) => (
             <figure key={v.group} className="panel ai-voice">
@@ -209,7 +209,7 @@ function Report({ rep }: { rep: AiReport }) {
   );
 }
 
-/** The optional AI layer: a full report, Claude-written voices, and follow-up questions. */
+/** The optional AI layer: a full report, Gemini-written voices, and follow-up questions. */
 export function AiPanel({ r, district, onFlash }: { r: SimulationResult; district: string | null; onFlash: (msg: string) => void }) {
   const { t } = useT();
   const [mode, setMode] = useState<AiMode | null>(null);
@@ -251,7 +251,7 @@ export function AiPanel({ r, district, onFlash }: { r: SimulationResult; distric
       {!report && (
         <div className="panel ai__start">
           <p className="lead" style={{ color: 'var(--paper)' }}>
-            {t('Claude reads this simulation’s data, every group, the starting poll and the tested fixes, and writes a full report: who’s affected and why, risks, recommendations, questions to ask real people, and a voice for each group.')}
+            {t('Gemini reads this simulation’s data, every group, the starting poll and the tested fixes, and writes a full report: who’s affected and why, risks, recommendations, questions to ask real people, and a voice for each group.')}
           </p>
           {mode === null && <p className="reality__note">{t('Checking whether AI is available…')}</p>}
           {mode === 'byok' && !apiKey && <KeyForm onKey={setApiKey} />}
@@ -308,7 +308,7 @@ export function AiPanel({ r, district, onFlash }: { r: SimulationResult; distric
       )}
       {ready && mode && <Ask key={r.id} mode={mode} r={r} district={district} apiKey={apiKey} />}
       <p className="reality__note">
-        {t('AI writing can contain mistakes. Claude only sees this simulation’s data, and its report describes simulated people, not real survey results.')}
+        {t('AI writing can contain mistakes. Gemini only sees this simulation’s data, and its report describes simulated people, not real survey results.')}
       </p>
     </div>
   );

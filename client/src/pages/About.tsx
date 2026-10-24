@@ -11,7 +11,7 @@ const STACK = [
   ['Node.js + Express', 'the API, surveys and AI proxy'],
   ['A custom simulation engine', 'anchors, personas and opinion dynamics, shared by server and browser'],
   ['U.S. Census Bureau data', 'district demographics'],
-  ['Claude by Anthropic (optional)', 'AI-written reports and voices'],
+  ['Gemini by Google (optional)', 'AI-written reports and voices'],
 ] as const;
 
 export default function About() {
@@ -129,7 +129,7 @@ export default function About() {
           <li>{t('No accounts, no ads, no tracking.')}</li>
           <li>{t('Your recent decisions are saved only in your own browser.')}</li>
           <li>{t('Survey answers are anonymous: Ripple never asks for names, emails or locations.')}</li>
-          <li>{t('AI features are optional. When you use them, your decision and its simulated results are sent to Anthropic to write the report.')}</li>
+          <li>{t('AI features are optional. When you use them, your decision and its simulated results are sent to Google’s Gemini to write the report.')}</li>
           <li>{t('ZIP codes are looked up on your device and never sent anywhere.')}</li>
         </ul>
       </section>
