@@ -34,9 +34,32 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      # Optional: AI reports for every visitor, with your Gemini key kept secret on Cloudflare.
+      # Needs repository secrets CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID and GEMINI_API_KEY
+      # (see the README, "AI reports for everyone"). Without them this step is skipped, and
+      # visitors can still paste their own free key.
+      - name: Deploy the AI service (Cloudflare Worker)
+        id: ai
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$GEMINI_API_KEY" ]; then
+            echo "Cloudflare or Gemini secrets aren't set, so the hosted AI service is skipped."
+            exit 0
+          fi
+          OWNER="${{ github.repository_owner }}"
+          cd worker
+          OUT=$(npx -y wrangler@4.148.0 deploy --var "ALLOWED_ORIGINS:https://${OWNER,,}.github.io" 2>&1) || { echo "$OUT"; echo "::warning::The AI service didn't deploy; the site will publish without it."; exit 0; }
+          echo "$OUT"
+          printf '%s' "$GEMINI_API_KEY" | npx -y wrangler@4.148.0 secret put GEMINI_API_KEY || echo "::warning::Couldn't save the Gemini key on Cloudflare."
+          URL=$(echo "$OUT" | grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' | head -1)
+          if [ -n "$URL" ]; then echo "url=$URL" >> "$GITHUB_OUTPUT"; echo "AI service: $URL"; else echo "::warning::Couldn't find the AI service's address in Cloudflare's output."; fi
       - name: Build the static site
         env:
           VITE_API_URL: ${{ vars.RIPPLE_API_URL }}
+          VITE_AI_URL: ${{ steps.ai.outputs.url || vars.RIPPLE_AI_URL }}
         run: |
           REPO="${{ github.event.repository.name }}"
           OWNER="${{ github.repository_owner }}"

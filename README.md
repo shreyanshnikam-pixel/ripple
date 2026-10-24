@@ -76,6 +76,25 @@ The AI report is optional and uses Google Gemini through its REST API. A free ke
   from their browser to Google and kept only for that tab, or on that device if they choose.
   Never put a key in the site's code: anything in a static site is public.
 
+### AI reports for everyone (no key needed by visitors)
+
+A static site can't hold a secret, so a tiny free service on Cloudflare keeps your Gemini key and
+writes the reports (`worker/ai.ts`). It only answers Ripple's own site, only accepts Ripple
+simulation summaries (it can't be used as a general Gemini proxy), and limits each visitor to
+10 requests per 10 minutes and 300 a day. The Pages workflow deploys it for you once these
+three repository secrets exist (repository **Settings → Secrets and variables → Actions → New
+repository secret**):
+
+| Secret | Where to get it |
+| --- | --- |
+| `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/apikey) (free) |
+| `CLOUDFLARE_ACCOUNT_ID` | Free [Cloudflare account](https://dash.cloudflare.com/sign-up). Open **Workers & Pages** once (it asks you to pick a `workers.dev` name), then copy the **Account ID** shown there. |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare → **My Profile → API Tokens → Create Token** → template **Edit Cloudflare Workers** → Create. |
+
+Then run **Actions → Deploy to GitHub Pages → Run workflow**. The log prints the service's
+address, and the published site uses it automatically. Without the secrets, the site still
+works and visitors can paste their own free key.
+
 ### Putting it online (GitHub Pages)
 
 1. Push this folder to a GitHub repository.

@@ -7,6 +7,12 @@ const envApi = (import.meta.env.VITE_API_URL ?? '').trim().replace(/\/+$/, '');
 export const API_BASE: string | null = BUILD_MODE === 'full' ? '' : envApi ? envApi : null;
 export const HAS_SERVER = API_BASE !== null;
 
+/**
+ * A hosted AI service for static builds (worker/ai.ts on Cloudflare), so visitors get AI reports
+ * without their own key. Ignored when the full Ripple server is available.
+ */
+export const AI_BASE: string | null = (import.meta.env.VITE_AI_URL ?? '').trim().replace(/\/+$/, '') || null;
+
 /** The hosted preview runs inside a sandboxed frame, so it keeps routes in memory. */
 export const USE_MEMORY_ROUTER = BUILD_MODE === 'artifact';
 

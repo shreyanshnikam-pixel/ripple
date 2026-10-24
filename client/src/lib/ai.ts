@@ -1,16 +1,32 @@
 import { answer, buildContext, writeReport, type AiReport, type ChatTurn } from '../../../shared/ai';
 import { districtSummary } from '../../../shared/districts';
 import type { SimulationResult } from '../../../shared/types';
-import { apiFetch, HAS_SERVER } from './config';
+import { AI_BASE, apiFetch, HAS_SERVER } from './config';
 import { loadDistricts } from './district';
 
-/** "server": this site's server holds a key. "byok": the visitor can use their own key in this browser. */
+/**
+ * "server": this site's server (or its hosted AI service) holds a key, so visitors need nothing.
+ * "byok": the visitor can use their own key in this browser.
+ */
 export type AiMode = 'server' | 'byok';
 
-export async function aiMode(): Promise<AiMode> {
-  if (!HAS_SERVER) return 'byok';
+/** Static builds with a hosted AI service send it the simulation summary; the full server re-runs the simulation itself. */
+const hosted = !HAS_SERVER && !!AI_BASE;
+
+async function aiFetch(path: string, init: RequestInit & { timeoutMs?: number } = {}): Promise<Response | null> {
+  if (!hosted) return apiFetch(path, init);
+  const { timeoutMs = 8000, ...rest } = init;
   try {
-    const res = await apiFetch('/api/ai/status', { timeoutMs: 4000 });
+    return await fetch(`${AI_BASE}${path}`, { ...rest, signal: AbortSignal.timeout(timeoutMs) });
+  } catch {
+    return null;
+  }
+}
+
+export async function aiMode(): Promise<AiMode> {
+  if (!HAS_SERVER && !hosted) return 'byok';
+  try {
+    const res = await aiFetch('/api/ai/status', { timeoutMs: 6000 });
     if (res?.ok) {
       const j = (await res.json()) as { enabled?: boolean };
       if (j.enabled) return 'server';
@@ -58,17 +74,20 @@ function friendly(err: unknown): Error {
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
-  const res = await apiFetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), timeoutMs: 180_000 });
-  if (!res) throw new Error('Couldn’t reach the Ripple server.');
+  const res = await aiFetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), timeoutMs: 300_000 });
+  if (!res) throw new Error(hosted ? 'Couldn’t reach the AI service. Try again in a minute.' : 'Couldn’t reach the Ripple server.');
   const j = (await res.json().catch(() => ({}))) as T & { error?: string };
   if (!res.ok) throw new Error(j.error ?? 'The AI report failed. Try again.');
   return j;
 }
 
 const inputOf = (r: SimulationResult, district: string | null) => ({ decision: r.decision, scope: r.scope, crowdSize: r.crowdSize, mix: r.mix, district });
+/** What a request carries: the decision for the full server, or the simulation summary for the hosted service. */
+const payload = async (r: SimulationResult, district: string | null) =>
+  hosted ? { context: buildContext(r, { district: await districtFor(district) }) } : inputOf(r, district);
 
 export async function requestReport(mode: AiMode, r: SimulationResult, district: string | null, key: string | null): Promise<AiReport> {
-  if (mode === 'server') return (await post<{ report: AiReport }>('/api/ai/report', inputOf(r, district))).report;
+  if (mode === 'server') return (await post<{ report: AiReport }>('/api/ai/report', await payload(r, district))).report;
   if (!key) throw new Error('Add an API key first.');
   try {
     return await writeReport(browserGemini(key), buildContext(r, { district: await districtFor(district) }));
@@ -78,7 +97,7 @@ export async function requestReport(mode: AiMode, r: SimulationResult, district:
 }
 
 export async function requestAnswer(mode: AiMode, r: SimulationResult, district: string | null, key: string | null, history: ChatTurn[]): Promise<string> {
-  if (mode === 'server') return (await post<{ answer: string }>('/api/ai/ask', { ...inputOf(r, district), history })).answer;
+  if (mode === 'server') return (await post<{ answer: string }>('/api/ai/ask', { ...(await payload(r, district)), history })).answer;
   if (!key) throw new Error('Add an API key first.');
   try {
     return await answer(browserGemini(key), buildContext(r, { district: await districtFor(district) }), history);

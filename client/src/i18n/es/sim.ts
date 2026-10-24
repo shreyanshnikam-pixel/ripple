@@ -291,7 +291,7 @@ export default {
   'Writing…': 'Escribiendo…',
   'Write the full report': 'Escribir el informe completo',
   'Forget my key': 'Olvidar mi clave',
-  '{step}… this takes about half a minute.': '{step}… tarda como medio minuto.',
+  '{step}… this can take a minute or two when Gemini is busy.': '{step}… puede tardar uno o dos minutos si Gemini está ocupado.',
   'Report copied as Markdown': 'Informe copiado en Markdown',
   'Couldn’t copy the report': 'No se pudo copiar el informe',
   'Copy report': 'Copiar informe',

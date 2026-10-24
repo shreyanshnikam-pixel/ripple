@@ -1,0 +1,10 @@
+# Ripple's hosted AI service (see ai.ts). Deployed by .github/workflows/pages.yml.
+# The Gemini key is a Cloudflare secret (GEMINI_API_KEY), never stored in this file.
+name = "ripple-ai"
+main = "ai.ts"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[vars]
+# Set at deploy time to the GitHub Pages origin, e.g. "https://name.github.io".
+ALLOWED_ORIGINS = ""

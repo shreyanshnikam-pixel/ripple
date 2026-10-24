@@ -11,3 +11,5 @@ server/data/*.db-*
 .env
 data/ripple.db*
 *.mp4
+.dev.vars
+.wrangler/

@@ -282,7 +282,7 @@ export function AiPanel({ r, district, onFlash }: { r: SimulationResult; distric
                   <i />
                   <i />
                 </span>
-                {t('{step}… this takes about half a minute.', { step: t(WAIT[step]) })}
+                {t('{step}… this can take a minute or two when Gemini is busy.', { step: t(WAIT[step]) })}
               </motion.p>
             )}
           </AnimatePresence>

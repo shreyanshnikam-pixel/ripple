@@ -253,6 +253,53 @@ export async function answer(o: GeminiOptions, context: string, history: ChatTur
   return callGemini(askParams(context, history), o);
 }
 
+/**
+ * For the hosted AI service: accepts a context only if it is a Ripple simulation summary
+ * (the shape buildContext makes), within size limits. Returns it re-serialized, so nothing
+ * outside those fields reaches the model.
+ */
+export function checkContext(x: unknown): string {
+  const bad = () => new AiError('That doesn’t look like a Ripple simulation.', 400);
+  if (typeof x !== 'string' || x.length > 24_000) throw bad();
+  let c: Record<string, unknown>;
+  try {
+    c = JSON.parse(x) as Record<string, unknown>;
+  } catch {
+    throw bad();
+  }
+  if (!c || typeof c !== 'object' || Array.isArray(c)) throw bad();
+  const sim = c.simulated as Record<string, unknown> | undefined;
+  const ok =
+    typeof c.decision === 'string' &&
+    c.decision.trim().length >= 3 &&
+    c.decision.length <= 500 &&
+    typeof c.setting === 'string' &&
+    !!sim &&
+    typeof sim.support === 'number' &&
+    typeof sim.oppose === 'number' &&
+    Array.isArray(c.groups) &&
+    c.groups.length > 0 &&
+    c.groups.length <= 40 &&
+    Array.isArray(c.voices) &&
+    c.voices.length <= 60;
+  if (!ok) throw bad();
+  const KEYS = ['decision', 'setting', 'simulated', 'startingPoint', 'groups', 'voices', 'themes', 'testedFixes', 'overTime', 'townHallExcerpt', 'whoDecides', 'relatedBills', 'district'];
+  return JSON.stringify(Object.fromEntries(KEYS.filter((k) => k in c).map((k) => [k, c[k]])));
+}
+
+/** For the hosted AI service: a follow-up conversation, checked. */
+export function checkHistory(x: unknown): ChatTurn[] {
+  if (!Array.isArray(x) || x.length === 0 || x.length > 12) throw new AiError('Ask one question at a time (up to six in a row).', 400);
+  const turns = x.map((t) => {
+    const r = (t ?? {}) as Record<string, unknown>;
+    if ((r.role !== 'user' && r.role !== 'assistant') || typeof r.content !== 'string' || !r.content.trim() || r.content.length > 1500)
+      throw new AiError('That question couldn’t be read. Keep it under 500 characters.', 400);
+    return { role: r.role, content: r.content.trim() } as ChatTurn;
+  });
+  if (turns[0].role !== 'user' || turns[turns.length - 1].role !== 'user') throw new AiError('The conversation should start and end with a question.', 400);
+  return turns;
+}
+
 /** A report as Markdown, for copying into a doc or an email. */
 export function reportMarkdown(r: SimulationResult, rep: AiReport): string {
   const lines = [
