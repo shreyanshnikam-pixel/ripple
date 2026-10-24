@@ -59,7 +59,8 @@ jobs:
       - name: Build the static site
         env:
           VITE_API_URL: ${{ vars.RIPPLE_API_URL }}
-          VITE_AI_URL: ${{ steps.ai.outputs.url || vars.RIPPLE_AI_URL }}
+          # The hosted AI service for this site (worker/ai.ts). Its address isn't secret; the key lives on Cloudflare.
+          VITE_AI_URL: ${{ steps.ai.outputs.url || vars.RIPPLE_AI_URL || 'https://ripple-ai.shreyansh-nikam.workers.dev' }}
         run: |
           REPO="${{ github.event.repository.name }}"
           OWNER="${{ github.repository_owner }}"

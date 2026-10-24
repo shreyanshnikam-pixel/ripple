@@ -91,7 +91,9 @@ repository secret**):
 | `CLOUDFLARE_ACCOUNT_ID` | Free [Cloudflare account](https://dash.cloudflare.com/sign-up). Open **Workers & Pages** once (it asks you to pick a `workers.dev` name), then copy the **Account ID** shown there. |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare → **My Profile → API Tokens → Create Token** → template **Edit Cloudflare Workers** → Create. |
 
-Then run **Actions → Deploy to GitHub Pages → Run workflow**. The log prints the service's
+This repository's service is already live at `https://ripple-ai.shreyansh-nikam.workers.dev`,
+and the workflow points the site at it by default. To redeploy it from GitHub instead, add the secrets above and
+run **Actions → Deploy to GitHub Pages → Run workflow**. The log prints the service's
 address, and the published site uses it automatically. Without the secrets, the site still
 works and visitors can paste their own free key.
 
