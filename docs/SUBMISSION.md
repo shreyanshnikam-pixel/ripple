@@ -46,9 +46,9 @@
 
 ## The ready-made demo video
 
-`ripple-demo.mp4` (2:54, 1920×1080, 60 fps) is a captioned walkthrough of the real app: the simulator,
-fixes, the crowd and voices, your district and local decisions, a real housing law, a survey, a class, the
-Spanish version and the realism checks. To finish it:
+`ripple-demo.mp4` (2:55, 1920×1080, 60 fps) opens with a one-minute problem section (real poll examples on
+screen cards), then demos the simulator, fixes, the crowd and voices, the Gemini AI report, your district and
+local decisions, a real housing law, a survey, a class, Spanish, and the realism checks. To finish it:
 
 1. Record your voice over it with `docs/video/narration.md`, a script timed to the video: the problem, how
    Ripple fixes it, then the demo. It opens with your name and school. Free editors such as CapCut, iMovie or Clipchamp can add a voice track.

@@ -62,7 +62,22 @@ const OVERLAY = () => {
   #demo-card .rings{position:absolute;inset:0;overflow:hidden;z-index:-1}
   #demo-card .rings i{position:absolute;left:50%;top:50%;border:2px solid #a6f0da;border-radius:50%;transform:translate(-50%,-50%);
     animation:demoRing 5s cubic-bezier(.22,1,.36,1) infinite;opacity:0}
-  @keyframes demoRing{0%{width:40px;height:40px;opacity:.5}100%{width:1900px;height:1900px;opacity:0}}`;
+  @keyframes demoRing{0%{width:40px;height:40px;opacity:.5}100%{width:1900px;height:1900px;opacity:0}}
+  #demo-card .kick{font:500 20px/1 "IBM Plex Mono",monospace;letter-spacing:.2em;text-transform:uppercase;color:#a6f0da}
+  #demo-card h3{margin:0;font:340 76px/1.05 Fraunces,Georgia,serif;letter-spacing:-.02em;color:#eef0f7;max-width:1500px;font-variation-settings:'opsz' 144}
+  #demo-card h3 em{color:#a6f0da;font-style:italic}
+  #demo-card .vs{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:22px;width:1320px}
+  #demo-card .vs>div{display:grid;gap:12px;justify-items:center;padding:36px 28px;border-radius:26px;background:#121a33;border:1px solid rgba(166,240,218,.18);
+    opacity:0;transform:translateY(18px);animation:demoUp .8s cubic-bezier(.22,1,.36,1) forwards}
+  #demo-card .vs>div:nth-child(2){animation-delay:1.6s}
+  #demo-card .vs b{font:340 150px/0.9 Fraunces,Georgia,serif;color:#eef0f7;font-variation-settings:'opsz' 144}
+  #demo-card .vs .lo b{color:#f0a774}
+  #demo-card .vs span{font:400 30px/1.3 "Schibsted Grotesk",sans-serif;color:#c7cde0}
+  #demo-card .src{margin-top:14px;font:500 18px/1.3 "IBM Plex Mono",monospace;letter-spacing:.08em;color:#6b7390}
+  #demo-card .who{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:1300px}
+  #demo-card .who span{font:500 24px/1 "Schibsted Grotesk",sans-serif;color:#a6f0da;border:1px solid rgba(166,240,218,.4);border-radius:999px;padding:12px 20px}
+  #demo-card .tools{font:400 24px/1.5 "Schibsted Grotesk",sans-serif;color:#a3abc4;max-width:1300px}
+  @keyframes demoUp{to{opacity:1;transform:none}}`;
   const ready = () => {
     if (document.getElementById('demo-cursor')) return;
     const style = document.createElement('style');
@@ -106,6 +121,14 @@ const byline = [NAME, [GRADE, SCHOOL].filter(Boolean).join(', ')].filter(Boolean
 const frameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ripple-frames-'));
 const frames = [];
 const captions = [];
+/** Stretches of waiting (e.g. for Gemini) removed from the final video, in epoch seconds. */
+const cuts = [];
+let cutFrom = null;
+const startCut = () => (cutFrom = Date.now() / 1000);
+const endCut = () => {
+  if (cutFrom != null) cuts.push([cutFrom, Date.now() / 1000]);
+  cutFrom = null;
+};
 let t0 = 0;
 let page;
 let cdp;
@@ -149,7 +172,7 @@ async function point(locator) {
   }
   return prev;
 }
-async function click(locator, ms = 520) {
+async function click(locator, ms = 420) {
   await settle(); // aim only once the page has stopped moving
   let p = await point(locator);
   if (p.y < 0 || p.y > H - 150) {
@@ -247,175 +270,166 @@ async function startRecording() {
 // ───────────────────────── the walkthrough ─────────────────────────
 const nav = (label) => page.locator('.nav__links a', { hasText: label });
 
+const vs = (kick, title, hi, lo, src) =>
+  `<div class="kick">${kick}</div><h3>${title}</h3><div class="vs"><div><b>${hi[0]}</b><span>${hi[1]}</span></div><div class="lo"><b>${lo[0]}</b><span>${lo[1]}</span></div></div><div class="src">${src}</div>`;
+
 async function scenes() {
-  // 0 · Title
-  await card(`${MARK}<h1>Ripple</h1><h2>See the ripple before you decide.</h2><p>A decision simulator for civic life</p>${byline ? `<div class="by">${byline}</div>` : ''}<div class="foot">Congressional App Challenge 2026</div>`);
-  await sleep(3800);
+  // ── Minute one: the problem ──────────────────────────────────
+  await card(`${MARK}<h1>Ripple</h1><h2>See the ripple before you decide.</h2>${byline ? `<div class="by">${byline}</div>` : ''}<div class="foot">Congressional App Challenge 2026</div>`);
+  await sleep(5500);
+  await card(`<div class="kick">The problem</div><h3>Decisions land on people<br><em>who were never asked.</em></h3>`);
+  await sleep(6500);
+  await card(vs('Example 1 · School phones', 'The same idea, worded differently.', ['68%', 'support banning phones<br>during class'], ['36%', 'support banning phones<br>for the whole school day'], 'Pew Research Center, 2024 · U.S. adults'));
+  await sleep(10500);
+  await card(vs('Example 2 · Social media rules', 'It depends on <em>who</em> you ask.', ['81%', 'of adults favor parental consent<br>for teens on social media'], ['46%', 'of teens<br>agree'], 'Pew Research Center, 2023'));
+  await sleep(10500);
+  await card(vs('Example 3 · Housing', 'And on exactly what you propose.', ['65%', 'support a new apartment<br>building in their area'], ['30%', 'support zoning for<br>high-density development'], 'YouGov, 2022 · U.S. adults'));
+  await sleep(10500);
+  await card(`<div class="kick">The solution</div><h3>Ripple lets you rehearse a decision with<br><em>1,000 simulated people</em>, starting from real polls.</h3><div class="who"><span>Student councils</span><span>Teachers &amp; classes</span><span>School boards</span><span>City councils</span><span>Members of Congress</span></div><div class="tools">Built with TypeScript, React and Node.js · Coding help from Claude (AI) · Reports by Google Gemini</div>`);
+  await sleep(11000);
   await card(null);
-  await sleep(400);
+  await sleep(500);
 
-  // 1 · Hero
-  await caption('Every decision makes waves. Ripple lets you see them before you decide.', 'Ripple');
-  for (const [x, y] of [[700, 430], [1250, 560], [1450, 380]]) await moveTo(x, y, 950);
-  await sleep(300);
-
-  // 2 · The story
-  await caption('Ripple simulates 1,000 people. As you scroll, a year passes and opinions spread.', 'How it works');
-  await scrollBy(1100, 1800);
-  await settle();
-  const spreadEnd = await page.evaluate(() => {
-    const el = document.querySelector('.spread');
-    const box = el.closest('.pin-spacer') ?? el;
-    return box.getBoundingClientRect().top + box.getBoundingClientRect().height - innerHeight + 40;
-  });
-  await scrollBy(spreadEnd * 0.55, 2700);
-  await scrollBy(spreadEnd * 0.45, 2200);
-  await settle();
-  await sleep(400);
-
-  // 3 · The simulator: an unrealistic ban
+  // ── The demo ──────────────────────────────────
+  // 1 · Simulator
+  await caption('Type any decision. Ripple reads it as you type.', 'The simulator');
   await click(page.locator('.nav__cta'));
   await page.waitForSelector('#decision');
-  await caption('Type any decision. Ripple reads it as you type.', 'The simulator');
-  await sleep(300);
   await typeInto(page.locator('#decision'), 'Ban all devices at school');
-  await sleep(500);
+  await sleep(300);
   await click(page.locator('button[type=submit]', { hasText: 'Simulate reactions' }));
-  await caption('It simulates 1,000 students, teachers and families, starting from real polls.', 'Reality check');
+  await caption('1,000 students, teachers and families react, starting from a real Pew poll.', 'Reality check');
   await page.waitForSelector('#verdict .reality', { timeout: 20000 });
-  await sleep(900);
-  await scrollTo('#verdict .reality', 140, 1100);
-  await sleep(2400);
+  await sleep(700);
+  await scrollTo('#verdict .reality', 140, 750);
+  await sleep(1800);
 
-  // 4 · A better version
-  await caption('Ripple suggests a narrower version and tests it by re-running the simulation.', 'Fixes');
-  await scrollTo('#fixes', 120, 1300);
+  // 2 · Fixes
+  await caption('Ripple suggests a narrower version and re-runs the simulation.', 'Fixes');
+  await scrollTo('#fixes', 120, 850);
   const fix = page.locator('.fix', { hasText: /class/i }).first();
   await click((await fix.count()) ? fix.locator('button') : page.locator('.fix button').first());
   await page.waitForSelector('#verdict .compare', { timeout: 20000 });
   await sleep(300);
-  await scrollTo('#verdict .compare', 150, 1000);
-  await caption('Phones only during class: 68% of adults support that in a Pew Research poll.', 'Before → after');
-  await sleep(3400);
-  await caption('Share a link that reproduces the exact result, or an image card.', 'Share');
-  await click(page.locator('.subnav__share'));
-  await page.waitForSelector('.sheet__preview img', { timeout: 10000 });
-  await sleep(2800);
-  await page.keyboard.press('Escape');
-  await sleep(300);
+  await scrollTo('#verdict .compare', 150, 700);
+  await caption('Phones only during class: from strong opposition to a real debate.', 'Before → after');
+  await sleep(2400);
 
-  // 5 · Crowd, voices, town hall
-  await caption('Watch the crowd make up its mind over a year.', 'The crowd');
-  await scrollTo('#crowd', 110, 1300);
+  // 3 · Crowd, voices, town hall
+  await caption('Watch opinions spread through the crowd over a year.', 'The crowd');
+  await scrollTo('#crowd', 110, 850);
   await click(page.locator('#crowd button', { hasText: 'Play the year' }));
-  await sleep(3200);
-  await caption('Hear what each group would say, in its own words.', 'The voices');
-  await scrollTo('#voices', 110, 1200);
-  await sleep(2600);
-  await caption('…and a town hall where the voices answer each other.', 'Town hall');
-  await scrollTo('#hall', 110, 1200);
-  await sleep(2300);
+  await sleep(2400);
+  await caption('Every group explains itself, and they debate in a town hall.', 'Voices & town hall');
+  await scrollTo('#voices', 110, 750);
+  await sleep(2400);
 
-  // 6 · Your district + local decisions
+  // 4 · AI report (the wait for Gemini is cut from the video)
+  await caption('Google Gemini turns the simulation into a full written report.', 'AI report');
+  await scrollTo('#report', 110, 850);
+  const write = page.locator('#report button', { hasText: 'Write the full report' });
+  if (await write.count()) {
+    await click(write);
+    await sleep(1200);
+    startCut();
+    const done = await page
+      .waitForSelector('#report .ai-report__headline', { timeout: 180000 })
+      .then(() => true)
+      .catch(() => false);
+    endCut();
+    if (done) {
+      await sleep(300);
+      await scrollTo('#report .ai-report', 120, 700);
+      await sleep(2600);
+    }
+  }
+
+  // 5 · Your district → local decisions
   await click(nav('Your district'));
   await page.waitForSelector('#district-page-zip');
-  await caption('Enter a ZIP code. Ripple builds the crowd from your district’s real Census data.', 'Your district');
-  await sleep(300);
-  await typeInto(page.locator('#district-page-zip'), ZIP, 70);
+  await caption('Enter a ZIP code. The crowd becomes your district’s real Census population.', 'Your district');
+  await typeInto(page.locator('#district-page-zip'), ZIP, 60);
   await click(page.locator('button', { hasText: 'Find my district' }).first());
   const choice = page.locator('.district-choices .chip').first();
   await Promise.race([page.waitForSelector('.district-card', { timeout: 10000 }), choice.waitFor({ timeout: 10000 })]).catch(() => {});
   if (await choice.count()) await click(choice);
   await page.waitForSelector('.district-card');
-  await sleep(300);
-  await scrollTo('.district-card', 120, 1100);
-  await sleep(2000);
-  await caption('Then run the questions your town actually decides: parks, bond votes, school start times.', 'Local decisions');
-  await scrollTo('section[aria-labelledby="local"]', 100, 1400);
-  await sleep(1800);
+  await scrollTo('.district-card', 120, 750);
+  await sleep(1600);
+  await caption('Then run what your town actually decides: parks, bond votes, rent, school start times.', 'Local decisions');
+  await scrollTo('section[aria-labelledby="local"]', 100, 950);
+  await sleep(1100);
   await click(page.locator('.local__item', { hasText: 'Cap rent increases' }));
   await page.waitForSelector('#verdict .reality', { timeout: 20000 });
-  await caption('Housing, school safety and climate start from real polls, with your neighbors in the room.', 'Local decisions');
-  await sleep(700);
-  await scrollTo('#verdict .reality', 140, 1100);
-  await sleep(2500);
+  await sleep(500);
+  await scrollTo('#verdict .reality', 140, 750);
+  await sleep(1800);
 
-  // 7 · Real bills → Take it further
+  // 6 · Real bills → Take it further
   await click(nav('Real bills'));
   await page.waitForSelector('.bill');
-  await caption('27 real bills from Congress, updated every week from Congress.gov.', 'Real bills');
-  await sleep(500);
-  await typeInto(page.locator('.search input'), 'housing', 45);
-  await sleep(300);
+  await caption('27 real bills in Congress, updated every week from Congress.gov.', 'Real bills');
+  await typeInto(page.locator('.search input'), 'housing', 40);
   const law = page.locator('.bill', { hasText: 'ROAD to Housing' }).first();
-  await scrollTo(law, 150, 1100);
-  await caption('Read what a bill does, see how far it got, and simulate it in your own district.', 'Real bills');
-  await sleep(2000);
+  await scrollTo(law, 150, 750);
+  await sleep(1200);
   const inDistrict = law.locator('button', { hasText: /^In / });
   await click((await inDistrict.count()) ? inDistrict : law.locator('button', { hasText: 'Simulate reactions' }));
   await page.waitForSelector('#act', { timeout: 20000 });
+  await caption('Who really decides, and a letter that cites only real polls.', 'Take it further');
+  await scrollTo('#act', 100, 1050);
   await sleep(700);
-  await caption('Take it further: who decides, from Congress to your city council, and a letter that cites real polls.', 'Take it further');
-  await scrollTo('#act', 100, 1400);
-  await sleep(1300);
   const state = page.locator('.act__letter .segmented button', { hasText: 'State legislature' });
   if (await state.count()) await click(state);
-  await sleep(1900);
+  await sleep(1400);
 
-  // 8 · Listen for real
-  await caption('Ripple is a rehearsal. Send a 30-second survey to real people.', 'Listen for real');
-  await scrollTo('.listen', 160, 1200);
+  // 7 · Listen for real
+  await caption('Then ask real people: a 30-second survey with a QR code.', 'Listen for real');
+  await scrollTo('.listen', 160, 850);
   await click(page.locator('.listen button', { hasText: 'Create a survey' }));
   await page.waitForSelector('.listen .qr', { timeout: 10000 });
-  await sleep(900);
+  await sleep(600);
   const link = await page.locator('.listen input').inputValue();
   const surveyId = link.split('/survey/')[1];
   await seedSurvey(surveyId);
   await click(page.locator('.listen a', { hasText: 'Watch the results' }));
   await page.waitForSelector('.rvp', { timeout: 10000 });
-  await sleep(500);
   // The answers on screen were submitted by this script, so the caption says so.
-  await caption('Real answers appear live next to Ripple’s prediction, group by group.', 'Listen for real · demo answers');
-  await sleep(1600);
-  await scrollTo('#by-group', 160, 1100);
-  await sleep(1500);
+  await caption('Real answers appear next to Ripple’s prediction, group by group.', 'Listen for real · demo answers');
+  await sleep(1100);
+  await scrollTo('#by-group', 160, 750);
+  await sleep(1000);
 
-  // 9 · Classes
+  // 8 · Classes
   await click(nav('Projects'));
   await page.waitForSelector('#new-class');
-  await caption('Teachers can start a class. Students join with a code and a nickname, with no accounts.', 'Classes');
-  await sleep(400);
-  await typeInto(page.locator('#new-class'), 'Civics, period 3', 40);
+  await caption('Teachers start a class. Students join with a code and a nickname.', 'Classes');
+  await typeInto(page.locator('#new-class'), 'Civics, period 3', 35);
   await click(page.locator('form', { has: page.locator('#new-class') }).locator('button[type=submit]'));
   await page.waitForSelector('.proj-code__code', { timeout: 15000 });
-  await sleep(1900);
+  await sleep(1100);
   const code = (await page.locator('.proj-code__code').textContent()).trim();
   await seedClass(code, surveyId);
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForSelector('.proj-item', { timeout: 15000 });
-  await caption('Everything students simulate and survey rolls up here, with how close the predictions were.', 'Classes · demo students');
-  await sleep(500);
-  await scrollTo('#items', 110, 1200);
-  await sleep(2000);
-  await scrollTo('#students', 140, 1000);
+  await caption('Their simulations and surveys roll up for the teacher.', 'Classes · demo students');
+  await scrollTo('#items', 110, 850);
   await sleep(1600);
 
   // 10 · Spanish
   await click(page.locator('.nav__lang'));
-  await caption('Ripple also works in Spanish, including decisions typed in Spanish.', 'En español');
-  await sleep(700);
+  await caption('Ripple works in Spanish, including decisions typed in Spanish.', 'En español');
+  await sleep(500);
   await click(page.locator('.nav__cta'));
   await page.waitForSelector('#decision');
-  await sleep(300);
-  await typeInto(page.locator('#decision'), 'Limitar los aumentos anuales del alquiler al 5%', 30);
+  await typeInto(page.locator('#decision'), 'Limitar los aumentos anuales del alquiler al 5%', 26);
   await page.waitForSelector('.composer__readas', { timeout: 5000 }).catch(() => {});
-  await sleep(1400);
+  await sleep(1100);
   await click(page.locator('button[type=submit]', { hasText: 'Simular reacciones' }));
   await page.waitForSelector('#verdict .reality', { timeout: 20000 });
-  await caption('It starts from the same real poll as the English version.', 'En español');
-  await sleep(600);
-  await scrollTo('#verdict .reality', 140, 1100);
-  await sleep(2400);
+  await sleep(400);
+  await scrollTo('#verdict .reality', 140, 750);
+  await sleep(1600);
   await click(page.locator('.nav__lang'));
   await sleep(300);
 
@@ -424,16 +438,16 @@ async function scenes() {
   const run = page.locator('button', { hasText: 'Run the realism checks' });
   await run.waitFor({ timeout: 15000 });
   await caption('Every number shows its source, and Ripple checks itself against 40 real polls.', 'Methodology');
-  await scrollTo(run, 330, 1100);
+  await scrollTo(run, 330, 750);
   await click(run);
   await page.waitForSelector('.checks__row:not(.checks__row--head)', { timeout: 20000 });
-  await sleep(900);
-  await scrollBy(650, 1800);
-  await sleep(900);
+  await sleep(600);
+  await scrollBy(600, 1300);
+  await sleep(700);
   await caption('');
 
   // 12 · End card
-  await card(`${MARK}<h2 style="font-size:64px">Use it to prepare.<br>Then go listen.</h2><p>Real polls · Census districts · Real bills · Classes · English &amp; español</p>${byline ? `<div class="by">${byline}</div>` : ''}<div class="foot">Ripple · Congressional App Challenge 2026</div>`);
+  await card(`${MARK}<h2 style="font-size:64px">Use it to prepare.<br>Then go listen.</h2><p>shreyanshnikam-pixel.github.io/ripple</p>${byline ? `<div class="by">${byline}</div>` : ''}<div class="foot">Ripple · Congressional App Challenge 2026</div>`);
   await sleep(4300);
 }
 
@@ -485,19 +499,31 @@ async function main() {
   await page.mouse.move(mouse.x, mouse.y);
   await startRecording();
   await scenes();
-  const end = now();
+  let end = now();
   if (captions.length && captions[captions.length - 1].end == null) captions[captions.length - 1].end = end;
   await cdp.send('Page.stopScreencast');
   await sleep(400);
   await browser.close();
 
+  // Remove the waiting stretches, shifting everything after them earlier.
+  const cutBefore = (t) => cuts.reduce((sum, [a, b]) => sum + (t >= b ? b - a : t > a ? t - a : 0), 0);
+  const inCut = (t) => cuts.some(([a, b]) => t > a && t < b);
+  const kept = frames.filter((f) => !inCut(f.t)).map((f) => ({ ...f, t: f.t - cutBefore(f.t) }));
   // Each frame lasts until the next one arrives, so the video keeps real time.
   const list = [];
-  for (let i = 0; i < frames.length; i++) {
-    const d = i + 1 < frames.length ? Math.max(0.001, frames[i + 1].t - frames[i].t) : 0.5;
-    list.push(`file '${frames[i].file}'\nduration ${d.toFixed(4)}`);
+  for (let i = 0; i < kept.length; i++) {
+    const d = i + 1 < kept.length ? Math.max(0.001, kept[i + 1].t - kept[i].t) : 0.5;
+    list.push(`file '${kept[i].file}'\nduration ${d.toFixed(4)}`);
   }
-  list.push(`file '${frames[frames.length - 1].file}'`);
+  list.push(`file '${kept[kept.length - 1].file}'`);
+  // Captions use seconds since the start; shift them the same way.
+  const startEpoch = t0 / 1000;
+  const shift = (sec) => sec - cutBefore(startEpoch + sec);
+  for (const c of captions) {
+    c.start = shift(c.start);
+    c.end = shift(c.end);
+  }
+  end = shift(end);
   const listFile = path.join(frameDir, 'frames.txt');
   fs.writeFileSync(listFile, list.join('\n'));
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', listFile, '-vf', `fps=30,scale=${W}:${H}:flags=lanczos,format=yuv420p`, '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-movflags', '+faststart', OUT], { stdio: 'inherit' });
