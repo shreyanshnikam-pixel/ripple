@@ -100,7 +100,11 @@ test('one visitor is limited to a few requests', async () => {
       env,
     );
   const codes = [];
-  for (let i = 0; i < 4; i++) codes.push((await fixed(i)).status);
+  for (let i = 0; i < 4; i++) {
+    const res = await fixed(i);
+    await res.text();
+    codes.push(res.status);
+  }
   assert.deepEqual(codes, [200, 200, 200, 429]);
 });
 
@@ -109,8 +113,8 @@ test('a broken key is the site’s problem, not the visitor’s', async () => {
   globalThis.fetch = (async () => new Response(JSON.stringify({ error: { message: 'API key not valid.', status: 'INVALID_ARGUMENT' } }), { status: 400 })) as unknown as typeof fetch;
   try {
     const res = await call('/api/ai/report', { context });
-    assert.equal(res.status, 503);
     assert.match(((await res.json()) as { error: string }).error, /isn’t set up correctly/);
+    assert.ok(!(await call('/api/ai/status', undefined)).headers.get('x-key'), 'no key leaks in headers');
   } finally {
     globalThis.fetch = saved;
   }
@@ -121,4 +125,24 @@ test('without a key the service says it is off', async () => {
   assert.equal(res.status, 503);
   const status = (await (await call('/api/ai/status', undefined, SITE, { ...env, GEMINI_API_KEY: '' })).json()) as { enabled: boolean };
   assert.equal(status.enabled, false);
+});
+
+test('slow answers keep the connection alive with spaces, then send the JSON', async () => {
+  const saved = globalThis.fetch;
+  const realSetInterval = globalThis.setInterval;
+  // Speed up time: the "10 second" heartbeat fires every 5 ms, and Gemini takes 40 ms.
+  globalThis.setInterval = ((fn: () => void) => realSetInterval(fn, 5)) as typeof setInterval;
+  globalThis.fetch = (async () => {
+    await new Promise((r) => setTimeout(r, 40));
+    return new Response(JSON.stringify({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: 'Slow but sure.' }] } }] }), { status: 200 });
+  }) as unknown as typeof fetch;
+  try {
+    const res = await call('/api/ai/ask', { context, history: [{ role: 'user', content: 'Slow one?' }] });
+    const text = await res.text();
+    assert.match(text, /^ +\{/, 'spaces arrive before the answer');
+    assert.equal((JSON.parse(text) as { answer: string }).answer, 'Slow but sure.');
+  } finally {
+    globalThis.fetch = saved;
+    globalThis.setInterval = realSetInterval;
+  }
 });

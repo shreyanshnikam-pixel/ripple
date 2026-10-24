@@ -77,7 +77,8 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   const res = await aiFetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), timeoutMs: 300_000 });
   if (!res) throw new Error(hosted ? 'Couldn’t reach the AI service. Try again in a minute.' : 'Couldn’t reach the Ripple server.');
   const j = (await res.json().catch(() => ({}))) as T & { error?: string };
-  if (!res.ok) throw new Error(j.error ?? 'The AI report failed. Try again.');
+  // The hosted service streams its answer, so a failure can arrive with status 200 and an { error }.
+  if (!res.ok || j.error) throw new Error(j.error ?? 'The AI report failed. Try again.');
   return j;
 }
 

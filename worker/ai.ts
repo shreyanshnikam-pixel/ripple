@@ -56,6 +56,43 @@ function json(body: unknown, status: number, origin: string | null): Response {
   return new Response(JSON.stringify(body), { status, headers });
 }
 
+/** What a visitor sees when the AI fails: key problems are the site's, not theirs. */
+function failure(err: unknown): { error: string } {
+  if (err instanceof AiError) return { error: err.status === 401 ? 'The AI report isn’t set up correctly on this site.' : err.message };
+  console.error(err);
+  return { error: 'The AI report failed. Try again in a moment.' };
+}
+
+/**
+ * Gemini's free tier can take a minute or two, and some networks (school Wi-Fi filters, proxies)
+ * drop a connection that stays silent that long. So the answer streams: a space every 10 seconds
+ * while Gemini works (JSON allows leading spaces), then the JSON itself. Errors arrive as { error }.
+ */
+function keepAlive(origin: string | null, work: () => Promise<unknown>): Response {
+  const enc = new TextEncoder();
+  const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
+  const w = writable.getWriter();
+  const tick = setInterval(() => void w.write(enc.encode(' ')).catch(() => {}), 10_000);
+  void (async () => {
+    let out: unknown;
+    try {
+      out = await work();
+    } catch (err) {
+      out = failure(err);
+    }
+    clearInterval(tick);
+    try {
+      await w.write(enc.encode(JSON.stringify(out)));
+      await w.close();
+    } catch {
+      /* the visitor left */
+    }
+  })();
+  const headers: Record<string, string> = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' };
+  if (origin) Object.assign(headers, { 'access-control-allow-origin': origin, vary: 'Origin' });
+  return new Response(readable, { status: 200, headers });
+}
+
 export async function handle(req: Request, env: Env): Promise<Response> {
   const origin = allowedOrigin(req.headers.get('origin'), env);
   const path = new URL(req.url).pathname.replace(/\/+$/, '');
@@ -84,16 +121,10 @@ export async function handle(req: Request, env: Env): Promise<Response> {
     const why = limited(req.headers.get('cf-connecting-ip') ?? 'anon', env);
     if (why) return json({ error: why }, 429, origin);
     const gemini: GeminiOptions = { key, models: models.length ? models : AI_MODELS, timeoutMs: 60_000 };
-    if (history) return json({ answer: await answer(gemini, context, history) }, 200, origin);
-    return json({ report: await writeReport(gemini, context) }, 200, origin);
+    return keepAlive(origin, async () => (history ? { answer: await answer(gemini, context, history) } : { report: await writeReport(gemini, context) }));
   } catch (err) {
-    if (err instanceof AiError) {
-      // A key problem is the site's, not the visitor's.
-      if (err.status === 401) return json({ error: 'The AI report isn’t set up correctly on this site.' }, 503, origin);
-      return json({ error: err.message }, err.status, origin);
-    }
-    console.error(err);
-    return json({ error: 'The AI report failed. Try again in a moment.' }, 500, origin);
+    // Problems found before any work starts (a bad request) keep their HTTP status.
+    return json(failure(err), err instanceof AiError ? (err.status === 401 ? 503 : err.status) : 500, origin);
   }
 }
 
